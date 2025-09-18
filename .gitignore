@@ -1,0 +1,30 @@
+# Database credentials (if you want to keep them private)
+# settings/db_cred.php
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# PHP session files
+sess_*
+
+# Composer (if you add it later)
+vendor/
+composer.lock
+
+# Node modules (if you add them later)
+node_modules/
+package-lock.json
