@@ -53,6 +53,43 @@ class Customer extends db_connection
         return $res ? $res->fetch_assoc() : null;
     }
 
+    /**
+     * Authenticate customer login
+     * Returns array with status and user data or error message
+     */
+    public function login_customer(string $email, string $password): array
+    {
+        // Get customer by email
+        $customer = $this->get_customer_by_email($email);
+        
+        if (!$customer) {
+            return [
+                'status' => 'error',
+                'message' => 'Invalid email or password.'
+            ];
+        }
+
+        // Verify password
+        if (!password_verify($password, $customer['customer_pass'])) {
+            return [
+                'status' => 'error',
+                'message' => 'Invalid email or password.'
+            ];
+        }
+
+        // Return success with user data
+        return [
+            'status' => 'success',
+            'message' => 'Login successful',
+            'user_id' => $customer['customer_id'],
+            'user_name' => $customer['customer_name'],
+            'user_email' => $customer['customer_email'],
+            'user_role' => $customer['user_role'],
+            'user_country' => $customer['customer_country'],
+            'user_city' => $customer['customer_city']
+        ];
+    }
+
     /** Optional: edit customer */
     public function edit_customer(int $id, array $fields): bool
     {

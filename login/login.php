@@ -126,10 +126,12 @@
                         <h4>Login</h4>
                     </div>
                     <div class="card-body">
-                        <!-- Alert Messages (To be handled by backend) -->
-                        <!-- Example:
-                        <div class="alert alert-info text-center">Login successful!</div>
-                        -->
+                        <!-- Alert Messages -->
+                        <?php if (isset($_GET['message']) && $_GET['message'] === 'logout_success'): ?>
+                        <div class="alert alert-success text-center animate__animated animate__fadeIn">
+                            <i class="fa fa-check-circle"></i> You have been successfully logged out!
+                        </div>
+                        <?php endif; ?>
 
                         <form method="POST" action="" class="mt-4" id="login-form">
                             <div class="mb-3">

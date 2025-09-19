@@ -20,3 +20,8 @@ function get_customer_by_email_ctr(string $email) {
     $c = new Customer();
     return $c->get_customer_by_email($email);
 }
+
+function login_customer_ctr(array $args) {
+    $c = new Customer();
+    return $c->login_customer($args['email'], $args['password']);
+}
