@@ -55,6 +55,23 @@ session_start();
 			letter-spacing: 0.5px;
 		}
 		
+		/* Logout button styling */
+		.btn-outline-danger {
+			border-color: #dc3545;
+			color: #dc3545;
+			font-weight: 500;
+			padding: 0.375rem 0.75rem;
+			font-size: 0.875rem;
+		}
+		.btn-outline-danger:hover {
+			background-color: #dc3545;
+			border-color: #dc3545;
+			color: white;
+		}
+		.btn-outline-danger:focus {
+			box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.5);
+		}
+		
 		/* Main content styling */
 		.btn-custom {
 			background-color: #D19C97;
@@ -171,10 +188,10 @@ session_start();
 								<i class="fa fa-shopping-cart"></i> Cart <span class="badge bg-primary">0</span>
 							</a>
 						</li>
-						<!-- Add a separate logout button for easier access -->
+						<!-- User-friendly logout button -->
 						<li class="nav-item">
-							<a class="nav-link text-danger" href="login/logout.php" title="Logout">
-								<i class="fa fa-sign-out-alt"></i>
+							<a class="btn btn-outline-danger btn-sm ms-2" href="login/logout.php" style="margin-top: 2px;">
+								<i class="fa fa-sign-out-alt"></i> Logout
 							</a>
 						</li>
 					<?php else: ?>
