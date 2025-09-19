@@ -33,6 +33,28 @@ session_start();
 			box-shadow: none;
 		}
 		
+		/* Dropdown styling */
+		.dropdown-menu {
+			border: none;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			border-radius: 8px;
+		}
+		.dropdown-item {
+			padding: 0.5rem 1rem;
+			transition: background-color 0.2s;
+		}
+		.dropdown-item:hover {
+			background-color: #f8f9fa;
+			color: #D19C97;
+		}
+		.dropdown-header {
+			font-size: 0.75rem;
+			font-weight: 600;
+			color: #6c757d;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		
 		/* Main content styling */
 		.btn-custom {
 			background-color: #D19C97;
@@ -118,7 +140,7 @@ session_start();
 					<?php if (isset($_SESSION['user_id'])): ?>
 						<!-- User is logged in -->
 						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+							<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 								<i class="fa fa-user-circle"></i> 
 								<?php echo htmlspecialchars($_SESSION['user_name']); ?>
 								<?php if ($_SESSION['user_role'] == 1): ?>
@@ -127,7 +149,7 @@ session_start();
 									<span class="badge bg-info ms-1"><i class="fa fa-user"></i> Customer</span>
 								<?php endif; ?>
 							</a>
-							<ul class="dropdown-menu dropdown-menu-end">
+							<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
 								<li><h6 class="dropdown-header">My Account</h6></li>
 								<li><a class="dropdown-item" href="#"><i class="fa fa-user"></i> Profile</a></li>
 								<li><a class="dropdown-item" href="#"><i class="fa fa-shopping-bag"></i> My Orders</a></li>
@@ -147,6 +169,12 @@ session_start();
 						<li class="nav-item">
 							<a class="nav-link" href="#">
 								<i class="fa fa-shopping-cart"></i> Cart <span class="badge bg-primary">0</span>
+							</a>
+						</li>
+						<!-- Add a separate logout button for easier access -->
+						<li class="nav-item">
+							<a class="nav-link text-danger" href="login/logout.php" title="Logout">
+								<i class="fa fa-sign-out-alt"></i>
 							</a>
 						</li>
 					<?php else: ?>
@@ -303,5 +331,24 @@ session_start();
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script>
+		// Ensure Bootstrap dropdowns work properly
+		document.addEventListener('DOMContentLoaded', function() {
+			// Initialize all dropdowns
+			var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+			var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+				return new bootstrap.Dropdown(dropdownToggleEl);
+			});
+			
+			// Add click handler for dropdown toggle
+			document.getElementById('userDropdown')?.addEventListener('click', function(e) {
+				e.preventDefault();
+				var dropdown = bootstrap.Dropdown.getInstance(this);
+				if (dropdown) {
+					dropdown.toggle();
+				}
+			});
+		});
+	</script>
 </body>
 </html>
