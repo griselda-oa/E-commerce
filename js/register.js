@@ -9,7 +9,6 @@ $(document).ready(function() {
         phone_number = $('#phone_number').val();
         country = $('#country').val();
         city = $('#city').val();
-        role = $('input[name="role"]:checked').val();
 
         if (name == '' || email == '' || password == '' || confirm_password == '' || phone_number == '' || country == '' || city == '') {
             Swal.fire({
@@ -27,18 +26,39 @@ $(document).ready(function() {
             });
 
             return;
-        } else if (password.length < 6 || !password.match(/[a-z]/) || !password.match(/[A-Z]/) || !password.match(/[0-9]/)) {
+        } else if (password.length < 8 || !password.match(/[a-z]/) || !password.match(/[A-Z]/) || !password.match(/[0-9]/)) {
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
-                text: 'Password must be at least 6 characters long and contain at least one lowercase letter, one uppercase letter, and one number!',
+                text: 'Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, and one number!',
             });
 
             return;
         }
 
+        // Simple E.164-ish phone validation: allows + and digits, 8-15 length
+        const phoneClean = phone_number.replace(/\s|-/g, '');
+        const phoneOk = /^\+?[1-9]\d{7,14}$/.test(phoneClean);
+        if (!phoneOk) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid phone number',
+                text: 'Enter a valid international phone like +233501234567',
+            });
+            return;
+        }
+
+        if (!country) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Select country',
+                text: 'Please select your country from the list.',
+            });
+            return;
+        }
+
         $.ajax({
-            url: '../actions/register_customer_action.php',
+            url: '../actions/register_user_action.php',
             type: 'POST',
             data: {
                 name: name,
@@ -47,8 +67,7 @@ $(document).ready(function() {
                 confirm_password: confirm_password,
                 phone_number: phone_number,
                 country: country,
-                city: city,
-                role: role
+                city: city
             },
             success: function(response) {
                 if (response.status === 'success') {

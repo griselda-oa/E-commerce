@@ -147,6 +147,10 @@
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password <i class="fa fa-lock"></i></label>
                                 <input type="password" class="form-control animate__animated animate__fadeInUp" id="password" name="password" required>
+                                <div class="form-text" id="passwordHelp">At least 8 chars with upper, lower, number.</div>
+                                <div class="progress mt-2" style="height: 6px;">
+                                    <div id="pw-strength" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="phone_number" class="form-label">Phone Number <i class="fa fa-phone"></i></label>
@@ -158,24 +162,24 @@
                             </div>
                             <div class="mb-3">
                                 <label for="country" class="form-label">Country <i class="fa fa-globe"></i></label>
-                                <input type="text" class="form-control animate__animated animate__fadeInUp" id="country" name="country" required>
+                                <select class="form-select animate__animated animate__fadeInUp" id="country" name="country" required>
+                                    <option value="" selected disabled>Choose your country</option>
+                                    <option value="Ghana">Ghana</option>
+                                    <option value="Nigeria">Nigeria</option>
+                                    <option value="Kenya">Kenya</option>
+                                    <option value="South Africa">South Africa</option>
+                                    <option value="United Kingdom">United Kingdom</option>
+                                    <option value="United States">United States</option>
+                                    <option value="Canada">Canada</option>
+                                </select>
                             </div>
                             <div class="mb-3">
                                 <label for="city" class="form-label">City <i class="fa fa-map-marker-alt"></i></label>
                                 <input type="text" class="form-control animate__animated animate__fadeInUp" id="city" name="city" required>
                             </div>
-                            <div class="mb-4">
-                                <label class="form-label">Register As</label>
-                                <div class="d-flex justify-content-start">
-                                    <div class="form-check me-3 custom-radio">
-                                        <input class="form-check-input" type="radio" name="role" id="customer" value="2" checked>
-                                        <label class="form-check-label" for="customer">Customer</label>
-                                    </div>
-                                    <div class="form-check custom-radio">
-                                        <input class="form-check-input" type="radio" name="role" id="owner" value="1">
-                                        <label class="form-check-label" for="owner">Restaurant Owner</label>
-                                    </div>
-                                </div>
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" value="1" id="terms" required>
+                                <label class="form-check-label" for="terms">I agree to the terms and conditions</label>
                             </div>
                             <button type="submit" class="btn btn-custom w-100 animate-pulse-custom">Register</button>
                         </form>
