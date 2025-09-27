@@ -9,11 +9,7 @@ ini_set('display_errors', 1);
 
 require_once __DIR__ . '/../controllers/customer_controller.php';
 
-// Check if already logged in
-if (isset($_SESSION['user_id'])) {
-    echo json_encode(['status' => 'error', 'message' => 'You are already logged in.']);
-    exit;
-}
+// Note: Already logged in check is handled in login.php
 
 // Collect inputs
 $email = trim($_POST['email'] ?? '');
