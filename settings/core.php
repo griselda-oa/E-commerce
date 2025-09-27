@@ -1,4 +1,3 @@
-// Settings/core.php
 <?php
 session_start();
 

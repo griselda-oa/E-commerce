@@ -277,15 +277,9 @@ class CategoryManager {
             return false;
         }
 
-        // Check for duplicate names (excluding current edit)
-        const existingNames = this.categories
-            .filter(cat => cat.cat_id !== this.currentEditId)
-            .map(cat => cat.cat_name.toLowerCase());
-        
-        if (existingNames.includes(name.toLowerCase())) {
-            this.showAlert('error', 'Category name already exists');
-            return false;
-        }
+        // Note: Duplicate checking is now handled server-side
+        // We removed client-side duplicate checking to avoid issues
+        // when categories haven't been loaded yet
 
         return true;
     }
