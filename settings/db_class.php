@@ -14,6 +14,9 @@ if (!class_exists('db_connection')) {
          */
         public function __construct()
         {
+            // Set connection timeout to 10 seconds
+            ini_set('default_socket_timeout', 10);
+            
             // use defined constants (with PORT)
             $this->db = @new mysqli(SERVER, USERNAME, PASSWORD, DATABASE, PORT);
 
@@ -21,6 +24,10 @@ if (!class_exists('db_connection')) {
                 die("DB connection failed ({$this->db->connect_errno}): {$this->db->connect_error}");
             }
 
+            // Set query timeout
+            $this->db->options(MYSQLI_OPT_CONNECT_TIMEOUT, 10);
+            $this->db->options(MYSQLI_OPT_READ_TIMEOUT, 10);
+            
             // enforce utf8mb4 for safety
             $this->db->set_charset('utf8mb4');
         }

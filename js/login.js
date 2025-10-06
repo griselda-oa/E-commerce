@@ -36,14 +36,19 @@ $(document).ready(function() {
         }
 
         // Show loading state
-        const submitBtn = $(this).find('button[type="submit"]');
-        const originalText = submitBtn.text();
-        submitBtn.prop('disabled', true).text('Logging in...');
+        const submitBtn = $('#login-btn');
+        const btnText = submitBtn.find('.btn-text');
+        const btnLoading = submitBtn.find('.btn-loading');
+        
+        submitBtn.prop('disabled', true);
+        btnText.hide();
+        btnLoading.show();
 
-        // AJAX request
+        // AJAX request with timeout
         $.ajax({
             url: '../actions/login_customer_action.php',
             type: 'POST',
+            timeout: 15000, // 15 second timeout
             data: {
                 email: email,
                 password: password
@@ -74,6 +79,11 @@ $(document).ready(function() {
                 
                 let errorMessage = 'An error occurred during login. Please try again.';
                 
+                // Handle timeout specifically
+                if (status === 'timeout') {
+                    errorMessage = 'Login timed out. The server is taking too long to respond. Please try again.';
+                }
+                
                 // Try to parse error response
                 try {
                     const response = JSON.parse(xhr.responseText);
@@ -92,7 +102,9 @@ $(document).ready(function() {
             },
             complete: function() {
                 // Restore button state
-                submitBtn.prop('disabled', false).text(originalText);
+                submitBtn.prop('disabled', false);
+                btnText.show();
+                btnLoading.hide();
             }
         });
     });

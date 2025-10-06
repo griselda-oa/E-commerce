@@ -94,3 +94,8 @@ Here are some example categories that would work well for a general e-commerce p
 
 Your platform is now a complete, professional e-commerce store ready for the assignment!
 
+
+
+
+
+

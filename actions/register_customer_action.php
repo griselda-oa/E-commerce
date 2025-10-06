@@ -38,12 +38,12 @@ if (!filter_var($fields['email'], FILTER_VALIDATE_EMAIL) || mb_strlen($fields['e
 }
 $pw = $fields['password'];
 if (
-    strlen($pw) < 6 ||
+    strlen($pw) < 8 ||
     !preg_match('/[a-z]/', $pw) ||
     !preg_match('/[A-Z]/', $pw) ||
     !preg_match('/[0-9]/', $pw)
 ) {
-    $errors[] = 'Password must be ≥6 chars and include a-z, A-Z, and a number.';
+    $errors[] = 'Password must be ≥8 chars and include a-z, A-Z, and a number.';
 }
 if ($fields['password'] !== $fields['confirm_password']) {
     $errors[] = 'Passwords do not match.';

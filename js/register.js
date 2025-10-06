@@ -57,8 +57,17 @@ $(document).ready(function() {
             return;
         }
 
+        // Show loading state
+        const submitBtn = $('#register-btn');
+        const btnText = submitBtn.find('.btn-text');
+        const btnLoading = submitBtn.find('.btn-loading');
+        
+        submitBtn.prop('disabled', true);
+        btnText.hide();
+        btnLoading.show();
+
         $.ajax({
-            url: '../actions/register_user_action.php',
+            url: '../actions/register_customer_action.php',
             type: 'POST',
             data: {
                 name: name,
@@ -110,6 +119,12 @@ $(document).ready(function() {
                     title: 'Oops...',
                     text: errorMessage,
                 });
+            },
+            complete: function() {
+                // Restore button state
+                submitBtn.prop('disabled', false);
+                btnText.show();
+                btnLoading.hide();
             }
         });
     });

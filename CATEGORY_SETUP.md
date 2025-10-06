@@ -158,3 +158,8 @@ register_sample/
 - All operations use AJAX for better user experience
 - The interface is fully responsive and mobile-friendly
 
+
+
+
+
+
