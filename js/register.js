@@ -77,6 +77,7 @@ $(document).ready(function() {
                 confirm_password: confirm_password,
                 phone_number: phone_number,
                 country: country,
+                
                 city: city
             },
             success: function(response) {

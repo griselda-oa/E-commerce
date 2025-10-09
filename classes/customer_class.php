@@ -1,6 +1,6 @@
 <?php
 // classes/customer_class.php
-require_once __DIR__ . '/../settings/db_class.php';
+require_once '../settings/db_class.php';
 
 class Customer extends db_connection
 {
@@ -13,7 +13,7 @@ class Customer extends db_connection
      */
     public function add_customer(string $name, string $email, string $hashed_pass,
                                  string $country, string $city, string $contact,
-                                 int $role = 2, ?string $image = null)
+                                 int $role = 2, string $image = null)
     {
         $sql = "INSERT INTO customer (
                     customer_name, customer_email, customer_pass,
