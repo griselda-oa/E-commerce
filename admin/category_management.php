@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     
     switch ($_POST['action']) {
         case 'fetch':
-            $result = $categoryController->get_categories_ctr(get_user_id());
+            $result = $categoryController->get_categories_ctr();
             echo json_encode([
                 'success' => $result['success'],
                 'data' => $result['data'] ?? [],
@@ -36,8 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 break;
             }
             $result = $categoryController->add_category_ctr([
-                'category_name' => $category_name,
-                'user_id' => get_user_id()
+                'category_name' => $category_name
             ]);
             echo json_encode($result);
             break;
@@ -51,8 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
             $result = $categoryController->update_category_ctr([
                 'category_id' => $category_id,
-                'category_name' => $category_name,
-                'user_id' => get_user_id()
+                'category_name' => $category_name
             ]);
             echo json_encode($result);
             break;
@@ -63,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 echo json_encode(['success' => false, 'message' => 'Invalid category ID']);
                 break;
             }
-            $result = $categoryController->delete_category_ctr($category_id, get_user_id());
+            $result = $categoryController->delete_category_ctr($category_id);
             echo json_encode($result);
             break;
             

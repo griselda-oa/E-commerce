@@ -27,14 +27,14 @@ class Category extends db_connection {
             }
             
             // Insert new category
-            $sql = "INSERT INTO categories (cat_name, user_id) VALUES (?, ?)";
+            $sql = "INSERT INTO categories (cat_name) VALUES (?)";
             $stmt = $this->db->prepare($sql);
             
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
             
-            $stmt->bind_param('si', $category_name, $args['user_id']);
+            $stmt->bind_param('s', $category_name);
             
             if ($stmt->execute()) {
                 return array('success' => true, 'message' => 'Category added successfully', 'id' => $this->db->insert_id);
@@ -48,20 +48,18 @@ class Category extends db_connection {
     }
     
     /**
-     * Get all categories created by a specific user
-     * @param int $user_id - User ID
+     * Get all categories
      * @return array - Categories data
      */
-    public function getCategoriesByUser($user_id) {
+    public function getCategoriesByUser($user_id = null) {
         try {
-            $sql = "SELECT * FROM categories WHERE user_id = ? ORDER BY cat_id DESC";
+            $sql = "SELECT * FROM categories ORDER BY cat_id DESC";
             $stmt = $this->db->prepare($sql);
             
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
             
-            $stmt->bind_param('i', $user_id);
             $stmt->execute();
             $result = $stmt->get_result();
             
@@ -80,19 +78,19 @@ class Category extends db_connection {
     /**
      * Get a specific category by ID
      * @param int $category_id - Category ID
-     * @param int $user_id - User ID (for security)
+     * @param int $user_id - User ID (for security) - not used anymore
      * @return array - Category data
      */
-    public function getCategoryById($category_id, $user_id) {
+    public function getCategoryById($category_id, $user_id = null) {
         try {
-            $sql = "SELECT * FROM categories WHERE cat_id = ? AND user_id = ?";
+            $sql = "SELECT * FROM categories WHERE cat_id = ?";
             $stmt = $this->db->prepare($sql);
             
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
             
-            $stmt->bind_param('ii', $category_id, $user_id);
+            $stmt->bind_param('i', $category_id);
             $stmt->execute();
             $result = $stmt->get_result();
             
@@ -116,15 +114,14 @@ class Category extends db_connection {
         try {
             $category_id = $args['category_id'];
             $category_name = trim($args['category_name']);
-            $user_id = $args['user_id'];
             
             // Validate input
             if (empty($category_name)) {
                 return array('success' => false, 'message' => 'Category name is required');
             }
             
-            // Check if category exists and belongs to user
-            $category = $this->getCategoryById($category_id, $user_id);
+            // Check if category exists
+            $category = $this->getCategoryById($category_id);
             if (!$category['success']) {
                 return $category;
             }
@@ -135,14 +132,14 @@ class Category extends db_connection {
             }
             
             // Update category
-            $sql = "UPDATE categories SET cat_name = ? WHERE cat_id = ? AND user_id = ?";
+            $sql = "UPDATE categories SET cat_name = ? WHERE cat_id = ?";
             $stmt = $this->db->prepare($sql);
             
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
             
-            $stmt->bind_param('sii', $category_name, $category_id, $user_id);
+            $stmt->bind_param('si', $category_name, $category_id);
             
             if ($stmt->execute()) {
                 if ($stmt->affected_rows > 0) {
@@ -162,26 +159,26 @@ class Category extends db_connection {
     /**
      * Delete a category
      * @param int $category_id - Category ID
-     * @param int $user_id - User ID (for security)
+     * @param int $user_id - User ID (for security) - not used anymore
      * @return array - Success/failure response
      */
-    public function delete($category_id, $user_id) {
+    public function delete($category_id, $user_id = null) {
         try {
-            // Check if category exists and belongs to user
-            $category = $this->getCategoryById($category_id, $user_id);
+            // Check if category exists
+            $category = $this->getCategoryById($category_id);
             if (!$category['success']) {
                 return $category;
             }
             
             // Delete category
-            $sql = "DELETE FROM categories WHERE cat_id = ? AND user_id = ?";
+            $sql = "DELETE FROM categories WHERE cat_id = ?";
             $stmt = $this->db->prepare($sql);
             
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
             
-            $stmt->bind_param('ii', $category_id, $user_id);
+            $stmt->bind_param('i', $category_id);
             
             if ($stmt->execute()) {
                 if ($stmt->affected_rows > 0) {
@@ -228,15 +225,14 @@ class Category extends db_connection {
     }
     
     /**
-     * Get total count of categories for a user
-     * @param int $user_id - User ID
+     * Get total count of categories
+     * @param int $user_id - User ID (not used anymore)
      * @return int - Count of categories
      */
-    public function getCategoryCount($user_id) {
+    public function getCategoryCount($user_id = null) {
         try {
-            $sql = "SELECT COUNT(*) as count FROM categories WHERE user_id = ?";
+            $sql = "SELECT COUNT(*) as count FROM categories";
             $stmt = $this->db->prepare($sql);
-            $stmt->bind_param('i', $user_id);
             $stmt->execute();
             $result = $stmt->get_result();
             $row = $result->fetch_assoc();
