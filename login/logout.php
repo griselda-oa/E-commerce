@@ -1,6 +1,9 @@
 <?php
 // login/logout.php
-session_start();
+require_once '../settings/core.php';
+
+// Clear user session data
+clear_user_session();
 
 // Destroy all session data
 session_unset();

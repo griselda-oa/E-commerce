@@ -1,12 +1,12 @@
 <?php
 // actions/login_customer_action.php
 header('Content-Type: application/json');
-session_start();
 
 // Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+require_once __DIR__ . '/../settings/core.php';
 require_once __DIR__ . '/../controllers/customer_controller.php';
 
 // Note: Already logged in check is handled in login.php
@@ -38,16 +38,14 @@ $login_result = login_customer_ctr([
 ]);
 
 if ($login_result['status'] === 'success') {
-    // Set session variables
-    $_SESSION['user_id'] = $login_result['user_id'];
-    $_SESSION['user_role'] = $login_result['user_role'];
-    $_SESSION['user_name'] = $login_result['user_name'];
-    $_SESSION['user_email'] = $login_result['user_email'];
+    // Set session variables using core.php function
+    set_user_session($login_result);
     
     echo json_encode([
         'status' => 'success',
         'message' => 'Login successful!',
         'user_role' => $login_result['user_role'],
+        'is_admin' => $login_result['is_admin'] ?? 0,
         'redirect' => '../index.php'
     ]);
 } else {

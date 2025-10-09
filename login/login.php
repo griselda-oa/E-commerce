@@ -1,7 +1,7 @@
 <?php
 // Check if user is already logged in
-session_start();
-if (isset($_SESSION['user_id'])) {
+require_once '../settings/core.php';
+if (is_logged_in()) {
     header('Location: ../index.php');
     exit();
 }
@@ -25,12 +25,42 @@ if (isset($_SESSION['user_id'])) {
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: 
+                linear-gradient(135deg, rgba(79, 70, 229, 0.8) 0%, rgba(6, 182, 212, 0.8) 100%),
+                url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(79, 70, 229, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite;
+            z-index: -1;
+        }
+        
+        @keyframes backgroundShift {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            25% { transform: translateX(-20px) translateY(-10px); }
+            50% { transform: translateX(20px) translateY(10px); }
+            75% { transform: translateX(-10px) translateY(20px); }
         }
 
         .login-container {
@@ -39,16 +69,22 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
         }
 
         .login-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
             color: white;
             padding: 40px 30px;
             text-align: center;
@@ -109,8 +145,8 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
             background: white;
         }
 
@@ -119,7 +155,7 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
             border: none;
             border-radius: 12px;
             padding: 15px;
@@ -134,7 +170,7 @@ if (isset($_SESSION['user_id'])) {
 
         .btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
         }
 
         .btn-login:active {
@@ -149,19 +185,52 @@ if (isset($_SESSION['user_id'])) {
 
         .login-footer {
             text-align: center;
-            padding: 20px 30px 30px;
-            background: #f8fafc;
+            padding: 25px 30px 30px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-top: 1px solid rgba(79, 70, 229, 0.1);
+        }
+
+        .login-footer p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
         }
 
         .login-footer a {
-            color: #667eea;
+            color: #4f46e5;
             text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
+            font-weight: 600;
+            padding: 10px 20px;
+            border: 2px solid #4f46e5;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            background: rgba(79, 70, 229, 0.05);
         }
 
         .login-footer a:hover {
-            color: #764ba2;
+            color: white;
+            background: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid #4f46e5;
+            color: #4f46e5;
+            background: transparent;
+            font-weight: 600;
+            padding: 12px 30px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            background: #4f46e5;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
         }
 
         .alert {
@@ -262,11 +331,16 @@ if (isset($_SESSION['user_id'])) {
                         </span>
                     </button>
                 </form>
+                
+                <!-- Quick Register Link -->
+                <div class="text-center mt-4">
+                    <p class="text-muted mb-3">Don't have an account?</p>
+                    <a href="register.php" class="btn btn-outline-primary btn-lg">
+                        <i class="fa fa-user-plus"></i> Create Account
+                    </a>
+                </div>
             </div>
             
-            <div class="login-footer">
-                Don't have an account? <a href="register.php">Create one here</a>
-            </div>
         </div>
     </div>
 

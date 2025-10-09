@@ -6,7 +6,8 @@ $(document).ready(function() {
         email = $('#email').val();
         password = $('#password').val();
         confirm_password = $('#confirm_password').val();
-        phone_number = $('#phone_number').val();
+        const countryCode = $('#country-code').text();
+        phone_number = countryCode + $('#phone_number').val();
         country = $('#country').val();
         city = $('#city').val();
 

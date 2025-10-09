@@ -1,25 +1,17 @@
 <?php
-// Database credentials
-// settings/db_cred.php
+// db_cred.php — XAMPP defaults; change DB_NAME if your schema name differs.
 
-if (!defined("SERVER")) {
-    // Use the server IP for database connection
-    define("SERVER", "169.239.251.102");
-}
+// Host/port
+define('DB_HOST', '127.0.0.1');
+define('DB_PORT', 3307);
 
-if (!defined("USERNAME")) {
-    define("USERNAME", "griselda.owusu");
-}
+// Database schema name (the name you imported dbforlab.sql INTO)
+// If you created it as "shoppn", leave this. If you used another name, update it here.
+define('DB_NAME', 'shoppn');
 
-if (!defined("PASSWORD")) {   // standardize name to PASSWORD
-    define("PASSWORD", "Jytc1101$");
-}
+// Credentials (XAMPP defaults)
+define('DB_USER', 'root');
+define('DB_PASS', '');
 
-if (!defined("DATABASE")) {
-    define("DATABASE", "ecommerce_2025A_griselda_owusu");
-}
-
-if (!defined("PORT")) {
-    define("PORT", 3307);   // standard MySQL port
-}
-?>
+// Charset
+define('DB_CHARSET', 'utf8mb4');

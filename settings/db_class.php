@@ -18,7 +18,7 @@ if (!class_exists('db_connection')) {
             ini_set('default_socket_timeout', 10);
             
             // use defined constants (with PORT)
-            $this->db = @new mysqli(SERVER, USERNAME, PASSWORD, DATABASE, PORT);
+            $this->db = @new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
 
             if ($this->db->connect_errno) {
                 die("DB connection failed ({$this->db->connect_errno}): {$this->db->connect_error}");

@@ -85,6 +85,7 @@ class Customer extends db_connection
             'user_name' => $customer['customer_name'],
             'user_email' => $customer['customer_email'],
             'user_role' => $customer['user_role'],
+            'is_admin' => $customer['is_admin'] ?? 0,
             'user_country' => $customer['customer_country'],
             'user_city' => $customer['customer_city']
         ];

@@ -25,32 +25,68 @@ if (isset($_SESSION['user_id'])) {
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: 
+                linear-gradient(135deg, rgba(79, 70, 229, 0.8) 0%, rgba(6, 182, 212, 0.8) 100%),
+                url('https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
         }
-
+        
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(79, 70, 229, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite;
+            z-index: -1;
+        }
+        
+        @keyframes backgroundShift {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            25% { transform: translateX(-20px) translateY(-10px); }
+            50% { transform: translateX(20px) translateY(10px); }
+            75% { transform: translateX(-10px) translateY(20px); }
+        }
+        
         .register-container {
             width: 100%;
             max-width: 500px;
         }
 
         .register-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .register-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
         }
 
         .register-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
             color: white;
-            padding: 40px 30px;
+            padding: 25px 30px;
             text-align: center;
             position: relative;
         }
@@ -82,11 +118,11 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .register-body {
-            padding: 40px 30px;
+            padding: 25px 30px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             position: relative;
         }
 
@@ -101,16 +137,16 @@ if (isset($_SESSION['user_id'])) {
 
         .form-control, .form-select {
             border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 15px 20px;
-            font-size: 1rem;
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 0.95rem;
             transition: all 0.3s ease;
             background: #f9fafb;
         }
 
         .form-control:focus, .form-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
             background: white;
         }
 
@@ -119,10 +155,10 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .btn-register {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
             border: none;
-            border-radius: 12px;
-            padding: 15px;
+            border-radius: 10px;
+            padding: 12px;
             font-size: 1rem;
             font-weight: 600;
             color: white;
@@ -134,7 +170,7 @@ if (isset($_SESSION['user_id'])) {
 
         .btn-register:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
         }
 
         .btn-register:active {
@@ -149,23 +185,56 @@ if (isset($_SESSION['user_id'])) {
 
         .register-footer {
             text-align: center;
-            padding: 20px 30px 30px;
-            background: #f8fafc;
+            padding: 15px 30px 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-top: 1px solid rgba(79, 70, 229, 0.1);
+        }
+
+        .register-footer p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
         }
 
         .register-footer a {
-            color: #667eea;
+            color: #4f46e5;
             text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
+            font-weight: 600;
+            padding: 10px 20px;
+            border: 2px solid #4f46e5;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            background: rgba(79, 70, 229, 0.05);
         }
 
         .register-footer a:hover {
-            color: #764ba2;
+            color: white;
+            background: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid #4f46e5;
+            color: #4f46e5;
+            background: transparent;
+            font-weight: 600;
+            padding: 12px 30px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            background: #4f46e5;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
         }
 
         .form-check {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .form-check-input {
@@ -177,12 +246,12 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .form-check-input:checked {
-            background-color: #667eea;
-            border-color: #667eea;
+            background-color: #4f46e5;
+            border-color: #4f46e5;
         }
 
         .form-check-input:focus {
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
 
         .form-check-label {
@@ -317,7 +386,10 @@ if (isset($_SESSION['user_id'])) {
                                 <label for="phone_number" class="form-label">
                                     <i class="fas fa-phone"></i> Phone Number
                                 </label>
-                                <input type="text" class="form-control" id="phone_number" name="phone_number" placeholder="+1234567890" required>
+                                <div class="input-group">
+                                    <span class="input-group-text" id="country-code">+1</span>
+                                    <input type="text" class="form-control" id="phone_number" name="phone_number" placeholder="1234567890" required>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -327,13 +399,59 @@ if (isset($_SESSION['user_id'])) {
                                 </label>
                                 <select class="form-select" id="country" name="country" required>
                                     <option value="" selected disabled>Choose your country</option>
+                                    <option value="Afghanistan">Afghanistan</option>
+                                    <option value="Albania">Albania</option>
+                                    <option value="Algeria">Algeria</option>
+                                    <option value="Argentina">Argentina</option>
+                                    <option value="Australia">Australia</option>
+                                    <option value="Austria">Austria</option>
+                                    <option value="Bangladesh">Bangladesh</option>
+                                    <option value="Belgium">Belgium</option>
+                                    <option value="Brazil">Brazil</option>
+                                    <option value="Canada">Canada</option>
+                                    <option value="Chile">Chile</option>
+                                    <option value="China">China</option>
+                                    <option value="Colombia">Colombia</option>
+                                    <option value="Denmark">Denmark</option>
+                                    <option value="Egypt">Egypt</option>
+                                    <option value="Finland">Finland</option>
+                                    <option value="France">France</option>
+                                    <option value="Germany">Germany</option>
                                     <option value="Ghana">Ghana</option>
-                                    <option value="Nigeria">Nigeria</option>
+                                    <option value="Greece">Greece</option>
+                                    <option value="India">India</option>
+                                    <option value="Indonesia">Indonesia</option>
+                                    <option value="Ireland">Ireland</option>
+                                    <option value="Israel">Israel</option>
+                                    <option value="Italy">Italy</option>
+                                    <option value="Japan">Japan</option>
                                     <option value="Kenya">Kenya</option>
+                                    <option value="Malaysia">Malaysia</option>
+                                    <option value="Mexico">Mexico</option>
+                                    <option value="Netherlands">Netherlands</option>
+                                    <option value="New Zealand">New Zealand</option>
+                                    <option value="Nigeria">Nigeria</option>
+                                    <option value="Norway">Norway</option>
+                                    <option value="Pakistan">Pakistan</option>
+                                    <option value="Peru">Peru</option>
+                                    <option value="Philippines">Philippines</option>
+                                    <option value="Poland">Poland</option>
+                                    <option value="Portugal">Portugal</option>
+                                    <option value="Russia">Russia</option>
+                                    <option value="Saudi Arabia">Saudi Arabia</option>
+                                    <option value="Singapore">Singapore</option>
                                     <option value="South Africa">South Africa</option>
+                                    <option value="South Korea">South Korea</option>
+                                    <option value="Spain">Spain</option>
+                                    <option value="Sweden">Sweden</option>
+                                    <option value="Switzerland">Switzerland</option>
+                                    <option value="Thailand">Thailand</option>
+                                    <option value="Turkey">Turkey</option>
+                                    <option value="Ukraine">Ukraine</option>
+                                    <option value="United Arab Emirates">United Arab Emirates</option>
                                     <option value="United Kingdom">United Kingdom</option>
                                     <option value="United States">United States</option>
-                                    <option value="Canada">Canada</option>
+                                    <option value="Vietnam">Vietnam</option>
                                 </select>
                             </div>
                         </div>
@@ -360,19 +478,93 @@ if (isset($_SESSION['user_id'])) {
                         </span>
                     </button>
                 </form>
+                
+                <!-- Quick Login Link -->
+                <div class="text-center mt-3">
+                    <p class="text-muted mb-2">Already have an account?</p>
+                    <a href="login.php" class="btn btn-outline-primary">
+                        <i class="fa fa-sign-in-alt"></i> Login Here
+                    </a>
+                </div>
             </div>
             
-            <div class="register-footer">
-                Already have an account? <a href="login.php">Sign in here</a>
-            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="../js/register.js">
+    <script>
+        // Country code mapping
+        const countryCodes = {
+            'Afghanistan': '+93',
+            'Albania': '+355',
+            'Algeria': '+213',
+            'Argentina': '+54',
+            'Australia': '+61',
+            'Austria': '+43',
+            'Bangladesh': '+880',
+            'Belgium': '+32',
+            'Brazil': '+55',
+            'Canada': '+1',
+            'Chile': '+56',
+            'China': '+86',
+            'Colombia': '+57',
+            'Denmark': '+45',
+            'Egypt': '+20',
+            'Finland': '+358',
+            'France': '+33',
+            'Germany': '+49',
+            'Ghana': '+233',
+            'Greece': '+30',
+            'India': '+91',
+            'Indonesia': '+62',
+            'Ireland': '+353',
+            'Israel': '+972',
+            'Italy': '+39',
+            'Japan': '+81',
+            'Kenya': '+254',
+            'Malaysia': '+60',
+            'Mexico': '+52',
+            'Netherlands': '+31',
+            'New Zealand': '+64',
+            'Nigeria': '+234',
+            'Norway': '+47',
+            'Pakistan': '+92',
+            'Peru': '+51',
+            'Philippines': '+63',
+            'Poland': '+48',
+            'Portugal': '+351',
+            'Russia': '+7',
+            'Saudi Arabia': '+966',
+            'Singapore': '+65',
+            'South Africa': '+27',
+            'South Korea': '+82',
+            'Spain': '+34',
+            'Sweden': '+46',
+            'Switzerland': '+41',
+            'Thailand': '+66',
+            'Turkey': '+90',
+            'Ukraine': '+380',
+            'United Arab Emirates': '+971',
+            'United Kingdom': '+44',
+            'United States': '+1',
+            'Vietnam': '+84'
+        };
+
+        // Update country code when country changes
+        document.getElementById('country').addEventListener('change', function() {
+            const selectedCountry = this.value;
+            const countryCodeSpan = document.getElementById('country-code');
+            
+            if (countryCodes[selectedCountry]) {
+                countryCodeSpan.textContent = countryCodes[selectedCountry];
+            } else {
+                countryCodeSpan.textContent = '+1'; // Default
+            }
+        });
     </script>
+    <script src="../js/register.js"></script>
 </body>
 
 </html>
