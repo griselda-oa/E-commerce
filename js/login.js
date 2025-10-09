@@ -46,7 +46,7 @@ $(document).ready(function() {
 
         // AJAX request with timeout
         $.ajax({
-            url: '../actions/login_customer_action.php',
+            url: 'actions/login_customer_action.php',
             type: 'POST',
             timeout: 15000, // 15 second timeout
             data: {

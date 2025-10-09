@@ -2,12 +2,22 @@
 // actions/login_customer_action.php
 header('Content-Type: application/json');
 
-// Enable error reporting for debugging
+// Disable error display to prevent HTML in JSON response
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
 
-require_once __DIR__ . '/../settings/core.php';
-require_once __DIR__ . '/../controllers/customer_controller.php';
+// Check if required files exist before including
+$core_path = __DIR__ . '/../settings/core.php';
+$controller_path = __DIR__ . '/../controllers/customer_controller.php';
+
+if (!file_exists($core_path) || !file_exists($controller_path)) {
+    echo json_encode(['status' => 'error', 'message' => 'Required files missing. Please check file upload.']);
+    exit;
+}
+
+require_once $core_path;
+require_once $controller_path;
 
 // Note: Already logged in check is handled in login.php
 
