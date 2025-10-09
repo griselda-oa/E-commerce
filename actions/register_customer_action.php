@@ -9,7 +9,7 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 // Check if required files exist before including
-$controller_path = __DIR__ . '/../controllers/customer_controller.php';
+$controller_path = '../controllers/customer_controller.php';
 if (!file_exists($controller_path)) {
     echo json_encode(['status' => 'error', 'message' => 'Required files missing. Please check file upload.']);
     exit;

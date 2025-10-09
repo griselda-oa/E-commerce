@@ -68,7 +68,7 @@ $(document).ready(function() {
         btnLoading.show();
 
         $.ajax({
-            url: 'actions/register_customer_action.php',
+            url: '../actions/register_customer_action.php',
             type: 'POST',
             data: {
                 name: name,
