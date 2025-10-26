@@ -10,7 +10,7 @@ define('DB_NAME', 'ecommerce_2025A_griselda_owusu');
 
 // Credentials (Server credentials)
 define('DB_USER', 'griselda.owusu');
-define('DB_PASS', 'Jytc1101$'); // Update this with your actual MySQL password
+define('DB_PASS', 'Jytc1101$');
 
 // Charset
 define('DB_CHARSET', 'utf8mb4');

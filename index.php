@@ -1411,47 +1411,36 @@ require_once 'settings/core.php';
 				<ul class="navbar-nav">
 					<?php if (is_logged_in()): ?>
 						<!-- User is logged in -->
-						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-								<i class="fa fa-user-circle"></i> 
-								<?php echo htmlspecialchars(get_user_name()); ?>
-								<?php if (is_admin()): ?>
-									<span class="badge bg-danger ms-1"><i class="fa fa-crown"></i> Admin</span>
-								<?php else: ?>
-									<span class="badge bg-info ms-1"><i class="fa fa-user"></i> Customer</span>
-								<?php endif; ?>
-							</a>
-							<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-								<?php if (is_admin()): ?>
-								<li><h6 class="dropdown-header">Admin Panel</h6></li>
-								<li><a class="dropdown-item" href="admin/dashboard.php"><i class="fa fa-crown"></i> Admin Dashboard</a></li>
-								<li><a class="dropdown-item" href="admin/category_management.php"><i class="fa fa-tags"></i> Manage Categories</a></li>
-								<li><a class="dropdown-item" href="admin/product_management.php"><i class="fa fa-plus"></i> Manage Products</a></li>
-								<li><a class="dropdown-item" href="#"><i class="fa fa-chart-bar"></i> Analytics</a></li>
-								<li><hr class="dropdown-divider"></li>
-								<?php endif; ?>
-								<li><h6 class="dropdown-header">My Account</h6></li>
-								<li><a class="dropdown-item" href="#"><i class="fa fa-user"></i> Profile</a></li>
-								<li><a class="dropdown-item" href="#"><i class="fa fa-shopping-bag"></i> My Orders</a></li>
-								<li><a class="dropdown-item" href="#"><i class="fa fa-heart"></i> Favorites</a></li>
-								<li><a class="dropdown-item" href="#"><i class="fa fa-cog"></i> Settings</a></li>
-								<li><hr class="dropdown-divider"></li>
-								<li><a class="dropdown-item text-danger" href="login/logout.php">
+						<?php if (is_admin()): ?>
+							<!-- Admin user -->
+							<li class="nav-item">
+								<a class="nav-link" href="admin/category.php">
+									<i class="fa fa-tags"></i> Category
+								</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="admin/brand.php">
+									<i class="fa fa-industry"></i> Brand
+								</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="admin/product.php">
+									<i class="fa fa-shopping-bag"></i> Add Product
+								</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="login/logout.php">
 									<i class="fa fa-sign-out-alt"></i> Logout
-								</a></li>
-							</ul>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="#">
-								<i class="fa fa-shopping-cart"></i> Cart <span class="badge bg-primary">0</span>
-							</a>
-						</li>
-						<!-- User-friendly logout button -->
-						<li class="nav-item">
-							<a class="btn btn-outline-danger btn-sm ms-2" href="login/logout.php" style="margin-top: 2px;">
-								<i class="fa fa-sign-out-alt"></i> Logout
-							</a>
-						</li>
+								</a>
+							</li>
+						<?php else: ?>
+							<!-- Regular user -->
+							<li class="nav-item">
+								<a class="nav-link" href="login/logout.php">
+									<i class="fa fa-sign-out-alt"></i> Logout
+								</a>
+							</li>
+						<?php endif; ?>
 					<?php else: ?>
 						<!-- User is not logged in -->
 						<li class="nav-item">

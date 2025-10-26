@@ -1,96 +1,32 @@
 <?php
+// admin/category.php
 require_once '../settings/core.php';
 
-// Require admin access - redirect if not admin
+// Check if user is logged in
 if (!is_logged_in()) {
     header('Location: ../login/login.php?error=login_required');
     exit();
 }
 
+// Check if user is admin
 if (!is_admin()) {
     header('Location: ../index.php?error=admin_required');
     exit();
-}
-
-// Handle AJAX requests
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    header('Content-Type: application/json');
-    
-    require_once '../controllers/category_controller.php';
-    $categoryController = new CategoryController();
-    
-    switch ($_POST['action']) {
-        case 'fetch':
-            $result = $categoryController->get_categories_ctr(get_user_id());
-            echo json_encode([
-                'success' => $result['success'],
-                'data' => $result['data'] ?? [],
-                'count' => count($result['data'] ?? [])
-            ]);
-            break;
-            
-        case 'add':
-            $category_name = trim($_POST['category_name'] ?? '');
-            if (empty($category_name)) {
-                echo json_encode(['success' => false, 'message' => 'Category name is required']);
-                break;
-            }
-            $result = $categoryController->add_category_ctr([
-                'category_name' => $category_name,
-                'user_id' => get_user_id()
-            ]);
-            echo json_encode($result);
-            break;
-            
-        case 'update':
-            $category_id = intval($_POST['category_id'] ?? 0);
-            $category_name = trim($_POST['category_name'] ?? '');
-            if ($category_id <= 0 || empty($category_name)) {
-                echo json_encode(['success' => false, 'message' => 'Invalid data']);
-                break;
-            }
-            $result = $categoryController->update_category_ctr([
-                'category_id' => $category_id,
-                'category_name' => $category_name,
-                'user_id' => get_user_id()
-            ]);
-            echo json_encode($result);
-            break;
-            
-        case 'delete':
-            $category_id = intval($_POST['category_id'] ?? 0);
-            if ($category_id <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Invalid category ID']);
-                break;
-            }
-            $result = $categoryController->delete_category_ctr($category_id, get_user_id());
-            echo json_encode($result);
-            break;
-            
-        default:
-            echo json_encode(['success' => false, 'message' => 'Invalid action']);
-    }
-    exit;
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Category Management - Admin Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        
-        * { font-family: 'Inter', sans-serif; }
-        
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            margin: 0;
-            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         .admin-container {
@@ -413,220 +349,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Global variables
-        let categories = [];
-
-        // Load categories on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadCategories();
-        });
-
-        // Show alert message
-        function showAlert(message, type = 'info') {
-            const alertContainer = document.getElementById('alertContainer');
-            const alertId = 'alert-' + Date.now();
-            
-            alertContainer.innerHTML = `
-                <div class="alert alert-${type} alert-dismissible fade show" id="${alertId}" role="alert">
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            `;
-            
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                const alert = document.getElementById(alertId);
-                if (alert) {
-                    alert.remove();
-                }
-            }, 5000);
-        }
-
-        // Load categories from server
-        async function loadCategories() {
-            try {
-                const response = await fetch('category_management.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'action=fetch'
-                });
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    categories = result.data;
-                    displayCategories();
-                } else {
-                    showAlert('Error loading categories: ' + result.message, 'danger');
-                }
-            } catch (error) {
-                console.error('Error loading categories:', error);
-                showAlert('Error loading categories. Please try again.', 'danger');
-            }
-        }
-
-        // Display categories in table
-        function displayCategories() {
-            const tbody = document.getElementById('categoriesTableBody');
-            
-            if (categories.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="4" class="text-center py-4">
-                            <i class="fa fa-inbox fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">No categories found. Add your first category!</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = categories.map(category => `
-                <tr>
-                    <td><strong>#${category.cat_id}</strong></td>
-                    <td>${escapeHtml(category.cat_name)}</td>
-                    <td>${new Date().toLocaleDateString()}</td>
-                    <td>
-                        <button class="btn btn-edit me-2" onclick="editCategory(${category.cat_id})">
-                            <i class="fa fa-edit"></i> Edit
-                        </button>
-                        <button class="btn btn-delete" onclick="confirmDelete(${category.cat_id}, '${escapeHtml(category.cat_name)}')">
-                            <i class="fa fa-trash"></i> Delete
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        // Add new category
-        async function addCategory() {
-            const categoryName = document.getElementById('categoryName').value.trim();
-            
-            if (!categoryName) {
-                showAlert('Please enter a category name', 'warning');
-                return;
-            }
-
-            try {
-                const formData = new FormData();
-                formData.append('action', 'add');
-                formData.append('category_name', categoryName);
-
-                const response = await fetch('category_management.php', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    showAlert('Category added successfully!', 'success');
-                    document.getElementById('addCategoryForm').reset();
-                    bootstrap.Modal.getInstance(document.getElementById('addCategoryModal')).hide();
-                    loadCategories();
-                } else {
-                    showAlert('Error adding category: ' + result.message, 'danger');
-                }
-            } catch (error) {
-                console.error('Error adding category:', error);
-                showAlert('Error adding category. Please try again.', 'danger');
-            }
-        }
-
-        // Edit category
-        function editCategory(categoryId) {
-            const category = categories.find(cat => cat.cat_id == categoryId);
-            if (!category) {
-                showAlert('Category not found', 'danger');
-                return;
-            }
-
-            document.getElementById('editCategoryId').value = category.cat_id;
-            document.getElementById('editCategoryName').value = category.cat_name;
-            
-            new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
-        }
-
-        // Update category
-        async function updateCategory() {
-            const categoryId = document.getElementById('editCategoryId').value;
-            const categoryName = document.getElementById('editCategoryName').value.trim();
-            
-            if (!categoryName) {
-                showAlert('Please enter a category name', 'warning');
-                return;
-            }
-
-            try {
-                const formData = new FormData();
-                formData.append('action', 'update');
-                formData.append('category_id', categoryId);
-                formData.append('category_name', categoryName);
-
-                const response = await fetch('category_management.php', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    showAlert('Category updated successfully!', 'success');
-                    bootstrap.Modal.getInstance(document.getElementById('editCategoryModal')).hide();
-                    loadCategories();
-                } else {
-                    showAlert('Error updating category: ' + result.message, 'danger');
-                }
-            } catch (error) {
-                console.error('Error updating category:', error);
-                showAlert('Error updating category. Please try again.', 'danger');
-            }
-        }
-
-        // Confirm delete
-        function confirmDelete(categoryId, categoryName) {
-            document.getElementById('deleteCategoryId').value = categoryId;
-            new bootstrap.Modal(document.getElementById('deleteCategoryModal')).show();
-        }
-
-        // Delete category
-        async function deleteCategory() {
-            const categoryId = document.getElementById('deleteCategoryId').value;
-
-            try {
-                const formData = new FormData();
-                formData.append('action', 'delete');
-                formData.append('category_id', categoryId);
-
-                const response = await fetch('category_management.php', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    showAlert('Category deleted successfully!', 'success');
-                    bootstrap.Modal.getInstance(document.getElementById('deleteCategoryModal')).hide();
-                    loadCategories();
-                } else {
-                    showAlert('Error deleting category: ' + result.message, 'danger');
-                }
-            } catch (error) {
-                console.error('Error deleting category:', error);
-                showAlert('Error deleting category. Please try again.', 'danger');
-            }
-        }
-
-        // Escape HTML to prevent XSS
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-    </script>
+    <script src="../js/category.js"></script>
 </body>
 </html>
