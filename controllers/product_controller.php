@@ -28,22 +28,47 @@ class ProductController {
     }
     
     /**
-     * Get all products for a user
-     * @param int $user_id - User ID
+     * Get all products
      * @return array - Response
      */
-    public function get_products_ctr($user_id) {
-        return $this->product->getProductsByUser($user_id);
+    public function get_products_ctr() {
+        return $this->product->getAllProducts();
     }
     
     /**
      * Get a specific product
      * @param int $product_id - Product ID
-     * @param int $user_id - User ID
      * @return array - Response
      */
-    public function get_product_ctr($product_id, $user_id) {
-        return $this->product->getProductById($product_id, $user_id);
+    public function get_product_ctr($product_id) {
+        return $this->product->getProductById($product_id);
+    }
+    
+    /**
+     * Search products
+     * @param string $query - Search query
+     * @return array - Response
+     */
+    public function search_products_ctr($query) {
+        return $this->product->searchProducts($query);
+    }
+    
+    /**
+     * Filter products by category
+     * @param int $cat_id - Category ID
+     * @return array - Response
+     */
+    public function filter_by_category_ctr($cat_id) {
+        return $this->product->filterProductsByCategory($cat_id);
+    }
+    
+    /**
+     * Filter products by brand
+     * @param int $brand_id - Brand ID
+     * @return array - Response
+     */
+    public function filter_by_brand_ctr($brand_id) {
+        return $this->product->filterProductsByBrand($brand_id);
     }
 }
 ?>

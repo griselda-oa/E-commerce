@@ -16,20 +16,19 @@ class Product extends db_connection {
     public function add($args) {
         try {
             $product_title = trim($args['product_title']);
-            $product_description = trim($args['product_description']);
+            $product_desc = trim($args['product_description']);
             $product_price = floatval($args['product_price']);
-            $product_keyword = trim($args['product_keyword'] ?? '');
+            $product_keywords = trim($args['product_keyword'] ?? '');
             $product_image = $args['product_image'] ?? null;
-            $cat_id = intval($args['cat_id']);
-            $brand_id = intval($args['brand_id']);
-            $user_id = intval($args['user_id']);
+            $product_cat = intval($args['cat_id']);
+            $product_brand = intval($args['brand_id']);
             
             // Validate input
             if (empty($product_title)) {
                 return array('success' => false, 'message' => 'Product title is required');
             }
             
-            if (empty($product_description)) {
+            if (empty($product_desc)) {
                 return array('success' => false, 'message' => 'Product description is required');
             }
             
@@ -37,24 +36,24 @@ class Product extends db_connection {
                 return array('success' => false, 'message' => 'Product price must be greater than 0');
             }
             
-            if ($cat_id <= 0) {
+            if ($product_cat <= 0) {
                 return array('success' => false, 'message' => 'Valid category is required');
             }
             
-            if ($brand_id <= 0) {
+            if ($product_brand <= 0) {
                 return array('success' => false, 'message' => 'Valid brand is required');
             }
             
             // Insert new product
-            $sql = "INSERT INTO products (product_title, product_description, product_price, product_keyword, product_image, cat_id, brand_id, user_id) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO products (product_title, product_desc, product_price, product_keywords, product_image, product_cat, product_brand) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt = $this->db->prepare($sql);
             
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
             
-            $stmt->bind_param('ssdsssii', $product_title, $product_description, $product_price, $product_keyword, $product_image, $cat_id, $brand_id, $user_id);
+            $stmt->bind_param('ssdssii', $product_title, $product_desc, $product_price, $product_keywords, $product_image, $product_cat, $product_brand);
             
             if ($stmt->execute()) {
                 return array('success' => true, 'message' => 'Product added successfully', 'id' => $this->db->insert_id);
@@ -68,91 +67,23 @@ class Product extends db_connection {
     }
     
     /**
-     * Update a product
-     * @param array $args - Contains product data
-     * @return array - Success/failure response
-     */
-    public function update($args) {
-        try {
-            $product_id = intval($args['product_id']);
-            $product_title = trim($args['product_title']);
-            $product_description = trim($args['product_description']);
-            $product_price = floatval($args['product_price']);
-            $product_keyword = trim($args['product_keyword'] ?? '');
-            $product_image = $args['product_image'] ?? null;
-            $cat_id = intval($args['cat_id']);
-            $brand_id = intval($args['brand_id']);
-            $user_id = intval($args['user_id']);
-            
-            // Validate input
-            if (empty($product_title)) {
-                return array('success' => false, 'message' => 'Product title is required');
-            }
-            
-            if (empty($product_description)) {
-                return array('success' => false, 'message' => 'Product description is required');
-            }
-            
-            if ($product_price <= 0) {
-                return array('success' => false, 'message' => 'Product price must be greater than 0');
-            }
-            
-            if ($product_id <= 0) {
-                return array('success' => false, 'message' => 'Invalid product ID');
-            }
-            
-            // Check if product exists and belongs to user
-            $existing = $this->getProductById($product_id, $user_id);
-            if (!$existing['success']) {
-                return array('success' => false, 'message' => 'Product not found or access denied');
-            }
-            
-            // Update product
-            if ($product_image) {
-                $sql = "UPDATE products SET product_title = ?, product_description = ?, product_price = ?, product_keyword = ?, product_image = ?, cat_id = ?, brand_id = ? WHERE product_id = ? AND user_id = ?";
-                $stmt = $this->db->prepare($sql);
-                $stmt->bind_param('ssdssiiii', $product_title, $product_description, $product_price, $product_keyword, $product_image, $cat_id, $brand_id, $product_id, $user_id);
-            } else {
-                $sql = "UPDATE products SET product_title = ?, product_description = ?, product_price = ?, product_keyword = ?, cat_id = ?, brand_id = ? WHERE product_id = ? AND user_id = ?";
-                $stmt = $this->db->prepare($sql);
-                $stmt->bind_param('ssdsiiii', $product_title, $product_description, $product_price, $product_keyword, $cat_id, $brand_id, $product_id, $user_id);
-            }
-            
-            if (!$stmt) {
-                return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
-            }
-            
-            if ($stmt->execute()) {
-                return array('success' => true, 'message' => 'Product updated successfully');
-            } else {
-                return array('success' => false, 'message' => 'Failed to update product: ' . $stmt->error);
-            }
-            
-        } catch (Exception $e) {
-            return array('success' => false, 'message' => 'Error: ' . $e->getMessage());
-        }
-    }
-    
-    /**
-     * Get all products for a user, organized by category and brand
-     * @param int $user_id - User ID
+     * Get all products
      * @return array - Response with products
      */
-    public function getProductsByUser($user_id) {
+    public function getAllProducts() {
         try {
-            $sql = "SELECT p.*, c.cat_name, b.brand_name 
-                    FROM products p 
-                    JOIN categories c ON p.cat_id = c.cat_id 
-                    JOIN brands b ON p.brand_id = b.brand_id 
-                    WHERE p.user_id = ? 
-                    ORDER BY c.cat_name, b.brand_name, p.product_title";
+            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
+                           c.cat_name, b.brand_name
+                    FROM products p
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
+                    ORDER BY p.product_id DESC";
             
             $stmt = $this->db->prepare($sql);
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
             
-            $stmt->bind_param('i', $user_id);
             $stmt->execute();
             $result = $stmt->get_result();
             
@@ -171,35 +102,23 @@ class Product extends db_connection {
     /**
      * Get a product by ID
      * @param int $product_id - Product ID
-     * @param int $user_id - User ID (0 for customer view)
      * @return array - Response with product data
      */
-    public function getProductById($product_id, $user_id) {
+    public function getProductById($product_id) {
         try {
-            if ($user_id > 0) {
-                // Admin view - only their products
-                $sql = "SELECT p.*, c.cat_name, b.brand_name 
-                        FROM products p 
-                        JOIN categories c ON p.cat_id = c.cat_id 
-                        JOIN brands b ON p.brand_id = b.brand_id 
-                        WHERE p.product_id = ? AND p.user_id = ?";
-                $stmt = $this->db->prepare($sql);
-                $stmt->bind_param('ii', $product_id, $user_id);
-            } else {
-                // Customer view - any product
-                $sql = "SELECT p.*, c.cat_name, b.brand_name 
-                        FROM products p 
-                        JOIN categories c ON p.cat_id = c.cat_id 
-                        JOIN brands b ON p.brand_id = b.brand_id 
-                        WHERE p.product_id = ?";
-                $stmt = $this->db->prepare($sql);
-                $stmt->bind_param('i', $product_id);
-            }
+            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
+                           c.cat_name, b.brand_name
+                    FROM products p
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
+                    WHERE p.product_id = ?";
             
+            $stmt = $this->db->prepare($sql);
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
             
+            $stmt->bind_param('i', $product_id);
             $stmt->execute();
             $result = $stmt->get_result();
             
@@ -215,31 +134,67 @@ class Product extends db_connection {
     }
     
     /**
-     * View all products (customer-facing)
-     * @return array - Response with all products
+     * Update a product
+     * @param array $args - Contains product data
+     * @return array - Success/failure response
      */
-    public function view_all_products() {
+    public function update($args) {
         try {
-            $sql = "SELECT p.*, c.cat_name, b.brand_name 
-                    FROM products p 
-                    JOIN categories c ON p.cat_id = c.cat_id 
-                    JOIN brands b ON p.brand_id = b.brand_id 
-                    ORDER BY c.cat_name, b.brand_name, p.product_title";
+            $product_id = intval($args['product_id']);
+            $product_title = trim($args['product_title']);
+            $product_desc = trim($args['product_description']);
+            $product_price = floatval($args['product_price']);
+            $product_keywords = trim($args['product_keyword'] ?? '');
+            $product_image = $args['product_image'] ?? null;
+            $product_cat = intval($args['cat_id']);
+            $product_brand = intval($args['brand_id']);
             
+            // Validate input
+            if (empty($product_title)) {
+                return array('success' => false, 'message' => 'Product title is required');
+            }
+            
+            if (empty($product_desc)) {
+                return array('success' => false, 'message' => 'Product description is required');
+            }
+            
+            if ($product_price <= 0) {
+                return array('success' => false, 'message' => 'Product price must be greater than 0');
+            }
+            
+            if ($product_id <= 0) {
+                return array('success' => false, 'message' => 'Invalid product ID');
+            }
+            
+            // Check if product exists
+            $existing = $this->getProductById($product_id);
+            if (!$existing['success']) {
+                return array('success' => false, 'message' => 'Product not found');
+            }
+            
+            // Update product
+            $sql = "UPDATE products SET 
+                    product_title = ?, 
+                    product_desc = ?, 
+                    product_price = ?, 
+                    product_keywords = ?, 
+                    product_image = ?, 
+                    product_cat = ?, 
+                    product_brand = ?
+                    WHERE product_id = ?";
             $stmt = $this->db->prepare($sql);
+            
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
             
-            $stmt->execute();
-            $result = $stmt->get_result();
+            $stmt->bind_param('ssdssiii', $product_title, $product_desc, $product_price, $product_keywords, $product_image, $product_cat, $product_brand, $product_id);
             
-            $products = array();
-            while ($row = $result->fetch_assoc()) {
-                $products[] = $row;
+            if ($stmt->execute()) {
+                return array('success' => true, 'message' => 'Product updated successfully');
+            } else {
+                return array('success' => false, 'message' => 'Failed to update product: ' . $stmt->error);
             }
-            
-            return array('success' => true, 'data' => $products, 'message' => 'All products retrieved successfully');
             
         } catch (Exception $e) {
             return array('success' => false, 'message' => 'Error: ' . $e->getMessage());
@@ -247,28 +202,68 @@ class Product extends db_connection {
     }
     
     /**
-     * Search products by query
-     * @param string $query - Search query
-     * @return array - Response with search results
+     * Delete a product
+     * @param int $product_id - Product ID
+     * @return array - Success/failure response
      */
-    public function search_products($query) {
+    public function delete($product_id) {
         try {
-            $searchTerm = '%' . $query . '%';
-            $sql = "SELECT p.*, c.cat_name, b.brand_name 
-                    FROM products p 
-                    JOIN categories c ON p.cat_id = c.cat_id 
-                    JOIN brands b ON p.brand_id = b.brand_id 
-                    WHERE p.product_title LIKE ? 
-                       OR p.product_description LIKE ? 
-                       OR p.product_keyword LIKE ?
-                    ORDER BY c.cat_name, b.brand_name, p.product_title";
+            $product_id = intval($product_id);
+            
+            if ($product_id <= 0) {
+                return array('success' => false, 'message' => 'Invalid product ID');
+            }
+            
+            // Check if product exists
+            $existing = $this->getProductById($product_id);
+            if (!$existing['success']) {
+                return array('success' => false, 'message' => 'Product not found');
+            }
+            
+            // Delete product
+            $sql = "DELETE FROM products WHERE product_id = ?";
+            $stmt = $this->db->prepare($sql);
+            
+            if (!$stmt) {
+                return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
+            }
+            
+            $stmt->bind_param('i', $product_id);
+            
+            if ($stmt->execute()) {
+                return array('success' => true, 'message' => 'Product deleted successfully');
+            } else {
+                return array('success' => false, 'message' => 'Failed to delete product: ' . $stmt->error);
+            }
+            
+        } catch (Exception $e) {
+            return array('success' => false, 'message' => 'Error: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Search products
+     * @param string $query - Search query
+     * @return array - Response with products
+     */
+    public function searchProducts($query) {
+        try {
+            $search_term = '%' . trim($query) . '%';
+            
+            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
+                           c.cat_name, b.brand_name
+                    FROM products p
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
+                    WHERE p.product_title LIKE ? OR p.product_desc LIKE ? OR p.product_keywords LIKE ?
+                    ORDER BY p.product_id DESC";
             
             $stmt = $this->db->prepare($sql);
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
             
-            $stmt->bind_param('sss', $searchTerm, $searchTerm, $searchTerm);
+            $stmt->bind_param('sss', $search_term, $search_term, $search_term);
             $stmt->execute();
             $result = $stmt->get_result();
             
@@ -277,7 +272,7 @@ class Product extends db_connection {
                 $products[] = $row;
             }
             
-            return array('success' => true, 'data' => $products, 'message' => 'Search completed successfully');
+            return array('success' => true, 'data' => $products, 'message' => 'Search completed');
             
         } catch (Exception $e) {
             return array('success' => false, 'message' => 'Error: ' . $e->getMessage());
@@ -287,16 +282,17 @@ class Product extends db_connection {
     /**
      * Filter products by category
      * @param int $cat_id - Category ID
-     * @return array - Response with filtered products
+     * @return array - Response with products
      */
-    public function filter_products_by_category($cat_id) {
+    public function filterProductsByCategory($cat_id) {
         try {
-            $sql = "SELECT p.*, c.cat_name, b.brand_name 
-                    FROM products p 
-                    JOIN categories c ON p.cat_id = c.cat_id 
-                    JOIN brands b ON p.brand_id = b.brand_id 
-                    WHERE p.cat_id = ?
-                    ORDER BY b.brand_name, p.product_title";
+            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
+                           c.cat_name, b.brand_name
+                    FROM products p
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
+                    WHERE p.product_cat = ?
+                    ORDER BY p.product_id DESC";
             
             $stmt = $this->db->prepare($sql);
             if (!$stmt) {
@@ -312,7 +308,7 @@ class Product extends db_connection {
                 $products[] = $row;
             }
             
-            return array('success' => true, 'data' => $products, 'message' => 'Products filtered by category successfully');
+            return array('success' => true, 'data' => $products, 'message' => 'Products filtered by category');
             
         } catch (Exception $e) {
             return array('success' => false, 'message' => 'Error: ' . $e->getMessage());
@@ -322,16 +318,17 @@ class Product extends db_connection {
     /**
      * Filter products by brand
      * @param int $brand_id - Brand ID
-     * @return array - Response with filtered products
+     * @return array - Response with products
      */
-    public function filter_products_by_brand($brand_id) {
+    public function filterProductsByBrand($brand_id) {
         try {
-            $sql = "SELECT p.*, c.cat_name, b.brand_name 
-                    FROM products p 
-                    JOIN categories c ON p.cat_id = c.cat_id 
-                    JOIN brands b ON p.brand_id = b.brand_id 
-                    WHERE p.brand_id = ?
-                    ORDER BY c.cat_name, p.product_title";
+            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
+                           c.cat_name, b.brand_name
+                    FROM products p
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
+                    WHERE p.product_brand = ?
+                    ORDER BY p.product_id DESC";
             
             $stmt = $this->db->prepare($sql);
             if (!$stmt) {
@@ -347,20 +344,11 @@ class Product extends db_connection {
                 $products[] = $row;
             }
             
-            return array('success' => true, 'data' => $products, 'message' => 'Products filtered by brand successfully');
+            return array('success' => true, 'data' => $products, 'message' => 'Products filtered by brand');
             
         } catch (Exception $e) {
             return array('success' => false, 'message' => 'Error: ' . $e->getMessage());
         }
-    }
-    
-    /**
-     * View single product (customer-facing)
-     * @param int $id - Product ID
-     * @return array - Response with product data
-     */
-    public function view_single_product($id) {
-        return $this->getProductById($id, 0);
     }
 }
 ?>

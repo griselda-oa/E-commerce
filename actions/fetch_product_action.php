@@ -29,7 +29,7 @@ if (!is_admin()) {
 
 try {
     $productController = new ProductController();
-    $result = $productController->get_products_ctr(get_user_id());
+    $result = $productController->get_products_ctr();
     echo json_encode($result);
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
