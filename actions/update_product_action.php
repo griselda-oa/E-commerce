@@ -82,7 +82,7 @@ try {
         'product_image' => $product_image,
         'cat_id' => $cat_id,
         'brand_id' => $brand_id,
-        'user_id' => get_user_id()
+        'csrf_token' => $_POST['csrf_token'] ?? ''
     ]);
     
     echo json_encode($result);
