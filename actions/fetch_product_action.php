@@ -30,8 +30,25 @@ if (!is_admin()) {
 try {
     $productController = new ProductController();
     $result = $productController->get_products_ctr();
+    
+    // If no products found, try quick fix
+    if (!$result['success'] || empty($result['data'])) {
+        // Try quick fix
+        $quick_fix_url = __DIR__ . '/quick_fix_products_action.php';
+        if (file_exists($quick_fix_url)) {
+            include $quick_fix_url;
+            exit;
+        }
+    }
+    
     echo json_encode($result);
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    // Try quick fix as fallback
+    $quick_fix_url = __DIR__ . '/quick_fix_products_action.php';
+    if (file_exists($quick_fix_url)) {
+        include $quick_fix_url;
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    }
 }
 ?>
