@@ -83,29 +83,29 @@ INSERT INTO brands (brand_name) VALUES
 ('Volta Clay Works'),
 ('Royal Pottery Accra');
 
--- Insert artisan products with realistic Ghana pricing and stock levels
-INSERT INTO products (product_title, product_price, product_image) VALUES
+-- Insert artisan products with realistic Ghana pricing
+INSERT INTO products (product_cat, product_brand, product_title, product_price, product_desc, product_image, product_keywords) VALUES
 -- Kente & Textiles
-('Handwoven Kente Cloth (6 yards)', 280.00, NULL),
-('Kente Scarf with Adinkra Symbols', 95.00, NULL),
-('Handwoven Kente Throw Pillow Set', 480.00, NULL),
+(1, 1, 'Handwoven Kente Cloth (6 yards)', 280.00, 'Authentic handwoven Kente cloth from Bonwire, perfect for traditional ceremonies', NULL, 'kente, traditional, handwoven, cloth'),
+(1, 2, 'Kente Scarf with Adinkra Symbols', 95.00, 'Elegant Kente scarf featuring traditional Adinkra symbols', NULL, 'kente, scarf, adinkra, symbols'),
+(1, 1, 'Handwoven Kente Throw Pillow Set', 480.00, 'Set of 2 decorative pillows made from authentic Kente fabric', NULL, 'kente, pillows, decorative, home'),
 
 -- Wood Carvings & Sculptures
-('Carved Adinkra Symbol Wall Art', 750.00, NULL),
-('Hand-carved Tribal Mask', 850.00, NULL),
-('Carved Wooden Stools (Ase)', 550.00, NULL),
+(2, 4, 'Carved Adinkra Symbol Wall Art', 750.00, 'Hand-carved wooden wall art featuring traditional Adinkra symbols', NULL, 'wood, carving, adinkra, wall art'),
+(2, 4, 'Hand-carved Tribal Mask', 850.00, 'Authentic tribal mask carved from local Ghanaian wood', NULL, 'mask, tribal, wood carving, traditional'),
+(2, 4, 'Carved Wooden Stools (Ase)', 550.00, 'Traditional Akan stools hand-carved by master craftsmen', NULL, 'stools, wood, traditional, ase'),
 
 -- Handcrafted Jewelry
-('Ghana Bead Necklace Set', 320.00, NULL),
-('Krobo Recycled Glass Beads', 85.00, NULL),
-('Leather & Bead Bangle Set', 120.00, NULL),
+(3, 5, 'Ghana Bead Necklace Set', 320.00, 'Beautiful set of traditional Ghanaian bead necklaces', NULL, 'beads, necklace, jewelry, traditional'),
+(3, 6, 'Krobo Recycled Glass Beads', 85.00, 'Eco-friendly glass beads made from recycled materials', NULL, 'glass beads, recycled, krobo, eco'),
+(3, 5, 'Leather & Bead Bangle Set', 120.00, 'Handcrafted leather bangles adorned with traditional beads', NULL, 'bangles, leather, beads, handcrafted'),
 
 -- Beaded Art & Accessories
-('Beaded Handbag with Adinkra Symbols', 420.00, NULL),
-('Decorative Beaded Coasters', 95.00, NULL),
-('Handwoven Raffia Basket Set', 95.00, NULL),
+(4, 7, 'Beaded Handbag with Adinkra Symbols', 420.00, 'Stylish handbag featuring intricate beadwork and Adinkra symbols', NULL, 'handbag, beads, adinkra, fashion'),
+(4, 8, 'Decorative Beaded Coasters', 95.00, 'Set of 6 decorative coasters with traditional bead patterns', NULL, 'coasters, beads, decorative, home'),
+(4, 8, 'Handwoven Raffia Basket Set', 95.00, 'Set of 3 handwoven raffia baskets for home storage', NULL, 'baskets, raffia, handwoven, storage'),
 
 -- Ceramics & Pottery
-('Traditional Clay Cooking Pot', 65.00, NULL),
-('Decorative Ceramic Vase', 75.00, NULL),
-('Ceramic Water Storage Jar', 120.00, NULL);
+(5, 9, 'Traditional Clay Cooking Pot', 65.00, 'Authentic clay cooking pot used in traditional Ghanaian cuisine', NULL, 'clay pot, cooking, traditional, ceramic'),
+(5, 10, 'Decorative Ceramic Vase', 75.00, 'Beautiful handcrafted ceramic vase with traditional patterns', NULL, 'vase, ceramic, decorative, pottery'),
+(5, 9, 'Ceramic Water Storage Jar', 120.00, 'Large ceramic jar for water storage, handcrafted locally', NULL, 'water jar, ceramic, storage, pottery');
