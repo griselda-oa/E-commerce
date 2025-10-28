@@ -13,21 +13,28 @@ $(document).ready(function() {
 });
 
 function loadAllBrands() {
+    console.log('Loading brands...');
     $.ajax({
         url: '../actions/fetch_brand_action.php',
         method: 'POST',
         dataType: 'json',
         success: function(response) {
+            console.log('Brand response:', response);
             if (response.success && response.data) {
                 let brandsHtml = '<option value="">Select Brand</option>';
                 response.data.forEach(brand => {
                     brandsHtml += `<option value="${brand.brand_id}">${brand.brand_name}</option>`;
                 });
                 $('#brandSelect').html(brandsHtml);
+                console.log('Brands loaded successfully:', response.data.length);
+            } else {
+                console.error('Brand loading failed:', response.message);
+                $('#brandSelect').html('<option value="">No brands available</option>');
             }
         },
-        error: function() {
-            console.error('Error loading brands');
+        error: function(xhr, status, error) {
+            console.error('Brand loading error:', error);
+            $('#brandSelect').html('<option value="">Error loading brands</option>');
         }
     });
 }

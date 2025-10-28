@@ -204,9 +204,14 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Brand *</label>
-                                <select class="form-select" id="brandSelect" name="brand_id" required>
-                                    <option value="">Select Brand</option>
-                                </select>
+                                <div class="input-group">
+                                    <select class="form-select" id="brandSelect" name="brand_id" required>
+                                        <option value="">Select Brand</option>
+                                    </select>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="loadAllBrands()">
+                                        <i class="fa fa-refresh"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
