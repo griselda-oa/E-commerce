@@ -84,28 +84,28 @@ INSERT INTO brands (brand_name) VALUES
 ('Royal Pottery Accra');
 
 -- Insert artisan products with realistic Ghana pricing and stock levels
-INSERT INTO products (product_title, product_price, product_keyword, product_image, product_stock) VALUES
+INSERT INTO products (product_title, product_price, product_image, product_stock) VALUES
 -- Kente & Textiles
-('Handwoven Kente Cloth (6 yards)', 280.00, 'kente cloth traditional african textile', NULL, 8),
-('Kente Scarf with Adinkra Symbols', 95.00, 'kente scarf adinkra silk accessories', NULL, 25),
-('Handwoven Kente Throw Pillow Set', 480.00, 'kente pillow throw handwoven home decor', NULL, 12),
+('Handwoven Kente Cloth (6 yards)', 280.00, NULL, 8),
+('Kente Scarf with Adinkra Symbols', 95.00, NULL, 25),
+('Handwoven Kente Throw Pillow Set', 480.00, NULL, 12),
 
 -- Wood Carvings & Sculptures
-('Carved Adinkra Symbol Wall Art', 750.00, 'adinkra wood carving wall art mahogany', NULL, 6),
-('Hand-carved Tribal Mask', 850.00, 'wooden mask tribal ceremonial teak', NULL, 4),
-('Carved Wooden Stools (Ase)', 550.00, 'wooden stool furniture traditional handcrafted', NULL, 10),
+('Carved Adinkra Symbol Wall Art', 750.00, NULL, 6),
+('Hand-carved Tribal Mask', 850.00, NULL, 4),
+('Carved Wooden Stools (Ase)', 550.00, NULL, 10),
 
 -- Handcrafted Jewelry
-('Ghana Bead Necklace Set', 320.00, 'bead jewelry glass krobo handmade artisan', NULL, 18),
-('Krobo Recycled Glass Beads', 85.00, 'glass beads krobo recycled eco-friendly', NULL, 35),
-('Leather & Bead Bangle Set', 120.00, 'bangles leather beads handmade artisan', NULL, 28),
+('Ghana Bead Necklace Set', 320.00, NULL, 18),
+('Krobo Recycled Glass Beads', 85.00, NULL, 35),
+('Leather & Bead Bangle Set', 120.00, NULL, 28),
 
 -- Beaded Art & Accessories
-('Beaded Handbag with Adinkra Symbols', 420.00, 'handbag raffia beads adinkra eco-friendly', NULL, 12),
-('Decorative Beaded Coasters', 95.00, 'coasters beads decorative traditional home', NULL, 40),
-('Handwoven Raffia Basket Set', 95.00, 'baskets raffia woven traditional storage', NULL, 30),
+('Beaded Handbag with Adinkra Symbols', 420.00, NULL, 12),
+('Decorative Beaded Coasters', 95.00, NULL, 40),
+('Handwoven Raffia Basket Set', 95.00, NULL, 30),
 
 -- Ceramics & Pottery
-('Traditional Clay Cooking Pot', 65.00, 'clay pot cooking traditional pottery', NULL, 20),
-('Decorative Ceramic Vase', 75.00, 'ceramic vase decorative adinkra pottery', NULL, 25),
-('Ceramic Water Storage Jar', 120.00, 'ceramic water jar storage traditional', NULL, 15);
+('Traditional Clay Cooking Pot', 65.00, NULL, 20),
+('Decorative Ceramic Vase', 75.00, NULL, 25),
+('Ceramic Water Storage Jar', 120.00, NULL, 15);
