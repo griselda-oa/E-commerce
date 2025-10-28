@@ -1472,14 +1472,17 @@ require_once 'settings/core.php';
 						</h1>
 						<p class="lead text-muted">Ready to explore our amazing products and deals?</p>
 						<?php if (is_admin()): ?>
-						<div class="mt-3">
-							<a href="admin/dashboard.php" class="btn btn-danger btn-lg me-2">
-								<i class="fa fa-crown"></i> Admin Dashboard
-							</a>
-							<a href="admin/category_management.php" class="btn btn-warning btn-lg">
-								<i class="fa fa-tags"></i> Manage Categories
-							</a>
-						</div>
+                        <div class="mt-3">
+                            <a href="admin/category.php" class="btn btn-warning btn-lg me-2">
+                                <i class="fa fa-tags"></i> Manage Categories
+                            </a>
+                            <a href="admin/brand.php" class="btn btn-info btn-lg me-2">
+                                <i class="fa fa-star"></i> Manage Brands
+                            </a>
+                            <a href="admin/product.php" class="btn btn-success btn-lg">
+                                <i class="fa fa-plus"></i> Add Product
+                            </a>
+                        </div>
 						<?php endif; ?>
 					</div>
 				</div>

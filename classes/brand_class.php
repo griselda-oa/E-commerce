@@ -247,5 +247,34 @@ class Brand extends db_connection {
         $result = $stmt->get_result();
         return $result->num_rows > 0;
     }
+    /**
+     * Get all brands (customer-facing)
+     * @return array - Response with all brands
+     */
+    public function getAllBrands() {
+        try {
+            $sql = "SELECT b.brand_id, b.brand_name, b.cat_id, c.cat_name 
+                    FROM brands b 
+                    JOIN categories c ON b.cat_id = c.cat_id 
+                    ORDER BY c.cat_name, b.brand_name";
+            
+            $stmt = $this->db->prepare($sql);
+            if (!$stmt) {
+                return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
+            }
+            
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            $brands = array();
+            while ($row = $result->fetch_assoc()) {
+                $brands[] = $row;
+            }
+            
+            return array('success' => true, 'data' => $brands, 'message' => 'All brands retrieved successfully');
+            
+        } catch (Exception $e) {
+            return array('success' => false, 'message' => 'Error: ' . $e->getMessage());
+        }
+    }
 }
-?>
