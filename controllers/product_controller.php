@@ -36,12 +36,12 @@ class ProductController {
     }
     
     /**
-     * Get a specific product
-     * @param int $product_id - Product ID
+     * Get a product by secure token (public access)
+     * @param string $token - Secure product token
      * @return array - Response
      */
-    public function get_product_ctr($product_id) {
-        return $this->product->getProductById($product_id);
+    public function get_product_by_token_ctr($token) {
+        return $this->product->getProductByToken($token);
     }
     
     /**

@@ -1,6 +1,7 @@
 <?php
 // classes/product_class.php
 require_once __DIR__ . '/../settings/db_class.php';
+require_once __DIR__ . '/../settings/security.php';
 
 class Product extends db_connection {
     
@@ -15,13 +16,18 @@ class Product extends db_connection {
      */
     public function add($args) {
         try {
-            $product_title = trim($args['product_title']);
-            $product_desc = trim($args['product_description']);
+            // Validate CSRF token
+            if (!SecurityManager::validateCSRFToken($args['csrf_token'] ?? '')) {
+                return array('success' => false, 'message' => 'Invalid security token');
+            }
+            
+            $product_title = SecurityManager::sanitizeString($args['product_title']);
+            $product_desc = SecurityManager::sanitizeString($args['product_description']);
             $product_price = floatval($args['product_price']);
-            $product_keywords = trim($args['product_keyword'] ?? '');
+            $product_keywords = SecurityManager::sanitizeString($args['product_keyword'] ?? '');
             $product_image = $args['product_image'] ?? null;
-            $product_cat = intval($args['cat_id']);
-            $product_brand = intval($args['brand_id']);
+            $product_cat = SecurityManager::validateInteger($args['cat_id']);
+            $product_brand = SecurityManager::validateInteger($args['brand_id']);
             
             // Validate input
             if (empty($product_title)) {
@@ -36,11 +42,11 @@ class Product extends db_connection {
                 return array('success' => false, 'message' => 'Product price must be greater than 0');
             }
             
-            if ($product_cat <= 0) {
+            if (!$product_cat) {
                 return array('success' => false, 'message' => 'Valid category is required');
             }
             
-            if ($product_brand <= 0) {
+            if (!$product_brand) {
                 return array('success' => false, 'message' => 'Valid brand is required');
             }
             
@@ -67,7 +73,7 @@ class Product extends db_connection {
     }
     
     /**
-     * Get all products
+     * Get all products (public access)
      * @return array - Response with products
      */
     public function getAllProducts() {
@@ -77,6 +83,7 @@ class Product extends db_connection {
                     FROM products p
                     LEFT JOIN categories c ON p.product_cat = c.cat_id
                     LEFT JOIN brands b ON p.product_brand = b.brand_id
+                    WHERE p.product_id > 0
                     ORDER BY p.product_id DESC";
             
             $stmt = $this->db->prepare($sql);
@@ -89,6 +96,10 @@ class Product extends db_connection {
             
             $products = array();
             while ($row = $result->fetch_assoc()) {
+                // Generate secure token for each product
+                $row['access_token'] = SecurityManager::generateProductToken($row['product_id']);
+                // Remove sensitive internal IDs from public response
+                unset($row['product_cat'], $row['product_brand']);
                 $products[] = $row;
             }
             
@@ -100,14 +111,63 @@ class Product extends db_connection {
     }
     
     /**
-     * Get a product by ID
+     * Get a product by secure token
+     * @param string $token - Secure product token
+     * @return array - Response with product data
+     */
+    public function getProductByToken($token) {
+        try {
+            $product_id = SecurityManager::validateProductToken($token);
+            
+            if (!$product_id) {
+                return array('success' => false, 'message' => 'Invalid or expired product token');
+            }
+            
+            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
+                           c.cat_name, b.brand_name
+                    FROM products p
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
+                    WHERE p.product_id = ?";
+            
+            $stmt = $this->db->prepare($sql);
+            if (!$stmt) {
+                return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
+            }
+            
+            $stmt->bind_param('i', $product_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows > 0) {
+                $product = $result->fetch_assoc();
+                // Remove internal IDs from public response
+                unset($product['product_cat'], $product['product_brand']);
+                return array('success' => true, 'data' => $product);
+            } else {
+                return array('success' => false, 'message' => 'Product not found');
+            }
+            
+        } catch (Exception $e) {
+            return array('success' => false, 'message' => 'Error: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Get a product by ID (admin only)
      * @param int $product_id - Product ID
      * @return array - Response with product data
      */
     public function getProductById($product_id) {
         try {
+            $product_id = SecurityManager::validateInteger($product_id);
+            
+            if (!$product_id) {
+                return array('success' => false, 'message' => 'Invalid product ID');
+            }
+            
             $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
-                           c.cat_name, b.brand_name
+                           c.cat_name, b.brand_name, p.product_cat, p.product_brand
                     FROM products p
                     LEFT JOIN categories c ON p.product_cat = c.cat_id
                     LEFT JOIN brands b ON p.product_brand = b.brand_id
@@ -140,14 +200,19 @@ class Product extends db_connection {
      */
     public function update($args) {
         try {
-            $product_id = intval($args['product_id']);
-            $product_title = trim($args['product_title']);
-            $product_desc = trim($args['product_description']);
+            // Validate CSRF token
+            if (!SecurityManager::validateCSRFToken($args['csrf_token'] ?? '')) {
+                return array('success' => false, 'message' => 'Invalid security token');
+            }
+            
+            $product_id = SecurityManager::validateInteger($args['product_id']);
+            $product_title = SecurityManager::sanitizeString($args['product_title']);
+            $product_desc = SecurityManager::sanitizeString($args['product_description']);
             $product_price = floatval($args['product_price']);
-            $product_keywords = trim($args['product_keyword'] ?? '');
+            $product_keywords = SecurityManager::sanitizeString($args['product_keyword'] ?? '');
             $product_image = $args['product_image'] ?? null;
-            $product_cat = intval($args['cat_id']);
-            $product_brand = intval($args['brand_id']);
+            $product_cat = SecurityManager::validateInteger($args['cat_id']);
+            $product_brand = SecurityManager::validateInteger($args['brand_id']);
             
             // Validate input
             if (empty($product_title)) {
@@ -162,7 +227,7 @@ class Product extends db_connection {
                 return array('success' => false, 'message' => 'Product price must be greater than 0');
             }
             
-            if ($product_id <= 0) {
+            if (!$product_id) {
                 return array('success' => false, 'message' => 'Invalid product ID');
             }
             
@@ -208,9 +273,9 @@ class Product extends db_connection {
      */
     public function delete($product_id) {
         try {
-            $product_id = intval($product_id);
+            $product_id = SecurityManager::validateInteger($product_id);
             
-            if ($product_id <= 0) {
+            if (!$product_id) {
                 return array('success' => false, 'message' => 'Invalid product ID');
             }
             
@@ -248,7 +313,7 @@ class Product extends db_connection {
      */
     public function searchProducts($query) {
         try {
-            $search_term = '%' . trim($query) . '%';
+            $search_term = '%' . SecurityManager::sanitizeString($query, 100) . '%';
             
             $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
                            c.cat_name, b.brand_name
@@ -269,6 +334,10 @@ class Product extends db_connection {
             
             $products = array();
             while ($row = $result->fetch_assoc()) {
+                // Generate secure token for each product
+                $row['access_token'] = SecurityManager::generateProductToken($row['product_id']);
+                // Remove sensitive internal IDs from public response
+                unset($row['product_cat'], $row['product_brand']);
                 $products[] = $row;
             }
             
@@ -286,6 +355,12 @@ class Product extends db_connection {
      */
     public function filterProductsByCategory($cat_id) {
         try {
+            $cat_id = SecurityManager::validateInteger($cat_id);
+            
+            if (!$cat_id) {
+                return array('success' => false, 'message' => 'Invalid category ID');
+            }
+            
             $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
                            c.cat_name, b.brand_name
                     FROM products p
@@ -305,6 +380,10 @@ class Product extends db_connection {
             
             $products = array();
             while ($row = $result->fetch_assoc()) {
+                // Generate secure token for each product
+                $row['access_token'] = SecurityManager::generateProductToken($row['product_id']);
+                // Remove sensitive internal IDs from public response
+                unset($row['product_cat'], $row['product_brand']);
                 $products[] = $row;
             }
             
@@ -322,6 +401,12 @@ class Product extends db_connection {
      */
     public function filterProductsByBrand($brand_id) {
         try {
+            $brand_id = SecurityManager::validateInteger($brand_id);
+            
+            if (!$brand_id) {
+                return array('success' => false, 'message' => 'Invalid brand ID');
+            }
+            
             $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
                            c.cat_name, b.brand_name
                     FROM products p
@@ -341,6 +426,10 @@ class Product extends db_connection {
             
             $products = array();
             while ($row = $result->fetch_assoc()) {
+                // Generate secure token for each product
+                $row['access_token'] = SecurityManager::generateProductToken($row['product_id']);
+                // Remove sensitive internal IDs from public response
+                unset($row['product_cat'], $row['product_brand']);
                 $products[] = $row;
             }
             
