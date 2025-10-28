@@ -1390,13 +1390,13 @@ require_once 'settings/core.php';
 						</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="products.php">
+						<a class="nav-link" href="all_product.php">
 							<i class="fa fa-shopping-bag"></i> Products
 						</a>
 					</li>
 					<?php if (is_admin()): ?>
 					<li class="nav-item">
-						<a class="nav-link" href="admin/category_management.php">
+						<a class="nav-link" href="admin/category.php">
 							<i class="fa fa-tags"></i> Categories
 						</a>
 					</li>
@@ -1429,14 +1429,14 @@ require_once 'settings/core.php';
 								</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link" href="login/logout.php">
+								<a class="nav-link" href="actions/logout_action.php">
 									<i class="fa fa-sign-out-alt"></i> Logout
 								</a>
 							</li>
 						<?php else: ?>
 							<!-- Regular user -->
 							<li class="nav-item">
-								<a class="nav-link" href="login/logout.php">
+								<a class="nav-link" href="actions/logout_action.php">
 									<i class="fa fa-sign-out-alt"></i> Logout
 								</a>
 							</li>
@@ -1444,7 +1444,7 @@ require_once 'settings/core.php';
 					<?php else: ?>
 						<!-- User is not logged in -->
 						<li class="nav-item">
-							<a class="nav-link" href="login/register.php">
+							<a class="nav-link" href="register/register.php">
 								<i class="fa fa-user-plus"></i> Register
 							</a>
 						</li>
