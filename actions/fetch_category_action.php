@@ -35,8 +35,24 @@ try {
     $categoryController = new CategoryController();
     $result = $categoryController->get_categories_ctr();
     
+    // If no categories found, try quick fix
+    if (!$result['success'] || empty($result['data'])) {
+        // Try quick fix
+        $quick_fix_url = __DIR__ . '/quick_fix_categories_action.php';
+        if (file_exists($quick_fix_url)) {
+            include $quick_fix_url;
+            exit;
+        }
+    }
+    
     echo json_encode($result);
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    // Try quick fix as fallback
+    $quick_fix_url = __DIR__ . '/quick_fix_categories_action.php';
+    if (file_exists($quick_fix_url)) {
+        include $quick_fix_url;
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    }
 }
 ?>
