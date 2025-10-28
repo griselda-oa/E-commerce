@@ -1,8 +1,8 @@
 -- Database for Lab
 -- This file contains the original database structure
 
-CREATE DATABASE IF NOT EXISTS shoppn;
-USE shoppn;
+CREATE DATABASE IF NOT EXISTS ecommerce_2025A_griselda_owusu;
+USE ecommerce_2025A_griselda_owusu;
 
 -- Customer table
 CREATE TABLE IF NOT EXISTS customer (
