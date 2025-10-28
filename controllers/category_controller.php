@@ -18,22 +18,20 @@ class CategoryController {
     }
     
     /**
-     * Get all categories for a user
-     * @param int $user_id - User ID
+     * Get all categories
      * @return array - Response
      */
-    public function get_categories_ctr($user_id) {
-        return $this->category->getCategoriesByUser($user_id);
+    public function get_categories_ctr() {
+        return $this->category->getAllCategories();
     }
     
     /**
      * Get a specific category
      * @param int $category_id - Category ID
-     * @param int $user_id - User ID
      * @return array - Response
      */
-    public function get_category_ctr($category_id, $user_id) {
-        return $this->category->getCategoryById($category_id, $user_id);
+    public function get_category_ctr($category_id) {
+        return $this->category->getCategoryById($category_id);
     }
     
     /**
@@ -48,20 +46,18 @@ class CategoryController {
     /**
      * Delete a category
      * @param int $category_id - Category ID
-     * @param int $user_id - User ID
      * @return array - Response
      */
-    public function delete_category_ctr($category_id, $user_id) {
-        return $this->category->delete($category_id, $user_id);
+    public function delete_category_ctr($category_id) {
+        return $this->category->delete($category_id);
     }
     
     /**
-     * Get category count for a user
-     * @param int $user_id - User ID
+     * Get category count
      * @return int - Count
      */
-    public function get_category_count_ctr($user_id) {
-        return $this->category->getCategoryCount($user_id);
+    public function get_category_count_ctr() {
+        return $this->category->getCategoryCount();
     }
 }
 ?>

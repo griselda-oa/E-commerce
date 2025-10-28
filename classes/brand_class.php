@@ -10,38 +10,32 @@ class Brand extends db_connection {
     
     /**
      * Add a new brand
-     * @param array $args - Contains brand data (brand_name, cat_id, user_id)
+     * @param array $args - Contains brand data (brand_name)
      * @return array - Success/failure response
      */
     public function add($args) {
         try {
             $brand_name = trim($args['brand_name']);
-            $cat_id = intval($args['cat_id']);
-            $user_id = intval($args['user_id']);
             
             // Validate input
             if (empty($brand_name)) {
                 return array('success' => false, 'message' => 'Brand name is required');
             }
             
-            if ($cat_id <= 0) {
-                return array('success' => false, 'message' => 'Valid category is required');
-            }
-            
-            // Check if brand+category combination already exists
-            if ($this->brandExists($brand_name, $cat_id)) {
-                return array('success' => false, 'message' => 'This brand already exists in this category');
+            // Check if brand already exists
+            if ($this->brandExists($brand_name)) {
+                return array('success' => false, 'message' => 'This brand already exists');
             }
             
             // Insert new brand
-            $sql = "INSERT INTO brands (brand_name, cat_id, user_id) VALUES (?, ?, ?)";
+            $sql = "INSERT INTO brands (brand_name) VALUES (?)";
             $stmt = $this->db->prepare($sql);
             
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
             
-            $stmt->bind_param('sii', $brand_name, $cat_id, $user_id);
+            $stmt->bind_param('s', $brand_name);
             
             if ($stmt->execute()) {
                 return array('success' => true, 'message' => 'Brand added successfully', 'id' => $this->db->insert_id);
@@ -55,24 +49,18 @@ class Brand extends db_connection {
     }
     
     /**
-     * Get all brands for a user, organized by category
-     * @param int $user_id - User ID
+     * Get all brands
      * @return array - Response with brands
      */
-    public function getBrandsByUser($user_id) {
+    public function getAllBrands() {
         try {
-            $sql = "SELECT b.brand_id, b.brand_name, b.cat_id, c.cat_name 
-                    FROM brands b 
-                    JOIN categories c ON b.cat_id = c.cat_id 
-                    WHERE b.user_id = ? 
-                    ORDER BY c.cat_name, b.brand_name";
+            $sql = "SELECT brand_id, brand_name FROM brands ORDER BY brand_name";
             
             $stmt = $this->db->prepare($sql);
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
             
-            $stmt->bind_param('i', $user_id);
             $stmt->execute();
             $result = $stmt->get_result();
             
@@ -91,22 +79,18 @@ class Brand extends db_connection {
     /**
      * Get a brand by ID
      * @param int $brand_id - Brand ID
-     * @param int $user_id - User ID
      * @return array - Response with brand data
      */
-    public function getBrandById($brand_id, $user_id) {
+    public function getBrandById($brand_id) {
         try {
-            $sql = "SELECT b.brand_id, b.brand_name, b.cat_id, c.cat_name 
-                    FROM brands b 
-                    JOIN categories c ON b.cat_id = c.cat_id 
-                    WHERE b.brand_id = ? AND b.user_id = ?";
+            $sql = "SELECT brand_id, brand_name FROM brands WHERE brand_id = ?";
             
             $stmt = $this->db->prepare($sql);
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
             
-            $stmt->bind_param('ii', $brand_id, $user_id);
+            $stmt->bind_param('i', $brand_id);
             $stmt->execute();
             $result = $stmt->get_result();
             
@@ -123,15 +107,13 @@ class Brand extends db_connection {
     
     /**
      * Update a brand
-     * @param array $args - Contains brand data (brand_id, brand_name, cat_id, user_id)
+     * @param array $args - Contains brand data (brand_id, brand_name)
      * @return array - Success/failure response
      */
     public function update($args) {
         try {
             $brand_id = intval($args['brand_id']);
             $brand_name = trim($args['brand_name']);
-            $cat_id = intval($args['cat_id']);
-            $user_id = intval($args['user_id']);
             
             // Validate input
             if (empty($brand_name)) {
@@ -142,32 +124,32 @@ class Brand extends db_connection {
                 return array('success' => false, 'message' => 'Invalid brand ID');
             }
             
-            // Check if brand exists and belongs to user
-            $existing = $this->getBrandById($brand_id, $user_id);
+            // Check if brand exists
+            $existing = $this->getBrandById($brand_id);
             if (!$existing['success']) {
-                return array('success' => false, 'message' => 'Brand not found or access denied');
+                return array('success' => false, 'message' => 'Brand not found');
             }
             
-            // Check if new brand+category combination already exists (excluding current brand)
-            $sql_check = "SELECT brand_id FROM brands WHERE brand_name = ? AND cat_id = ? AND user_id = ? AND brand_id != ?";
+            // Check if new brand name already exists (excluding current brand)
+            $sql_check = "SELECT brand_id FROM brands WHERE brand_name = ? AND brand_id != ?";
             $stmt_check = $this->db->prepare($sql_check);
-            $stmt_check->bind_param('siii', $brand_name, $cat_id, $user_id, $brand_id);
+            $stmt_check->bind_param('si', $brand_name, $brand_id);
             $stmt_check->execute();
             $result_check = $stmt_check->get_result();
             
             if ($result_check->num_rows > 0) {
-                return array('success' => false, 'message' => 'This brand already exists in this category');
+                return array('success' => false, 'message' => 'Brand name already exists');
             }
             
             // Update brand
-            $sql = "UPDATE brands SET brand_name = ?, cat_id = ? WHERE brand_id = ? AND user_id = ?";
+            $sql = "UPDATE brands SET brand_name = ? WHERE brand_id = ?";
             $stmt = $this->db->prepare($sql);
             
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
             
-            $stmt->bind_param('siii', $brand_name, $cat_id, $brand_id, $user_id);
+            $stmt->bind_param('si', $brand_name, $brand_id);
             
             if ($stmt->execute()) {
                 return array('success' => true, 'message' => 'Brand updated successfully');
@@ -183,10 +165,9 @@ class Brand extends db_connection {
     /**
      * Delete a brand
      * @param int $brand_id - Brand ID
-     * @param int $user_id - User ID
      * @return array - Success/failure response
      */
-    public function delete($brand_id, $user_id) {
+    public function delete($brand_id) {
         try {
             $brand_id = intval($brand_id);
             
@@ -194,33 +175,21 @@ class Brand extends db_connection {
                 return array('success' => false, 'message' => 'Invalid brand ID');
             }
             
-            // Check if brand exists and belongs to user
-            $existing = $this->getBrandById($brand_id, $user_id);
+            // Check if brand exists
+            $existing = $this->getBrandById($brand_id);
             if (!$existing['success']) {
-                return array('success' => false, 'message' => 'Brand not found or access denied');
-            }
-            
-            // Check if brand is used by any products
-            $sql_check = "SELECT COUNT(*) as count FROM products WHERE brand_id = ?";
-            $stmt_check = $this->db->prepare($sql_check);
-            $stmt_check->bind_param('i', $brand_id);
-            $stmt_check->execute();
-            $result_check = $stmt_check->get_result();
-            $count_check = $result_check->fetch_assoc();
-            
-            if ($count_check['count'] > 0) {
-                return array('success' => false, 'message' => 'Cannot delete brand. It is used by ' . $count_check['count'] . ' product(s)');
+                return array('success' => false, 'message' => 'Brand not found');
             }
             
             // Delete brand
-            $sql = "DELETE FROM brands WHERE brand_id = ? AND user_id = ?";
+            $sql = "DELETE FROM brands WHERE brand_id = ?";
             $stmt = $this->db->prepare($sql);
             
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
             
-            $stmt->bind_param('ii', $brand_id, $user_id);
+            $stmt->bind_param('i', $brand_id);
             
             if ($stmt->execute()) {
                 return array('success' => true, 'message' => 'Brand deleted successfully');
@@ -234,47 +203,18 @@ class Brand extends db_connection {
     }
     
     /**
-     * Check if a brand exists in a category
+     * Check if brand exists
      * @param string $brand_name - Brand name
-     * @param int $cat_id - Category ID
-     * @return bool
+     * @return bool - True if exists, false otherwise
      */
-    private function brandExists($brand_name, $cat_id) {
-        $sql = "SELECT brand_id FROM brands WHERE brand_name = ? AND cat_id = ?";
+    private function brandExists($brand_name) {
+        $sql = "SELECT brand_id FROM brands WHERE brand_name = ?";
         $stmt = $this->db->prepare($sql);
-        $stmt->bind_param('si', $brand_name, $cat_id);
+        $stmt->bind_param('s', $brand_name);
         $stmt->execute();
         $result = $stmt->get_result();
+        
         return $result->num_rows > 0;
     }
-    /**
-     * Get all brands (customer-facing)
-     * @return array - Response with all brands
-     */
-    public function getAllBrands() {
-        try {
-            $sql = "SELECT b.brand_id, b.brand_name, b.cat_id, c.cat_name 
-                    FROM brands b 
-                    JOIN categories c ON b.cat_id = c.cat_id 
-                    ORDER BY c.cat_name, b.brand_name";
-            
-            $stmt = $this->db->prepare($sql);
-            if (!$stmt) {
-                return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
-            }
-            
-            $stmt->execute();
-            $result = $stmt->get_result();
-            
-            $brands = array();
-            while ($row = $result->fetch_assoc()) {
-                $brands[] = $row;
-            }
-            
-            return array('success' => true, 'data' => $brands, 'message' => 'All brands retrieved successfully');
-            
-        } catch (Exception $e) {
-            return array('success' => false, 'message' => 'Error: ' . $e->getMessage());
-        }
-    }
 }
+?>

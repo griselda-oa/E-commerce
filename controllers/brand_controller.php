@@ -19,22 +19,20 @@ class BrandController {
     }
     
     /**
-     * Get all brands for a user
-     * @param int $user_id - User ID
+     * Get all brands
      * @return array - Response
      */
-    public function get_brands_ctr($user_id) {
-        return $this->brand->getBrandsByUser($user_id);
+    public function get_brands_ctr() {
+        return $this->brand->getAllBrands();
     }
     
     /**
      * Get a specific brand
      * @param int $brand_id - Brand ID
-     * @param int $user_id - User ID
      * @return array - Response
      */
-    public function get_brand_ctr($brand_id, $user_id) {
-        return $this->brand->getBrandById($brand_id, $user_id);
+    public function get_brand_ctr($brand_id) {
+        return $this->brand->getBrandById($brand_id);
     }
     
     /**
@@ -49,11 +47,10 @@ class BrandController {
     /**
      * Delete a brand
      * @param int $brand_id - Brand ID
-     * @param int $user_id - User ID
      * @return array - Response
      */
-    public function delete_brand_ctr($brand_id, $user_id) {
-        return $this->brand->delete($brand_id, $user_id);
+    public function delete_brand_ctr($brand_id) {
+        return $this->brand->delete($brand_id);
     }
 }
 ?>

@@ -33,7 +33,7 @@ if (!is_admin()) {
 
 try {
     $categoryController = new CategoryController();
-    $result = $categoryController->get_categories_ctr(get_user_id());
+    $result = $categoryController->get_categories_ctr();
     
     echo json_encode($result);
 } catch (Exception $e) {

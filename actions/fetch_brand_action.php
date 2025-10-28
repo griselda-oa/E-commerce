@@ -32,7 +32,7 @@ if (!is_admin()) {
 
 try {
     $brandController = new BrandController();
-    $result = $brandController->get_brands_ctr(get_user_id());
+    $result = $brandController->get_brands_ctr();
     
     echo json_encode($result);
 } catch (Exception $e) {
