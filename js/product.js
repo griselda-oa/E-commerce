@@ -56,35 +56,51 @@ function displayProducts() {
     
     if (products.length === 0) {
         container.html(`
-            <div class="col-12 text-center py-5">
-                <i class="fa fa-inbox fa-3x text-muted mb-3"></i>
-                <p class="text-muted">No products found. Add your first product!</p>
+            <div class="empty-state">
+                <i class="fa fa-shopping-bag"></i>
+                <h4>No Products Yet</h4>
+                <p>Start building your artisan marketplace by adding your first product!</p>
+                <button class="btn btn-primary btn-lg mt-3" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                    <i class="fa fa-plus"></i> Add Your First Product
+                </button>
             </div>
         `);
         return;
     }
     
-    let html = '';
+    let html = '<div class="product-grid">';
     products.forEach(product => {
-        const imagePath = product.product_image ? '../' + product.product_image : 'https://via.placeholder.com/200x200?text=No+Image';
+        const imagePath = product.product_image ? '../' + product.product_image : null;
+        const imageHtml = imagePath ? 
+            `<img src="${imagePath}" alt="${product.product_title}">` : 
+            `<div class="product-image-placeholder"><i class="fa fa-image"></i></div>`;
+            
         html += `
             <div class="product-card">
-                <img src="${imagePath}" alt="${product.product_title}" class="img-fluid rounded mb-3" style="max-height: 200px; width: 100%; object-fit: cover;">
-                <h5>${product.product_title}</h5>
-                <p class="text-muted">${product.cat_name} - ${product.brand_name}</p>
-                <p class="h4 text-primary">GHS ${parseFloat(product.product_price).toFixed(2)}</p>
-                <p class="text-truncate">${product.product_description}</p>
-                <div class="mt-3">
-                    <button class="btn btn-sm btn-warning" onclick="editProduct(${product.product_id})">
-                        <i class="fa fa-edit"></i> Edit
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteProduct(${product.product_id})">
-                        <i class="fa fa-trash"></i> Delete
-                    </button>
+                <div class="product-image">
+                    ${imageHtml}
+                </div>
+                <div class="product-content">
+                    <h5 class="product-title">${product.product_title}</h5>
+                    <div class="product-meta">
+                        <i class="fa fa-tag"></i> ${product.cat_name || 'Uncategorized'} | 
+                        <i class="fa fa-industry"></i> ${product.brand_name || 'No Brand'}
+                    </div>
+                    <div class="product-price">GHS ${parseFloat(product.product_price).toFixed(2)}</div>
+                    <p class="text-muted small">${product.product_desc ? product.product_desc.substring(0, 100) + '...' : 'No description'}</p>
+                    <div class="product-actions">
+                        <button class="btn btn-warning btn-sm" onclick="editProduct(${product.product_id})">
+                            <i class="fa fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteProduct(${product.product_id})">
+                            <i class="fa fa-trash"></i> Delete
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
     });
+    html += '</div>';
     
     container.html(html);
 }

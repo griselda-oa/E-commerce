@@ -137,36 +137,47 @@ $(document).ready(function() {
 
         if (pageProducts.length === 0) {
             container.html(`
-                <div class="col-12 text-center py-5">
-                    <i class="fa fa-search fa-3x text-muted mb-3"></i>
-                    <h4 class="text-muted">No products found</h4>
-                    <p class="text-muted">Try adjusting your search criteria</p>
+                <div class="empty-state">
+                    <i class="fa fa-search"></i>
+                    <h4>No Products Found</h4>
+                    <p>Try adjusting your search criteria or browse all products</p>
+                    <button class="btn btn-primary btn-lg mt-3" onclick="loadAllProducts()">
+                        <i class="fa fa-refresh"></i> Show All Products
+                    </button>
                 </div>
             `);
             return;
         }
 
-        let html = '';
+        let html = '<div class="product-grid">';
         pageProducts.forEach(product => {
-            const imagePath = product.product_image ? product.product_image : 'https://via.placeholder.com/300x200?text=No+Image';
+            const imagePath = product.product_image ? product.product_image : null;
+            const imageHtml = imagePath ? 
+                `<img src="${imagePath}" alt="${product.product_title}">` : 
+                `<div class="product-image-placeholder"><i class="fa fa-image"></i></div>`;
+                
             html += `
-                <div class="col-md-4 col-lg-3 mb-4">
-                    <div class="product-card h-100">
-                        <img src="${imagePath}" alt="${product.product_title}" class="product-image mb-3">
-                        <h5 class="card-title">${product.product_title}</h5>
-                        <p class="text-muted small">${product.cat_name} - ${product.brand_name}</p>
-                        <p class="h4 text-primary mb-3">GHS ${parseFloat(product.product_price).toFixed(2)}</p>
-                        <p class="card-text text-truncate">${product.product_description}</p>
-                        <div class="mt-auto">
-                            <a href="single_product.php?id=${product.product_id}" class="btn btn-primary w-100">
-                                <i class="fa fa-eye"></i> View Details
-                            </a>
+                <div class="product-card">
+                    <div class="product-image">
+                        ${imageHtml}
+                    </div>
+                    <div class="product-content">
+                        <h5 class="product-title">${product.product_title}</h5>
+                        <div class="product-meta">
+                            <i class="fa fa-tag"></i> ${product.cat_name || 'Uncategorized'} | 
+                            <i class="fa fa-industry"></i> ${product.brand_name || 'No Brand'}
                         </div>
+                        <div class="product-price">GHS ${parseFloat(product.product_price).toFixed(2)}</div>
+                        <p class="product-description">${product.product_desc ? product.product_desc.substring(0, 120) + '...' : 'No description available'}</p>
+                        <a href="single_product.php?id=${product.product_id}" class="btn btn-add-cart">
+                            <i class="fa fa-eye"></i> View Details
+                        </a>
                     </div>
                 </div>
             `;
         });
-
+        html += '</div>';
+        
         container.html(html);
     }
 
