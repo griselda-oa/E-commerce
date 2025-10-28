@@ -4,6 +4,7 @@ let currentAction = 'add'; // 'add' or 'edit'
 
 $(document).ready(function() {
     loadProducts();
+    loadAllBrands(); // Load all brands initially
     
     // Load brands when category changes
     $('#categorySelect').on('change', function() {
@@ -11,12 +12,7 @@ $(document).ready(function() {
     });
 });
 
-function loadBrandsForCategory(catId) {
-    if (!catId) {
-        $('#brandSelect').html('<option value="">Select Brand</option>');
-        return;
-    }
-    
+function loadAllBrands() {
     $.ajax({
         url: '../actions/fetch_brand_action.php',
         method: 'POST',
@@ -25,14 +21,20 @@ function loadBrandsForCategory(catId) {
             if (response.success && response.data) {
                 let brandsHtml = '<option value="">Select Brand</option>';
                 response.data.forEach(brand => {
-                    if (brand.cat_id == catId) {
-                        brandsHtml += `<option value="${brand.brand_id}">${brand.brand_name}</option>`;
-                    }
+                    brandsHtml += `<option value="${brand.brand_id}">${brand.brand_name}</option>`;
                 });
                 $('#brandSelect').html(brandsHtml);
             }
+        },
+        error: function() {
+            console.error('Error loading brands');
         }
     });
+}
+
+function loadBrandsForCategory(catId) {
+    // For now, just load all brands since we removed cat_id from brands table
+    loadAllBrands();
 }
 
 function loadProducts() {
