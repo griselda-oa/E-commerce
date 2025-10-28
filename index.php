@@ -1385,22 +1385,10 @@ require_once 'settings/core.php';
 						</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="#">
-							<i class="fa fa-shopping-cart"></i> Cart
-						</a>
-					</li>
-					<li class="nav-item">
 						<a class="nav-link" href="all_product.php">
 							<i class="fa fa-shopping-bag"></i> Products
 						</a>
 					</li>
-					<?php if (is_admin()): ?>
-					<li class="nav-item">
-						<a class="nav-link" href="admin/category.php">
-							<i class="fa fa-tags"></i> Categories
-						</a>
-					</li>
-					<?php endif; ?>
 					<li class="nav-item">
 						<a class="nav-link" href="#">
 							<i class="fa fa-info-circle"></i> About
@@ -1503,7 +1491,7 @@ require_once 'settings/core.php';
 											<i class="fa fa-shopping-cart"></i>
 										</div>
 										<div class="stat-content">
-											<div class="stat-number">0</div>
+											<div class="stat-number" id="cart-count">3</div>
 											<div class="stat-label">Items in Cart</div>
 										</div>
 									</div>
@@ -1514,7 +1502,7 @@ require_once 'settings/core.php';
 											<i class="fa fa-check-circle"></i>
 										</div>
 										<div class="stat-content">
-											<div class="stat-number">0</div>
+											<div class="stat-number" id="orders-count">7</div>
 											<div class="stat-label">Orders Placed</div>
 										</div>
 									</div>
@@ -1525,7 +1513,7 @@ require_once 'settings/core.php';
 											<i class="fa fa-heart"></i>
 										</div>
 										<div class="stat-content">
-											<div class="stat-number">0</div>
+											<div class="stat-number" id="wishlist-count">12</div>
 											<div class="stat-label">Wishlist Items</div>
 										</div>
 									</div>
@@ -1536,7 +1524,7 @@ require_once 'settings/core.php';
 											<i class="fa fa-star"></i>
 										</div>
 										<div class="stat-content">
-											<div class="stat-number">0</div>
+											<div class="stat-number" id="reviews-count">5</div>
 											<div class="stat-label">Reviews Given</div>
 										</div>
 									</div>
@@ -1556,13 +1544,13 @@ require_once 'settings/core.php';
 						<div class="card-body">
 							<div class="row">
 								<div class="col-md-3 mb-3">
-									<a href="products.php" class="action-card">
+									<a href="all_product.php" class="action-card">
 										<div class="action-icon bg-primary">
 											<i class="fa fa-store"></i>
-								</div>
+										</div>
 										<div class="action-content">
 											<h6>Browse Products</h6>
-											<p class="text-muted">1,250+ items</p>
+											<p class="text-muted">15+ artisan items</p>
 										</div>
 									</a>
 								</div>
@@ -1573,7 +1561,7 @@ require_once 'settings/core.php';
 										</div>
 										<div class="action-content">
 											<h6>My Cart</h6>
-											<p class="text-muted">0 items</p>
+											<p class="text-muted">3 items</p>
 										</div>
 									</a>
 								</div>
@@ -1584,7 +1572,7 @@ require_once 'settings/core.php';
 										</div>
 										<div class="action-content">
 											<h6>Order History</h6>
-											<p class="text-muted">Track orders</p>
+											<p class="text-muted">7 orders</p>
 										</div>
 									</a>
 								</div>
@@ -1595,10 +1583,10 @@ require_once 'settings/core.php';
 										</div>
 										<div class="action-content">
 											<h6>Wishlist</h6>
-											<p class="text-muted">0 items</p>
+											<p class="text-muted">12 items</p>
 										</div>
 									</a>
-						</div>
+								</div>
 					</div>
 				</div>
 			</div>
@@ -1743,6 +1731,9 @@ require_once 'settings/core.php';
 			var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
 				return new bootstrap.Dropdown(dropdownToggleEl);
 			});
+			
+			// Animate shopping overview numbers
+			animateShoppingNumbers();
 			
 			// Enhanced dropdown interactions
 			document.getElementById('userDropdown')?.addEventListener('click', function(e) {
@@ -2083,6 +2074,33 @@ require_once 'settings/core.php';
 
 		// TYPING ANIMATIONS - SIMPLIFIED AND WORKING
 		initTypingAnimations();
+		
+		// Animate shopping overview numbers
+		function animateShoppingNumbers() {
+			const cartCount = document.getElementById('cart-count');
+			const ordersCount = document.getElementById('orders-count');
+			const wishlistCount = document.getElementById('wishlist-count');
+			const reviewsCount = document.getElementById('reviews-count');
+			
+			if (cartCount) animateNumber(cartCount, 3);
+			if (ordersCount) animateNumber(ordersCount, 7);
+			if (wishlistCount) animateNumber(wishlistCount, 12);
+			if (reviewsCount) animateNumber(reviewsCount, 5);
+		}
+		
+		function animateNumber(element, target) {
+			let current = 0;
+			const increment = target / 30;
+			const timer = setInterval(() => {
+				current += increment;
+				if (current >= target) {
+					element.textContent = target;
+					clearInterval(timer);
+				} else {
+					element.textContent = Math.floor(current);
+				}
+			}, 50);
+		}
 		
 		// Add a test button for manual animation trigger
 		const testButton = document.createElement('button');
