@@ -62,13 +62,23 @@ INSERT INTO customer (customer_name, customer_email, customer_pass, customer_cou
 ('Griselda Owusu-Ansah', 'griselda.owusu@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ghana', 'Accra', '1234567890', NULL, 1),
 ('Test User', 'test@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'USA', 'New York', '0987654321', NULL, 2);
 
--- Insert artisan craft categories for Owusu Artisan Market
+-- Insert comprehensive artisan categories for Owusu Artisan Market
 INSERT INTO categories (cat_name) VALUES
 ('Kente & Textiles'),
 ('Wood Carvings & Sculptures'),
 ('Handcrafted Jewelry'),
 ('Beaded Art & Accessories'),
-('Ceramics & Pottery');
+('Ceramics & Pottery'),
+('Leather Goods & Accessories'),
+('Metalwork & Brass Art'),
+('Basketry & Woven Items'),
+('Traditional Musical Instruments'),
+('Home Decor & Furnishings'),
+('Fashion & Clothing'),
+('Sculptures & Figurines'),
+('Paintings & Wall Art'),
+('Garden & Outdoor Items'),
+('Kitchen & Dining Items');
 
 -- Insert artisan studios and craft workshops
 INSERT INTO brands (brand_name) VALUES
