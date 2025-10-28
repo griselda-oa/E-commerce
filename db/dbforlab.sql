@@ -84,28 +84,28 @@ INSERT INTO brands (brand_name) VALUES
 ('Royal Pottery Accra');
 
 -- Insert artisan products with realistic Ghana pricing and stock levels
-INSERT INTO products (product_title, product_description, product_price, product_keyword, product_image, product_stock) VALUES
+INSERT INTO products (product_title, product_price, product_keyword, product_image, product_stock) VALUES
 -- Kente & Textiles
-('Handwoven Kente Cloth (6 yards)', 'Authentic Bonwire Kente, handwoven cotton, traditional Akan patterns, ceremonial quality', 280.00, 'kente cloth traditional african textile', NULL, 8),
-('Kente Scarf with Adinkra Symbols', 'Silk blend scarf, traditional Kente patterns with embroidered Adinkra symbols', 95.00, 'kente scarf adinkra silk accessories', NULL, 25),
-('Handwoven Kente Throw Pillow Set', 'Authentic Kente fabric, handwoven in Bonwire, set of 2 premium pillow covers', 480.00, 'kente pillow throw handwoven home decor', NULL, 12),
+('Handwoven Kente Cloth (6 yards)', 280.00, 'kente cloth traditional african textile', NULL, 8),
+('Kente Scarf with Adinkra Symbols', 95.00, 'kente scarf adinkra silk accessories', NULL, 25),
+('Handwoven Kente Throw Pillow Set', 480.00, 'kente pillow throw handwoven home decor', NULL, 12),
 
 -- Wood Carvings & Sculptures
-('Carved Adinkra Symbol Wall Art', 'Traditional Ghanaian symbols carved on mahogany wood, 18x24 inches, signed by master artisan', 750.00, 'adinkra wood carving wall art mahogany', NULL, 6),
-('Hand-carved Tribal Mask', 'Traditional ceremonial mask, hand-carved from teak wood, one-of-a-kind piece', 850.00, 'wooden mask tribal ceremonial teak', NULL, 4),
-('Carved Wooden Stools (Ase)', 'Pair of traditional Ghanaian stools, mahogany wood, hand-carved detail work', 550.00, 'wooden stool furniture traditional handcrafted', NULL, 10),
+('Carved Adinkra Symbol Wall Art', 750.00, 'adinkra wood carving wall art mahogany', NULL, 6),
+('Hand-carved Tribal Mask', 850.00, 'wooden mask tribal ceremonial teak', NULL, 4),
+('Carved Wooden Stools (Ase)', 550.00, 'wooden stool furniture traditional handcrafted', NULL, 10),
 
 -- Handcrafted Jewelry
-('Ghana Bead Necklace Set', 'Hand-strung glass bead necklace and earring set, unique artisan design from Krobo', 320.00, 'bead jewelry glass krobo handmade artisan', NULL, 18),
-('Krobo Recycled Glass Beads', 'Eco-friendly recycled glass beads, colorful traditional patterns', 85.00, 'glass beads krobo recycled eco-friendly', NULL, 35),
-('Leather & Bead Bangle Set', 'Handmade leather bangles with decorative bead details, set of 3', 120.00, 'bangles leather beads handmade artisan', NULL, 28),
+('Ghana Bead Necklace Set', 320.00, 'bead jewelry glass krobo handmade artisan', NULL, 18),
+('Krobo Recycled Glass Beads', 85.00, 'glass beads krobo recycled eco-friendly', NULL, 35),
+('Leather & Bead Bangle Set', 120.00, 'bangles leather beads handmade artisan', NULL, 28),
 
 -- Beaded Art & Accessories
-('Beaded Handbag with Adinkra Symbols', 'Sustainable raffia palm fiber, unique geometric patterns, artisan crafted with traditional beads', 420.00, 'handbag raffia beads adinkra eco-friendly', NULL, 12),
-('Decorative Beaded Coasters', 'Set of 6, traditional Ghanaian bead patterns, hand-woven technique', 95.00, 'coasters beads decorative traditional home', NULL, 40),
-('Handwoven Raffia Basket Set', 'Set of 5 traditional grass storage baskets, organic materials, various sizes, beaded accents', 95.00, 'baskets raffia woven traditional storage', NULL, 30),
+('Beaded Handbag with Adinkra Symbols', 420.00, 'handbag raffia beads adinkra eco-friendly', NULL, 12),
+('Decorative Beaded Coasters', 95.00, 'coasters beads decorative traditional home', NULL, 40),
+('Handwoven Raffia Basket Set', 95.00, 'baskets raffia woven traditional storage', NULL, 30),
 
 -- Ceramics & Pottery
-('Traditional Clay Cooking Pot', 'Hand-thrown clay pot, suitable for traditional cooking, authentic Volta style', 65.00, 'clay pot cooking traditional pottery', NULL, 20),
-('Decorative Ceramic Vase', 'Hand-glazed ceramic vase with Adinkra symbols, 12 inches tall', 75.00, 'ceramic vase decorative adinkra pottery', NULL, 25),
-('Ceramic Water Storage Jar', 'Traditional water storage vessel, hand-made, 5-gallon capacity, decorative patterns', 120.00, 'ceramic water jar storage traditional', NULL, 15);
+('Traditional Clay Cooking Pot', 65.00, 'clay pot cooking traditional pottery', NULL, 20),
+('Decorative Ceramic Vase', 75.00, 'ceramic vase decorative adinkra pottery', NULL, 25),
+('Ceramic Water Storage Jar', 120.00, 'ceramic water jar storage traditional', NULL, 15);
