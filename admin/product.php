@@ -1,6 +1,7 @@
 <?php
 // admin/product.php
 require_once '../settings/core.php';
+require_once '../settings/security.php';
 require_once '../controllers/category_controller.php';
 require_once '../controllers/brand_controller.php';
 
@@ -18,11 +19,11 @@ if (!is_admin()) {
 
 // Get categories and brands for dropdowns
 $categoryController = new CategoryController();
-$categories_result = $categoryController->get_categories_ctr(get_user_id());
+$categories_result = $categoryController->get_categories_ctr();
 $categories = $categories_result['success'] ? $categories_result['data'] : array();
 
 $brandController = new BrandController();
-$brands_result = $brandController->get_brands_ctr(get_user_id());
+$brands_result = $brandController->get_brands_ctr();
 $brands = $brands_result['success'] ? $brands_result['data'] : array();
 ?>
 <!DOCTYPE html>
@@ -189,6 +190,7 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
                 <div class="modal-body">
                     <form id="productForm">
                         <input type="hidden" id="productId" name="product_id">
+                        <input type="hidden" name="csrf_token" value="<?php echo SecurityManager::generateCSRFToken(); ?>">
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">

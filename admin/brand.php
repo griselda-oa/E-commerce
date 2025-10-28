@@ -17,7 +17,7 @@ if (!is_admin()) {
 
 // Get categories for dropdown
 $categoryController = new CategoryController();
-$categories_result = $categoryController->get_categories_ctr(get_user_id());
+$categories_result = $categoryController->get_categories_ctr();
 $categories = $categories_result['success'] ? $categories_result['data'] : array();
 ?>
 <!DOCTYPE html>
