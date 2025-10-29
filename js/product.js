@@ -22,7 +22,7 @@ function loadAllBrands() {
             console.log('Brand response:', response);
             if (response.success && response.data) {
                 let brandsHtml = '<option value="">Select Brand</option>';
-                response.data.forEach(brand => {
+                response.data.forEach(function(brand) {
                     brandsHtml += `<option value="${brand.brand_id}">${brand.brand_name}</option>`;
                 });
                 $('#brandSelect').html(brandsHtml);
@@ -78,7 +78,7 @@ function displayProducts() {
     }
     
     let html = '<div class="product-grid">';
-    products.forEach(product => {
+    products.forEach(function(product) {
         const imagePath = product.product_image ? '../' + product.product_image : null;
         const imageHtml = imagePath ? 
             `<img src="${imagePath}" alt="${product.product_title}">` : 

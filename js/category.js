@@ -20,7 +20,7 @@ function showAlert(message, type = 'info') {
     `;
     
     // Auto-hide after 5 seconds
-    setTimeout(() => {
+    setTimeout(function() {
         const alert = document.getElementById(alertId);
         if (alert) {
             alert.remove();
@@ -29,27 +29,24 @@ function showAlert(message, type = 'info') {
 }
 
 // Load categories from server
-async function loadCategories() {
-    try {
-        const response = await fetch('../actions/fetch_category_action.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+function loadCategories() {
+    $.ajax({
+        url: '../actions/fetch_category_action.php',
+        method: 'POST',
+        dataType: 'json',
+        success: function(result) {
+            if (result.success) {
+                categories = result.data;
+                displayCategories();
+            } else {
+                showAlert('Error loading categories: ' + result.message, 'danger');
             }
-        });
-
-        const result = await response.json();
-        
-        if (result.success) {
-            categories = result.data;
-            displayCategories();
-        } else {
-            showAlert('Error loading categories: ' + result.message, 'danger');
+        },
+        error: function(xhr, status, error) {
+            console.error('Error loading categories:', error);
+            showAlert('Error loading categories. Please try again.', 'danger');
         }
-    } catch (error) {
-        console.error('Error loading categories:', error);
-        showAlert('Error loading categories. Please try again.', 'danger');
-    }
+    });
 }
 
 // Display categories in table
@@ -68,7 +65,8 @@ function displayCategories() {
         return;
     }
 
-    tbody.innerHTML = categories.map(category => `
+    tbody.innerHTML = categories.map(function(category) {
+        return `
         <tr>
             <td><strong>#${category.cat_id}</strong></td>
             <td>${escapeHtml(category.cat_name)}</td>
@@ -82,11 +80,12 @@ function displayCategories() {
                 </button>
             </td>
         </tr>
-    `).join('');
+    `;
+    }).join('');
 }
 
 // Add new category
-async function addCategory() {
+function addCategory() {
     const categoryName = document.getElementById('categoryName').value.trim();
     
     if (!categoryName) {
@@ -100,34 +99,33 @@ async function addCategory() {
         return;
     }
 
-    try {
-        const formData = new FormData();
-        formData.append('category_name', categoryName);
-
-        const response = await fetch('../actions/add_category_action.php', {
-            method: 'POST',
-            body: formData
-        });
-
-        const result = await response.json();
-        
-        if (result.success) {
-            showAlert('Category added successfully!', 'success');
-            document.getElementById('addCategoryForm').reset();
-            bootstrap.Modal.getInstance(document.getElementById('addCategoryModal')).hide();
-            loadCategories();
-        } else {
-            showAlert('Error adding category: ' + result.message, 'danger');
+    $.ajax({
+        url: '../actions/add_category_action.php',
+        method: 'POST',
+        data: {
+            category_name: categoryName
+        },
+        dataType: 'json',
+        success: function(result) {
+            if (result.success) {
+                showAlert('Category added successfully!', 'success');
+                document.getElementById('addCategoryForm').reset();
+                $('#addCategoryModal').modal('hide');
+                loadCategories();
+            } else {
+                showAlert('Error adding category: ' + result.message, 'danger');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error adding category:', error);
+            showAlert('Error adding category. Please try again.', 'danger');
         }
-    } catch (error) {
-        console.error('Error adding category:', error);
-        showAlert('Error adding category. Please try again.', 'danger');
-    }
+    });
 }
 
 // Edit category
 function editCategory(categoryId) {
-    const category = categories.find(cat => cat.cat_id == categoryId);
+    const category = categories.find(function(cat) { return cat.cat_id == categoryId; });
     if (!category) {
         showAlert('Category not found', 'danger');
         return;
@@ -140,7 +138,7 @@ function editCategory(categoryId) {
 }
 
 // Update category
-async function updateCategory() {
+function updateCategory() {
     const categoryId = document.getElementById('editCategoryId').value;
     const categoryName = document.getElementById('editCategoryName').value.trim();
     
@@ -155,29 +153,28 @@ async function updateCategory() {
         return;
     }
 
-    try {
-        const formData = new FormData();
-        formData.append('category_id', categoryId);
-        formData.append('category_name', categoryName);
-
-        const response = await fetch('../actions/update_category_action.php', {
-            method: 'POST',
-            body: formData
-        });
-
-        const result = await response.json();
-        
-        if (result.success) {
-            showAlert('Category updated successfully!', 'success');
-            bootstrap.Modal.getInstance(document.getElementById('editCategoryModal')).hide();
-            loadCategories();
-        } else {
-            showAlert('Error updating category: ' + result.message, 'danger');
+    $.ajax({
+        url: '../actions/update_category_action.php',
+        method: 'POST',
+        data: {
+            category_id: categoryId,
+            category_name: categoryName
+        },
+        dataType: 'json',
+        success: function(result) {
+            if (result.success) {
+                showAlert('Category updated successfully!', 'success');
+                $('#editCategoryModal').modal('hide');
+                loadCategories();
+            } else {
+                showAlert('Error updating category: ' + result.message, 'danger');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error updating category:', error);
+            showAlert('Error updating category. Please try again.', 'danger');
         }
-    } catch (error) {
-        console.error('Error updating category:', error);
-        showAlert('Error updating category. Please try again.', 'danger');
-    }
+    });
 }
 
 // Confirm delete
@@ -187,31 +184,30 @@ function confirmDelete(categoryId, categoryName) {
 }
 
 // Delete category
-async function deleteCategory() {
+function deleteCategory() {
     const categoryId = document.getElementById('deleteCategoryId').value;
 
-    try {
-        const formData = new FormData();
-        formData.append('category_id', categoryId);
-
-        const response = await fetch('../actions/delete_category_action.php', {
-            method: 'POST',
-            body: formData
-        });
-
-        const result = await response.json();
-        
-        if (result.success) {
-            showAlert('Category deleted successfully!', 'success');
-            bootstrap.Modal.getInstance(document.getElementById('deleteCategoryModal')).hide();
-            loadCategories();
-        } else {
-            showAlert('Error deleting category: ' + result.message, 'danger');
+    $.ajax({
+        url: '../actions/delete_category_action.php',
+        method: 'POST',
+        data: {
+            category_id: categoryId
+        },
+        dataType: 'json',
+        success: function(result) {
+            if (result.success) {
+                showAlert('Category deleted successfully!', 'success');
+                $('#deleteCategoryModal').modal('hide');
+                loadCategories();
+            } else {
+                showAlert('Error deleting category: ' + result.message, 'danger');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error deleting category:', error);
+            showAlert('Error deleting category. Please try again.', 'danger');
         }
-    } catch (error) {
-        console.error('Error deleting category:', error);
-        showAlert('Error deleting category. Please try again.', 'danger');
-    }
+    });
 }
 
 // Escape HTML to prevent XSS
