@@ -73,6 +73,7 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 25px;
             margin-top: 30px;
+            width: 100%;
         }
         
         /* Fallback for older browsers */
@@ -80,11 +81,23 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
             .product-grid {
                 display: flex;
                 flex-wrap: wrap;
-                justify-content: space-between;
+                justify-content: flex-start;
+                align-items: stretch;
             }
             .product-card {
                 width: calc(33.333% - 20px);
+                margin-right: 20px;
                 margin-bottom: 25px;
+                flex-shrink: 0;
+            }
+        }
+        
+        /* Chrome-specific grid fix */
+        @media screen and (-webkit-min-device-pixel-ratio: 0) {
+            .product-grid {
+                display: -webkit-grid;
+                -webkit-grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                -webkit-grid-gap: 25px;
             }
         }
         .product-card {
@@ -94,6 +107,9 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             position: relative;
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
         }
         .product-card:hover {
             transform: translateY(-8px);

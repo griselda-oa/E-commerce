@@ -47,16 +47,16 @@ if ($file['size'] > $max_size) {
 // Create directory structure: uploads/u{user_id}/p{product_id}/
 $upload_dir = __DIR__ . '/../uploads/u' . $user_id;
 if (!is_dir($upload_dir)) {
-    if (!mkdir($upload_dir, 0755, true)) {
-        echo json_encode(['success' => false, 'message' => 'Failed to create upload directory']);
+    if (!mkdir($upload_dir, 0777, true)) {
+        echo json_encode(['success' => false, 'message' => 'Failed to create upload directory. Please check permissions.']);
         exit;
     }
 }
 
 $product_dir = $upload_dir . '/p' . $product_id;
 if (!is_dir($product_dir)) {
-    if (!mkdir($product_dir, 0755, true)) {
-        echo json_encode(['success' => false, 'message' => 'Failed to create product directory']);
+    if (!mkdir($product_dir, 0777, true)) {
+        echo json_encode(['success' => false, 'message' => 'Failed to create product directory. Please check permissions.']);
         exit;
     }
 }
