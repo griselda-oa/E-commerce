@@ -10,6 +10,23 @@ $(document).ready(function() {
     $('#categorySelect').on('change', function() {
         loadBrandsForCategory($(this).val());
     });
+    
+    // Fix modal accessibility issues
+    $('#addProductModal').on('shown.bs.modal', function() {
+        $(this).removeAttr('aria-hidden');
+    });
+    
+    $('#addProductModal').on('hidden.bs.modal', function() {
+        $(this).attr('aria-hidden', 'true');
+    });
+    
+    $('#uploadImageModal').on('shown.bs.modal', function() {
+        $(this).removeAttr('aria-hidden');
+    });
+    
+    $('#uploadImageModal').on('hidden.bs.modal', function() {
+        $(this).attr('aria-hidden', 'true');
+    });
 });
 
 function loadAllBrands() {
