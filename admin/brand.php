@@ -236,8 +236,8 @@ $categories = $categories_result['success'] ? $categories_result['data'] : array
             <button class="btn-action btn-refresh" onclick="loadBrands()">
                 <i class="fa fa-refresh"></i> Refresh
             </button>
-            <a href="category.php" class="btn-action btn-back">
-                <i class="fa fa-tags"></i> Manage Categories
+            <a href="../index.php" class="btn-action btn-dashboard">
+                <i class="fa fa-home"></i> Back to Dashboard
             </a>
         </div>
 

@@ -229,7 +229,7 @@ if (!is_admin()) {
             <button class="btn-action btn-refresh" onclick="loadCategories()">
                 <i class="fa fa-refresh"></i> Refresh
             </button>
-            <a href="dashboard.php" class="btn-action btn-dashboard">
+            <a href="../index.php" class="btn-action btn-dashboard">
                 <i class="fa fa-home"></i> Back to Dashboard
             </a>
         </div>

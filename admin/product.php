@@ -167,6 +167,7 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
             </button>
             <a href="brand.php" class="btn btn-warning btn-action"><i class="fa fa-industry"></i> Brands</a>
             <a href="category.php" class="btn btn-info btn-action"><i class="fa fa-tags"></i> Categories</a>
+            <a href="../index.php" class="btn btn-secondary btn-action"><i class="fa fa-home"></i> Back to Dashboard</a>
         </div>
         
         <div id="productsContainer" class="product-grid">
