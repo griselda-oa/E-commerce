@@ -79,7 +79,7 @@ function displayProducts() {
     
     let html = '<div class="product-grid">';
     products.forEach(function(product) {
-        const imagePath = product.product_image ? '../' + product.product_image : null;
+        const imagePath = product.product_image ? product.product_image : null;
         const imageHtml = imagePath ? 
             `<img src="${imagePath}" alt="${product.product_title}">` : 
             `<div class="product-image-placeholder"><i class="fa fa-image"></i></div>`;
@@ -100,6 +100,9 @@ function displayProducts() {
                     <div class="product-actions">
                         <button class="btn btn-warning btn-sm" onclick="editProduct(${product.product_id})">
                             <i class="fa fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="uploadImage(${product.product_id})">
+                            <i class="fa fa-image"></i> Upload Image
                         </button>
                         <button class="btn btn-danger btn-sm" onclick="deleteProduct(${product.product_id})">
                             <i class="fa fa-trash"></i> Delete
@@ -173,6 +176,68 @@ function deleteProduct(productId) {
     
     // Implement delete functionality if needed
     showAlert('Delete functionality not implemented yet', 'info');
+}
+
+function uploadImage(productId) {
+    $('#uploadProductId').val(productId);
+    $('#uploadImageModal').modal('show');
+}
+
+function saveImage() {
+    const productId = $('#uploadProductId').val();
+    const fileInput = document.getElementById('productImageFile');
+    
+    if (!fileInput.files[0]) {
+        showAlert('Please select an image file', 'warning');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('product_image', fileInput.files[0]);
+    formData.append('product_id', productId);
+    
+    $.ajax({
+        url: '../actions/upload_product_image_action.php',
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                showAlert('Image uploaded successfully!', 'success');
+                $('#uploadImageModal').modal('hide');
+                // Update the product image in database
+                updateProductImage(productId, response.image_path);
+            } else {
+                showAlert('Error uploading image: ' + response.message, 'danger');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Upload error:', error);
+            showAlert('Error uploading image. Please try again.', 'danger');
+        }
+    });
+}
+
+function updateProductImage(productId, imagePath) {
+    $.ajax({
+        url: '../actions/update_product_image_action.php',
+        method: 'POST',
+        data: {
+            product_id: productId,
+            product_image: imagePath
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                loadProducts(); // Reload products to show new image
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Update error:', error);
+        }
+    });
 }
 
 function showAlert(message, type) {

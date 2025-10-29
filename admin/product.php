@@ -65,10 +65,27 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
             gap: 8px;
         }
         .product-grid {
+            display: -webkit-grid;
+            display: -ms-grid;
             display: grid;
+            -webkit-grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            -ms-grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 25px;
             margin-top: 30px;
+        }
+        
+        /* Fallback for older browsers */
+        @supports not (display: grid) {
+            .product-grid {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+            .product-card {
+                width: calc(33.333% - 20px);
+                margin-bottom: 25px;
+            }
         }
         .product-card {
             background: white;
@@ -246,6 +263,32 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" onclick="saveProduct()"><i class="fa fa-save"></i> Save Product</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Upload Modal -->
+    <div class="modal fade" id="uploadImageModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fa fa-image"></i> Upload Product Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="uploadImageForm">
+                        <input type="hidden" id="uploadProductId" name="product_id">
+                        <div class="mb-3">
+                            <label class="form-label">Select Image</label>
+                            <input type="file" class="form-control" id="productImageFile" name="product_image" accept="image/*" required>
+                            <div class="form-text">Supported formats: JPEG, PNG, GIF. Max size: 5MB</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveImage()"><i class="fa fa-upload"></i> Upload Image</button>
                 </div>
             </div>
         </div>
