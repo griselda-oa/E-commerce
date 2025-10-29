@@ -5,10 +5,13 @@ $(document).ready(function() {
 });
 
 // Global variables
-let categories = [];
+var categories = [];
 
 // Show alert message
-function showAlert(message, type = 'info') {
+function showAlert(message, type) {
+    if (typeof type === 'undefined') {
+        type = 'info';
+    }
     const alertContainer = document.getElementById('alertContainer');
     const alertId = 'alert-' + Date.now();
     
