@@ -175,7 +175,7 @@ require_once 'settings/core.php';
                     <a class="nav-link" href="actions/logout_action.php">Logout</a>
                 <?php else: ?>
                     <a class="nav-link" href="login/login.php">Login</a>
-                    <a class="nav-link" href="register/register.php">Register</a>
+                    <a class="nav-link" href="login/register.php">Register</a>
                 <?php endif; ?>
             </div>
         </div>

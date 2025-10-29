@@ -169,7 +169,7 @@ $(document).ready(function() {
                         </div>
                         <div class="product-price">GHS ${parseFloat(product.product_price).toFixed(2)}</div>
                         <p class="product-description">${product.product_desc ? product.product_desc.substring(0, 120) + '...' : 'No description available'}</p>
-                        <a href="single_product.php?id=${product.product_id}" class="btn btn-add-cart">
+                        <a href="single_product.php?token=${product.product_token}" class="btn btn-add-cart">
                             <i class="fa fa-eye"></i> View Details
                         </a>
                     </div>

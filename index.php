@@ -1390,7 +1390,7 @@ require_once 'settings/core.php';
 						</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="#">
+						<a class="nav-link" href="all_product.php">
 							<i class="fa fa-info-circle"></i> About
 						</a>
 					</li>
@@ -1432,7 +1432,7 @@ require_once 'settings/core.php';
 					<?php else: ?>
 						<!-- User is not logged in -->
 						<li class="nav-item">
-							<a class="nav-link" href="register/register.php">
+							<a class="nav-link" href="login/register.php">
 								<i class="fa fa-user-plus"></i> Register
 							</a>
 						</li>
@@ -1555,7 +1555,7 @@ require_once 'settings/core.php';
 									</a>
 								</div>
 								<div class="col-md-3 mb-3">
-									<a href="#" class="action-card">
+									<a href="all_product.php" class="action-card">
 										<div class="action-icon bg-info">
 											<i class="fa fa-shopping-cart"></i>
 										</div>
@@ -1566,7 +1566,7 @@ require_once 'settings/core.php';
 									</a>
 								</div>
 								<div class="col-md-3 mb-3">
-									<a href="#" class="action-card">
+									<a href="all_product.php" class="action-card">
 										<div class="action-icon bg-success">
 											<i class="fa fa-history"></i>
 										</div>
@@ -1577,7 +1577,7 @@ require_once 'settings/core.php';
 									</a>
 								</div>
 								<div class="col-md-3 mb-3">
-									<a href="#" class="action-card">
+									<a href="all_product.php" class="action-card">
 										<div class="action-icon bg-warning">
 											<i class="fa fa-heart"></i>
 										</div>

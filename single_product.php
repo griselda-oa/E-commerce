@@ -1,16 +1,16 @@
 <?php
 require_once 'settings/core.php';
 
-$product_id = intval($_GET['id'] ?? 0);
-if ($product_id <= 0) {
+$product_token = $_GET['token'] ?? '';
+if (empty($product_token)) {
     header('Location: all_product.php');
     exit;
 }
 
-// Fetch product details
+// Fetch product details by token
 require_once 'controllers/product_controller.php';
 $productController = new ProductController();
-$result = $productController->get_product_ctr($product_id, 0); // 0 means get from any user for customer view
+$result = $productController->get_product_by_token_ctr($product_token);
 
 if (!$result['success']) {
     header('Location: all_product.php');
@@ -64,7 +64,7 @@ $product = $result['data'];
                     <a class="nav-link" href="actions/logout_action.php">Logout</a>
                 <?php else: ?>
                     <a class="nav-link" href="login/login.php">Login</a>
-                    <a class="nav-link" href="register/register.php">Register</a>
+                    <a class="nav-link" href="login/register.php">Register</a>
                 <?php endif; ?>
             </div>
         </div>
@@ -176,7 +176,7 @@ $product = $result['data'];
                                         <div class="card-body">
                                             <h6 class="card-title">${product.product_title}</h6>
                                             <p class="text-primary">GHS ${parseFloat(product.product_price).toFixed(2)}</p>
-                                            <a href="single_product.php?id=${product.product_id}" class="btn btn-sm btn-outline-primary">View</a>
+                                            <a href="single_product.php?token=${product.product_token}" class="btn btn-sm btn-outline-primary">View</a>
                                         </div>
                                     </div>
                                 </div>
