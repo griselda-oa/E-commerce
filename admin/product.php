@@ -64,41 +64,25 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
             align-items: center;
             gap: 8px;
         }
+        /* Use flexbox for robust cross-browser grid */
         .product-grid {
-            display: -webkit-grid;
-            display: -ms-grid;
-            display: grid;
-            -webkit-grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            -ms-grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
             gap: 25px;
             margin-top: 30px;
             width: 100%;
         }
-        
-        /* Fallback for older browsers */
-        @supports not (display: grid) {
-            .product-grid {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: flex-start;
-                align-items: stretch;
-            }
-            .product-card {
-                width: calc(33.333% - 20px);
-                margin-right: 20px;
-                margin-bottom: 25px;
-                flex-shrink: 0;
-            }
+        .product-card {
+            /* 3 columns on desktop; items wrap responsively */
+            flex: 1 1 320px;
+            max-width: calc(33.333% - 25px);
+            box-sizing: border-box;
         }
-        
-        /* Chrome-specific grid fix */
-        @media screen and (-webkit-min-device-pixel-ratio: 0) {
-            .product-grid {
-                display: -webkit-grid;
-                -webkit-grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-                -webkit-grid-gap: 25px;
-            }
+        @media (max-width: 992px) {
+            .product-card { max-width: calc(50% - 25px); }
+        }
+        @media (max-width: 576px) {
+            .product-card { max-width: 100%; }
         }
         .product-card {
             background: white;
@@ -107,9 +91,6 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             position: relative;
-            width: 100%;
-            max-width: 320px;
-            margin: 0 auto;
         }
         .product-card:hover {
             transform: translateY(-8px);
