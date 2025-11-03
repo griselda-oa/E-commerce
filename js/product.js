@@ -319,10 +319,14 @@ function saveBulkImages() {
     const formData = new FormData();
     formData.append('product_id', productId);
     
-    // Append all files with proper array notation
+    // Append all files - use array notation for PHP to process multiple files
+    // PHP expects files with [] to create array structure in $_FILES
     for (let i = 0; i < fileInput.files.length; i++) {
         formData.append('product_images[]', fileInput.files[i]);
     }
+    
+    // Debug: log what we're sending
+    console.log('Uploading ' + fileInput.files.length + ' file(s)');
     
     // Show loading
     $('#bulkUploadStatus').html('<div class="text-center"><div class="spinner-border spinner-border-sm" role="status"></div> <span>Uploading images...</span></div>');

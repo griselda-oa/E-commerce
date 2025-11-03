@@ -21,10 +21,12 @@ if (!is_admin()) {
 }
 
 // Check if files were uploaded
-// Handle both single and multiple file uploads
-if (!isset($_FILES['product_images']) || 
-    (!is_array($_FILES['product_images']['name']) && empty($_FILES['product_images']['name']))) {
-    echo json_encode(['success' => false, 'message' => 'No files uploaded']);
+// When using FormData with product_images[], PHP receives files in $_FILES['product_images']
+// But the structure depends on how many files were sent
+if (!isset($_FILES['product_images'])) {
+    // Debug: show what we received
+    $debug = array('POST' => array_keys($_POST), 'FILES' => array_keys($_FILES));
+    echo json_encode(['success' => false, 'message' => 'No files received', 'debug' => $debug]);
     exit;
 }
 
@@ -69,11 +71,36 @@ if (strpos($real_product_dir, $real_base_dir) !== 0) {
 }
 
 // Process multiple files
-// When using multiple file input, PHP restructures $_FILES array
-if (isset($_FILES['product_images']) && is_array($_FILES['product_images']['name'])) {
-    $files = $_FILES['product_images'];
-} else {
-    echo json_encode(['success' => false, 'message' => 'Invalid file upload format']);
+// When using multiple file input with name="product_images[]", PHP restructures $_FILES array
+// Check different possible structures
+$files = null;
+if (isset($_FILES['product_images'])) {
+    // Standard multiple file structure (when using name="product_images[]")
+    if (is_array($_FILES['product_images']['name'])) {
+        $files = $_FILES['product_images'];
+    }
+    // Single file or alternative structure
+    else if (!empty($_FILES['product_images']['name'])) {
+        // Convert single file to array format for consistent processing
+        $files = array(
+            'name' => array($_FILES['product_images']['name']),
+            'type' => array($_FILES['product_images']['type']),
+            'tmp_name' => array($_FILES['product_images']['tmp_name']),
+            'error' => array($_FILES['product_images']['error']),
+            'size' => array($_FILES['product_images']['size'])
+        );
+    }
+}
+
+if (!$files || empty($files['name']) || (is_array($files['name']) && count($files['name']) == 0)) {
+    // Better error message with debug info
+    $error_msg = 'No files uploaded or invalid file format.';
+    if (isset($_FILES['product_images'])) {
+        $error_msg .= ' Received: ' . (is_array($_FILES['product_images']['name']) ? count($_FILES['product_images']['name']) : 1) . ' file(s)';
+        // Log the structure for debugging
+        error_log('Bulk upload debug: ' . json_encode($_FILES['product_images']));
+    }
+    echo json_encode(['success' => false, 'message' => $error_msg]);
     exit;
 }
 
@@ -82,16 +109,48 @@ $max_size = 5 * 1024 * 1024; // 5MB per file
 $uploaded_images = [];
 $errors = [];
 
-// Count number of files
+// Count number of files - ensure it's an array
+if (!is_array($files['name'])) {
+    echo json_encode(['success' => false, 'message' => 'Files array structure error']);
+    exit;
+}
+
 $file_count = count($files['name']);
 
 // Process each file
 for ($i = 0; $i < $file_count; $i++) {
-    // Skip empty file slots
-    if ($files['error'][$i] !== UPLOAD_ERR_OK) {
-        if ($files['error'][$i] !== UPLOAD_ERR_NO_FILE) {
-            $errors[] = 'File ' . ($i + 1) . ': Upload error';
+    try {
+        // Skip empty file slots
+        if ($files['error'][$i] !== UPLOAD_ERR_OK) {
+            if ($files['error'][$i] !== UPLOAD_ERR_NO_FILE) {
+                $error_code = $files['error'][$i];
+                $error_msg = 'File ' . ($i + 1);
+                switch ($error_code) {
+                    case UPLOAD_ERR_INI_SIZE:
+                    case UPLOAD_ERR_FORM_SIZE:
+                        $error_msg .= ': File too large';
+                        break;
+                    case UPLOAD_ERR_PARTIAL:
+                        $error_msg .= ': File partially uploaded';
+                        break;
+                    case UPLOAD_ERR_NO_TMP_DIR:
+                        $error_msg .= ': Missing temporary folder';
+                        break;
+                    case UPLOAD_ERR_CANT_WRITE:
+                        $error_msg .= ': Failed to write file';
+                        break;
+                    case UPLOAD_ERR_EXTENSION:
+                        $error_msg .= ': File upload blocked';
+                        break;
+                    default:
+                        $error_msg .= ': Upload error code ' . $error_code;
+                }
+                $errors[] = $error_msg;
+            }
+            continue;
         }
+    } catch (Exception $e) {
+        $errors[] = 'File ' . ($i + 1) . ': Processing error - ' . $e->getMessage();
         continue;
     }
     
@@ -168,12 +227,20 @@ if (!empty($errors)) {
 }
 
 // All successful
-echo json_encode([
-    'success' => true,
-    'message' => count($uploaded_images) . ' image(s) uploaded successfully',
-    'images' => $uploaded_images,
-    'count' => count($uploaded_images),
-    'first_image_path' => !empty($uploaded_images) ? $uploaded_images[0]['path'] : null
-]);
+try {
+    echo json_encode([
+        'success' => true,
+        'message' => count($uploaded_images) . ' image(s) uploaded successfully',
+        'images' => $uploaded_images,
+        'count' => count($uploaded_images),
+        'first_image_path' => !empty($uploaded_images) ? $uploaded_images[0]['path'] : null
+    ]);
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Error encoding response: ' . $e->getMessage(),
+        'uploaded_count' => count($uploaded_images)
+    ]);
+}
 ?>
 
