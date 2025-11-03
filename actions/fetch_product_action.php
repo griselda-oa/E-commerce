@@ -32,8 +32,14 @@ try {
     $result = $productController->get_products_ctr();
     
     // If no products found, return empty array instead of error
-    if (!$result['success']) {
+    if (!$result || !isset($result['success'])) {
         echo json_encode(['success' => true, 'data' => [], 'message' => 'No products found']);
+        exit;
+    }
+    
+    if (!$result['success']) {
+        // If query failed but returned a result structure, return empty array
+        echo json_encode(['success' => true, 'data' => [], 'message' => $result['message'] ?? 'No products found']);
         exit;
     }
     
@@ -44,9 +50,22 @@ try {
     
     echo json_encode($result);
 } catch (Exception $e) {
+    // Log the error for debugging
+    error_log('Product fetch error: ' . $e->getMessage());
+    error_log('Stack trace: ' . $e->getTraceAsString());
+    
     echo json_encode([
         'success' => false,
         'message' => 'Error loading products: ' . $e->getMessage(),
+        'data' => []
+    ]);
+} catch (Error $e) {
+    // Catch fatal errors too
+    error_log('Product fetch fatal error: ' . $e->getMessage());
+    
+    echo json_encode([
+        'success' => false,
+        'message' => 'Fatal error: ' . $e->getMessage(),
         'data' => []
     ]);
 }

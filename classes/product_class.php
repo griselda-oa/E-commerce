@@ -78,7 +78,9 @@ class Product extends db_connection {
      */
     public function getAllProducts() {
         try {
-            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image, p.product_token,
+            // Use the most common column names based on INSERT statements
+            // Default to product_cat, product_brand, product_desc, product_keywords
+            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
                            c.cat_name, b.brand_name, p.product_cat as cat_id, p.product_brand as brand_id
                     FROM products p
                     LEFT JOIN categories c ON p.product_cat = c.cat_id
