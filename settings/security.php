@@ -90,6 +90,24 @@ class SecurityManager {
     }
     
     /**
+     * Validate and sanitize float input
+     * @param mixed $input
+     * @param float $min
+     * @param float $max
+     * @return float|false
+     */
+    public static function validateFloat($input, $min = 0, $max = 999999.99) {
+        $value = filter_var($input, FILTER_VALIDATE_FLOAT, [
+            'options' => [
+                'min_range' => $min,
+                'max_range' => $max
+            ]
+        ]);
+        
+        return $value !== false ? floatval($value) : false;
+    }
+    
+    /**
      * Generate CSRF token
      * @return string
      */

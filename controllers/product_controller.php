@@ -70,5 +70,14 @@ class ProductController {
     public function filter_by_brand_ctr($brand_id) {
         return $this->product->filterProductsByBrand($brand_id);
     }
+    
+    /**
+     * Composite search with multiple filters
+     * @param array $filters - Array with keyword, cat_id, brand_id, min_price, max_price
+     * @return array - Response
+     */
+    public function composite_search_ctr($filters) {
+        return $this->product->compositeSearch($filters);
+    }
 }
 ?>

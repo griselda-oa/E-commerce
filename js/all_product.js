@@ -9,26 +9,43 @@ $(document).ready(function() {
     loadCategories();
     loadBrands();
 
-    // Search functionality
+    // Search functionality - Use server-side composite search
     $('#searchBtn').click(function() {
-        filterProducts();
+        performCompositeSearch();
     });
 
     $('#searchInput').keypress(function(e) {
         if (e.which === 13) {
-            filterProducts();
+            performCompositeSearch();
         }
+    });
+
+    // Clear filters
+    $('#clearBtn').click(function() {
+        $('#searchInput').val('');
+        $('#categoryFilter').val('');
+        $('#brandFilter').val('');
+        $('#minPrice').val('');
+        $('#maxPrice').val('');
+        loadProducts(); // Reload all products
     });
 
     // Category filter change
     $('#categoryFilter').change(function() {
         loadBrandsForCategory($(this).val());
-        filterProducts();
+        performCompositeSearch();
     });
 
     // Brand filter change
     $('#brandFilter').change(function() {
-        filterProducts();
+        performCompositeSearch();
+    });
+    
+    // Price filters
+    $('#minPrice, #maxPrice').keypress(function(e) {
+        if (e.which === 13) {
+            performCompositeSearch();
+        }
     });
 
     function loadProducts() {
@@ -107,26 +124,46 @@ $(document).ready(function() {
         });
     }
 
-    function filterProducts() {
-        const searchTerm = $('#searchInput').val().toLowerCase();
-        const categoryId = $('#categoryFilter').val();
-        const brandId = $('#brandFilter').val();
-
-        filteredProducts = allProducts.filter(product => {
-            const matchesSearch = !searchTerm || 
-                product.product_title.toLowerCase().includes(searchTerm) ||
-                product.product_description.toLowerCase().includes(searchTerm) ||
-                product.product_keyword.toLowerCase().includes(searchTerm);
-            
-            const matchesCategory = !categoryId || product.cat_id == categoryId;
-            const matchesBrand = !brandId || product.brand_id == brandId;
-
-            return matchesSearch && matchesCategory && matchesBrand;
+    // Efficient server-side composite search
+    function performCompositeSearch() {
+        const searchData = {
+            keyword: $('#searchInput').val().trim(),
+            cat_id: $('#categoryFilter').val() || '',
+            brand_id: $('#brandFilter').val() || '',
+            min_price: $('#minPrice').val() || '',
+            max_price: $('#maxPrice').val() || ''
+        };
+        
+        // Show loading state
+        $('#productsContainer').html('<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Searching...</span></div><p class="mt-3">Searching products...</p></div>');
+        
+        $.ajax({
+            url: 'actions/composite_search_action.php',
+            method: 'POST',
+            data: searchData,
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    allProducts = response.data;
+                    filteredProducts = [...allProducts];
+                    currentPage = 1;
+                    displayProducts();
+                    updatePagination();
+                    
+                    if (response.count !== undefined) {
+                        showAlert(`Found ${response.count} product(s)`, 'success');
+                    }
+                } else {
+                    showAlert('Search error: ' + response.message, 'danger');
+                    $('#productsContainer').html('<div class="empty-state"><h4>Search Error</h4><p>Please try again</p></div>');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Search error:', error);
+                showAlert('Error connecting to server. Please try again.', 'danger');
+                $('#productsContainer').html('<div class="empty-state"><h4>Connection Error</h4><p>Please check your connection and try again</p></div>');
+            }
         });
-
-        currentPage = 1;
-        displayProducts();
-        updatePagination();
     }
 
     function displayProducts() {
@@ -141,7 +178,7 @@ $(document).ready(function() {
                     <i class="fa fa-search"></i>
                     <h4>No Products Found</h4>
                     <p>Try adjusting your search criteria or browse all products</p>
-                    <button class="btn btn-primary btn-lg mt-3" onclick="loadAllProducts()">
+                    <button class="btn btn-primary btn-lg mt-3" onclick="window.loadAllProducts()">
                         <i class="fa fa-refresh"></i> Show All Products
                     </button>
                 </div>
@@ -220,6 +257,15 @@ $(document).ready(function() {
             displayProducts();
             updatePagination();
         }
+    };
+    
+    window.loadAllProducts = function() {
+        $('#searchInput').val('');
+        $('#categoryFilter').val('');
+        $('#brandFilter').val('');
+        $('#minPrice').val('');
+        $('#maxPrice').val('');
+        loadProducts();
     };
 
     function showAlert(message, type) {

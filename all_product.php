@@ -194,23 +194,34 @@ require_once 'settings/core.php';
     <div class="container">
         <!-- Search and Filter Section -->
         <div class="filter-section">
-            <div class="row">
+            <div class="row mb-3">
                 <div class="col-md-4">
-                    <input type="text" id="searchInput" class="form-control search-box" placeholder="Search products...">
+                    <input type="text" id="searchInput" class="form-control search-box" placeholder="Search by keyword, title, description...">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <select id="categoryFilter" class="form-select">
                         <option value="">All Categories</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <select id="brandFilter" class="form-select">
                         <option value="">All Brands</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <button id="searchBtn" class="btn btn-primary w-100">
-                        <i class="fa fa-search"></i> Search
+                    <input type="number" id="minPrice" class="form-control form-select" placeholder="Min Price (GHS)" step="0.01" min="0">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" id="maxPrice" class="form-control form-select" placeholder="Max Price (GHS)" step="0.01" min="0">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <button id="searchBtn" class="btn btn-primary btn-lg px-5">
+                        <i class="fa fa-search"></i> Search Products
+                    </button>
+                    <button id="clearBtn" class="btn btn-outline-secondary btn-lg px-5 ms-2">
+                        <i class="fa fa-times"></i> Clear Filters
                     </button>
                 </div>
             </div>

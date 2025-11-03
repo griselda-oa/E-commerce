@@ -439,5 +439,111 @@ class Product extends db_connection {
             return array('success' => false, 'message' => 'Error: ' . $e->getMessage());
         }
     }
+    
+    /**
+     * Efficient composite search - combines keyword, category, brand, and price filters
+     * Uses optimized SQL for fast performance
+     * @param array $filters - Array with: keyword (string), cat_id (int), brand_id (int), min_price (float), max_price (float)
+     * @return array - Response with products
+     */
+    public function compositeSearch($filters) {
+        try {
+            $where_conditions = array();
+            $params = array();
+            $types = '';
+            
+            // Keyword search - efficient LIKE with multiple fields
+            if (!empty($filters['keyword'])) {
+                $keyword = SecurityManager::sanitizeString($filters['keyword'], 100);
+                $search_term = '%' . $keyword . '%';
+                $where_conditions[] = "(p.product_title LIKE ? OR p.product_desc LIKE ? OR p.product_keywords LIKE ?)";
+                $params[] = $search_term;
+                $params[] = $search_term;
+                $params[] = $search_term;
+                $types .= 'sss';
+            }
+            
+            // Category filter
+            if (!empty($filters['cat_id']) && $filters['cat_id'] > 0) {
+                $cat_id = SecurityManager::validateInteger($filters['cat_id']);
+                if ($cat_id) {
+                    $where_conditions[] = "p.product_cat = ?";
+                    $params[] = $cat_id;
+                    $types .= 'i';
+                }
+            }
+            
+            // Brand filter
+            if (!empty($filters['brand_id']) && $filters['brand_id'] > 0) {
+                $brand_id = SecurityManager::validateInteger($filters['brand_id']);
+                if ($brand_id) {
+                    $where_conditions[] = "p.product_brand = ?";
+                    $params[] = $brand_id;
+                    $types .= 'i';
+                }
+            }
+            
+            // Price range filter
+            if (!empty($filters['min_price']) && $filters['min_price'] > 0) {
+                $min_price = SecurityManager::validateFloat($filters['min_price']);
+                if ($min_price !== false) {
+                    $where_conditions[] = "p.product_price >= ?";
+                    $params[] = $min_price;
+                    $types .= 'd';
+                }
+            }
+            
+            if (!empty($filters['max_price']) && $filters['max_price'] > 0) {
+                $max_price = SecurityManager::validateFloat($filters['max_price']);
+                if ($max_price !== false) {
+                    $where_conditions[] = "p.product_price <= ?";
+                    $params[] = $max_price;
+                    $types .= 'd';
+                }
+            }
+            
+            // Build SQL query
+            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
+                           c.cat_name, b.brand_name, p.product_token
+                    FROM products p
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id";
+            
+            if (!empty($where_conditions)) {
+                $sql .= " WHERE " . implode(' AND ', $where_conditions);
+            }
+            
+            $sql .= " ORDER BY p.product_id DESC LIMIT 500"; // Limit for performance
+            
+            $stmt = $this->db->prepare($sql);
+            if (!$stmt) {
+                return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
+            }
+            
+            // Bind parameters dynamically
+            if (!empty($params)) {
+                $stmt->bind_param($types, ...$params);
+            }
+            
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            $products = array();
+            while ($row = $result->fetch_assoc()) {
+                // Generate secure token for each product if not present
+                if (empty($row['product_token'])) {
+                    $row['product_token'] = SecurityManager::generateProductToken($row['product_id']);
+                }
+                // Remove sensitive internal IDs from public response
+                unset($row['product_cat'], $row['product_brand']);
+                $products[] = $row;
+            }
+            
+            return array('success' => true, 'data' => $products, 'message' => 'Composite search completed', 'count' => count($products));
+            
+        } catch (Exception $e) {
+            return array('success' => false, 'message' => 'Error: ' . $e->getMessage());
+        }
+    }
 }
 ?>
