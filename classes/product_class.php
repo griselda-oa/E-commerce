@@ -545,5 +545,55 @@ class Product extends db_connection {
             return array('success' => false, 'message' => 'Error: ' . $e->getMessage());
         }
     }
+    
+    /**
+     * Delete a product
+     * @param int $product_id - Product ID to delete
+     * @return array - Success/failure response
+     */
+    public function delete($product_id) {
+        try {
+            $product_id = SecurityManager::validateInteger($product_id);
+            
+            if (!$product_id) {
+                return array('success' => false, 'message' => 'Invalid product ID');
+            }
+            
+            // First, get product info to delete associated images
+            $sql = "SELECT product_image FROM products WHERE product_id = ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bind_param('i', $product_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows > 0) {
+                $product = $result->fetch_assoc();
+                
+                // Delete the product from database
+                $sql = "DELETE FROM products WHERE product_id = ?";
+                $stmt = $this->db->prepare($sql);
+                
+                if (!$stmt) {
+                    return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
+                }
+                
+                $stmt->bind_param('i', $product_id);
+                
+                if ($stmt->execute()) {
+                    // Optionally delete associated images from uploads folder
+                    // (We'll keep images for now, but they can be cleaned up later)
+                    
+                    return array('success' => true, 'message' => 'Product deleted successfully');
+                } else {
+                    return array('success' => false, 'message' => 'Failed to delete product: ' . $stmt->error);
+                }
+            } else {
+                return array('success' => false, 'message' => 'Product not found');
+            }
+            
+        } catch (Exception $e) {
+            return array('success' => false, 'message' => 'Error: ' . $e->getMessage());
+        }
+    }
 }
 ?>

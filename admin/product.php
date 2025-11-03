@@ -71,18 +71,8 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
             gap: 25px;
             margin-top: 30px;
             width: 100%;
-        }
-        .product-card {
-            /* 3 columns on desktop; items wrap responsively */
-            flex: 1 1 320px;
-            max-width: calc(33.333% - 25px);
-            box-sizing: border-box;
-        }
-        @media (max-width: 992px) {
-            .product-card { max-width: calc(50% - 25px); }
-        }
-        @media (max-width: 576px) {
-            .product-card { max-width: 100%; }
+            justify-content: flex-start;
+            align-items: stretch;
         }
         .product-card {
             background: white;
@@ -91,6 +81,28 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             position: relative;
+            /* 3 columns on desktop; items wrap responsively */
+            flex: 0 1 calc(33.333% - 17px); /* 33.333% minus gap compensation */
+            min-width: 280px;
+            max-width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+        @media (max-width: 1200px) {
+            .product-card {
+                flex: 0 1 calc(33.333% - 17px);
+            }
+        }
+        @media (max-width: 992px) {
+            .product-card {
+                flex: 0 1 calc(50% - 13px); /* 2 columns */
+            }
+        }
+        @media (max-width: 576px) {
+            .product-card {
+                flex: 0 1 100%; /* 1 column on mobile */
+            }
         }
         .product-card:hover {
             transform: translateY(-8px);
@@ -138,7 +150,17 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
         }
         .product-actions {
             display: flex;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+            width: 100%;
+        }
+        .product-actions .btn {
+            flex: 1 1 auto;
+            min-width: 80px;
+            white-space: nowrap;
+            font-size: 0.75rem;
+            padding: 6px 12px;
         }
         .btn-sm {
             padding: 8px 16px;

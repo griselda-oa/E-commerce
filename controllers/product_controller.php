@@ -4,11 +4,11 @@ require_once __DIR__ . '/../classes/product_class.php';
 
 class ProductController {
     private $product;
-    
+
     public function __construct() {
         $this->product = new Product();
     }
-    
+
     /**
      * Add a new product
      * @param array $kwargs - Product data
@@ -78,6 +78,15 @@ class ProductController {
      */
     public function composite_search_ctr($filters) {
         return $this->product->compositeSearch($filters);
+    }
+    
+    /**
+     * Delete a product
+     * @param int $product_id - Product ID to delete
+     * @return array - Response
+     */
+    public function delete_product_ctr($product_id) {
+        return $this->product->delete($product_id);
     }
 }
 ?>

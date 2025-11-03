@@ -260,10 +260,31 @@ function editProduct(productId) {
 }
 
 function deleteProduct(productId) {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+    if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+        return;
+    }
     
-    // Implement delete functionality if needed
-    showAlert('Delete functionality not implemented yet', 'info');
+    $.ajax({
+        url: '../actions/delete_product_action.php',
+        method: 'POST',
+        data: {
+            product_id: productId
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                showAlert('Product deleted successfully!', 'success');
+                // Reload products to reflect deletion
+                loadProducts();
+            } else {
+                showAlert('Error deleting product: ' + response.message, 'danger');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Delete error:', error);
+            showAlert('Error deleting product. Please try again.', 'danger');
+        }
+    });
 }
 
 function uploadImage(productId) {
