@@ -121,6 +121,9 @@ function displayProducts() {
                         <button class="btn btn-info btn-sm" onclick="uploadImage(${product.product_id})">
                             <i class="fa fa-image"></i> Upload Image
                         </button>
+                        <button class="btn btn-success btn-sm" onclick="bulkUploadImages(${product.product_id})">
+                            <i class="fa fa-images"></i> Bulk Upload
+                        </button>
                         <button class="btn btn-danger btn-sm" onclick="deleteProduct(${product.product_id})">
                             <i class="fa fa-trash"></i> Delete
                         </button>
@@ -253,6 +256,71 @@ function updateProductImage(productId, imagePath) {
         },
         error: function(xhr, status, error) {
             console.error('Update error:', error);
+        }
+    });
+}
+
+function bulkUploadImages(productId) {
+    $('#bulkUploadProductId').val(productId);
+    $('#bulkUploadImageModal').modal('show');
+}
+
+function saveBulkImages() {
+    const productId = $('#bulkUploadProductId').val();
+    const fileInput = document.getElementById('bulkProductImages');
+    
+    if (!fileInput.files || fileInput.files.length === 0) {
+        showAlert('Please select at least one image file', 'warning');
+        return;
+    }
+    
+    // Validate file count (max 10 images at once)
+    if (fileInput.files.length > 10) {
+        showAlert('Maximum 10 images can be uploaded at once', 'warning');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('product_id', productId);
+    
+    // Append all files with proper array notation
+    for (let i = 0; i < fileInput.files.length; i++) {
+        formData.append('product_images[]', fileInput.files[i]);
+    }
+    
+    // Show loading
+    $('#bulkUploadStatus').html('<div class="text-center"><div class="spinner-border spinner-border-sm" role="status"></div> <span>Uploading images...</span></div>');
+    
+    $.ajax({
+        url: '../actions/bulk_upload_images_action.php',
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                let message = response.message;
+                if (response.partial && response.errors) {
+                    message += '<br>Errors:<ul>';
+                    response.errors.forEach(function(error) {
+                        message += '<li>' + error + '</li>';
+                    });
+                    message += '</ul>';
+                }
+                showAlert(message, response.partial ? 'warning' : 'success');
+                $('#bulkUploadImageModal').modal('hide');
+                $('#bulkUploadStatus').html('');
+                loadProducts(); // Reload products to show new images
+            } else {
+                showAlert('Error uploading images: ' + response.message, 'danger');
+                $('#bulkUploadStatus').html('');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Bulk upload error:', error);
+            showAlert('Error uploading images. Please try again.', 'danger');
+            $('#bulkUploadStatus').html('');
         }
     });
 }

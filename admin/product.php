@@ -291,6 +291,36 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
         </div>
     </div>
 
+    <!-- Bulk Image Upload Modal -->
+    <div class="modal fade" id="bulkUploadImageModal" tabindex="-1" aria-labelledby="bulkUploadImageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="bulkUploadImageModalLabel"><i class="fa fa-images"></i> Bulk Upload Product Images</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="bulkUploadImageForm">
+                        <input type="hidden" id="bulkUploadProductId" name="product_id">
+                        <div class="mb-3">
+                            <label class="form-label">Select Multiple Images</label>
+                            <input type="file" class="form-control" id="bulkProductImages" name="product_images[]" accept="image/*" multiple required>
+                            <div class="form-text">
+                                <strong>EXTRA CREDIT Feature:</strong> You can select multiple images at once (up to 10 images).<br>
+                                Supported formats: JPEG, PNG, GIF. Max size: 5MB per image.
+                            </div>
+                            <div id="bulkUploadStatus" class="mt-3"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="saveBulkImages()"><i class="fa fa-upload"></i> Upload All Images</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/product.js"></script>
 </body>
