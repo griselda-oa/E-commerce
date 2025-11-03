@@ -36,19 +36,56 @@ $(document).ready(function() {
         $(this).attr('aria-hidden', 'true');
     });
     
-    // Show selected files count for bulk upload
+    // Show selected files count for bulk upload with size validation
     $(document).on('change', '#bulkProductImages', function() {
         const files = this.files;
         const count = files.length;
+        const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        
         if (count > 0) {
             let fileList = '<div class="alert alert-info"><strong>Selected ' + count + ' file(s):</strong><ul class="mb-0 mt-2">';
+            let hasErrors = false;
+            let errorList = '';
+            
             for (let i = 0; i < Math.min(count, 5); i++) {
-                fileList += '<li>' + files[i].name + ' (' + (files[i].size / 1024 / 1024).toFixed(2) + ' MB)</li>';
+                const file = files[i];
+                const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+                const isValidType = allowedTypes.includes(file.type);
+                const isValidSize = file.size <= maxSize;
+                
+                let statusIcon = '';
+                let statusClass = '';
+                
+                if (!isValidType) {
+                    statusIcon = ' ❌';
+                    statusClass = 'text-danger';
+                    hasErrors = true;
+                    errorList += '<li class="text-danger"><strong>' + file.name + '</strong>: Invalid file type. Only JPEG, PNG, GIF allowed.</li>';
+                } else if (!isValidSize) {
+                    statusIcon = ' ⚠️';
+                    statusClass = 'text-warning';
+                    hasErrors = true;
+                    errorList += '<li class="text-warning"><strong>' + file.name + '</strong>: File too large (' + fileSizeMB + ' MB). Maximum 5MB per file.</li>';
+                } else {
+                    statusIcon = ' ✓';
+                    statusClass = 'text-success';
+                }
+                
+                fileList += '<li class="' + statusClass + '">' + file.name + ' (' + fileSizeMB + ' MB)' + statusIcon + '</li>';
             }
+            
             if (count > 5) {
-                fileList += '<li><em>... and ' + (count - 5) + ' more</em></li>';
+                fileList += '<li><em>... and ' + (count - 5) + ' more file(s)</em></li>';
             }
+            
             fileList += '</ul></div>';
+            
+            // Show errors if any
+            if (hasErrors) {
+                fileList += '<div class="alert alert-danger mt-2"><strong>⚠️ Upload Warnings:</strong><ul class="mb-0 mt-2">' + errorList + '</ul></div>';
+            }
+            
             $('#selectedFiles').html(fileList);
         } else {
             $('#selectedFiles').html('');
@@ -313,6 +350,39 @@ function saveBulkImages() {
     // Validate file count (max 10 images at once)
     if (fileInput.files.length > 10) {
         showAlert('Maximum 10 images can be uploaded at once', 'warning');
+        return;
+    }
+    
+    // Validate each file before upload
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    const invalidFiles = [];
+    
+    for (let i = 0; i < fileInput.files.length; i++) {
+        const file = fileInput.files[i];
+        const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+        
+        // Check file type
+        if (!allowedTypes.includes(file.type)) {
+            invalidFiles.push(file.name + ': Invalid file type (only JPEG, PNG, GIF allowed)');
+            continue;
+        }
+        
+        // Check file size
+        if (file.size > maxSize) {
+            invalidFiles.push(file.name + ': File too large (' + fileSizeMB + ' MB, max 5MB)');
+            continue;
+        }
+    }
+    
+    // If any invalid files, show error and prevent upload
+    if (invalidFiles.length > 0) {
+        let errorMsg = 'Cannot upload files with errors:<ul>';
+        invalidFiles.forEach(function(error) {
+            errorMsg += '<li>' + error + '</li>';
+        });
+        errorMsg += '</ul>Please remove invalid files and try again.';
+        showAlert(errorMsg, 'danger');
         return;
     }
     
