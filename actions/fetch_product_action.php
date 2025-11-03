@@ -31,24 +31,23 @@ try {
     $productController = new ProductController();
     $result = $productController->get_products_ctr();
     
-    // If no products found, try quick fix
-    if (!$result['success'] || empty($result['data'])) {
-        // Try quick fix
-        $quick_fix_url = __DIR__ . '/quick_fix_products_action.php';
-        if (file_exists($quick_fix_url)) {
-            include $quick_fix_url;
-            exit;
-        }
+    // If no products found, return empty array instead of error
+    if (!$result['success']) {
+        echo json_encode(['success' => true, 'data' => [], 'message' => 'No products found']);
+        exit;
+    }
+    
+    // Ensure data is always an array
+    if (!isset($result['data']) || !is_array($result['data'])) {
+        $result['data'] = [];
     }
     
     echo json_encode($result);
 } catch (Exception $e) {
-    // Try quick fix as fallback
-    $quick_fix_url = __DIR__ . '/quick_fix_products_action.php';
-    if (file_exists($quick_fix_url)) {
-        include $quick_fix_url;
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
-    }
+    echo json_encode([
+        'success' => false,
+        'message' => 'Error loading products: ' . $e->getMessage(),
+        'data' => []
+    ]);
 }
 ?>

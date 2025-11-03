@@ -78,8 +78,8 @@ class Product extends db_connection {
      */
     public function getAllProducts() {
         try {
-            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
-                           c.cat_name, b.brand_name
+            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image, p.product_token,
+                           c.cat_name, b.brand_name, p.product_cat as cat_id, p.product_brand as brand_id
                     FROM products p
                     LEFT JOIN categories c ON p.product_cat = c.cat_id
                     LEFT JOIN brands b ON p.product_brand = b.brand_id
@@ -96,10 +96,11 @@ class Product extends db_connection {
             
             $products = array();
             while ($row = $result->fetch_assoc()) {
-                // Generate secure token for each product
-                $row['access_token'] = SecurityManager::generateProductToken($row['product_id']);
-                // Remove sensitive internal IDs from public response
-                unset($row['product_cat'], $row['product_brand']);
+                // Generate secure token if not already present
+                if (empty($row['product_token'])) {
+                    $row['product_token'] = SecurityManager::generateProductToken($row['product_id']);
+                }
+                // Keep cat_id and brand_id for admin view (needed for editing)
                 $products[] = $row;
             }
             

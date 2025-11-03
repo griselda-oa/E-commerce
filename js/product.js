@@ -126,17 +126,35 @@ function loadBrandsForCategory(catId) {
 }
 
 function loadProducts() {
+    const container = $('#productsContainer');
+    container.html('<div class="text-center"><div class="spinner-border text-primary" role="status"></div><p class="mt-3">Loading products...</p></div>');
+    
     $.ajax({
         url: '../actions/fetch_product_action.php',
         method: 'POST',
         dataType: 'json',
         success: function(response) {
             if (response.success) {
-                products = response.data;
+                products = response.data || [];
                 displayProducts();
             } else {
-                showAlert('Error loading products: ' + response.message, 'danger');
+                container.html('<div class="alert alert-danger">Error loading products: ' + (response.message || 'Unknown error') + '</div>');
+                showAlert('Error loading products: ' + (response.message || 'Unknown error'), 'danger');
             }
+        },
+        error: function(xhr, status, error) {
+            console.error('Product loading error:', error, xhr.responseText);
+            let errorMsg = 'Error connecting to server';
+            if (xhr.responseText) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    errorMsg = response.message || errorMsg;
+                } catch (e) {
+                    errorMsg = 'Server error: ' + xhr.status + ' ' + error;
+                }
+            }
+            container.html('<div class="alert alert-danger">' + errorMsg + '<br><button class="btn btn-sm btn-primary mt-2" onclick="loadProducts()">Retry</button></div>');
+            showAlert(errorMsg, 'danger');
         }
     });
 }
