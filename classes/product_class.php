@@ -78,19 +78,90 @@ class Product extends db_connection {
      */
     public function getAllProducts() {
         try {
-            // Use the most common column names based on INSERT statements
-            // Default to product_cat, product_brand, product_desc, product_keywords
-            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
-                           c.cat_name, b.brand_name, p.product_cat as cat_id, p.product_brand as brand_id
-                    FROM products p
-                    LEFT JOIN categories c ON p.product_cat = c.cat_id
-                    LEFT JOIN brands b ON p.product_brand = b.brand_id
-                    WHERE p.product_id > 0
-                    ORDER BY p.product_id DESC";
+            // First, try to get the actual column names from the database
+            $columns_result = $this->db->query("SHOW COLUMNS FROM products");
+            if (!$columns_result) {
+                return array('success' => false, 'message' => 'Cannot access products table. Error: ' . $this->db->error);
+            }
+            
+            $column_names = array();
+            while ($col = $columns_result->fetch_assoc()) {
+                $column_names[] = $col['Field'];
+            }
+            
+            // Build SELECT fields dynamically based on what exists
+            $select_parts = array('p.product_id', 'p.product_title', 'p.product_price');
+            
+            // Description field
+            if (in_array('product_desc', $column_names)) {
+                $select_parts[] = 'p.product_desc';
+            } elseif (in_array('product_description', $column_names)) {
+                $select_parts[] = 'p.product_description as product_desc';
+            } else {
+                $select_parts[] = "'' as product_desc";
+            }
+            
+            // Keywords field
+            if (in_array('product_keywords', $column_names)) {
+                $select_parts[] = 'p.product_keywords';
+            } elseif (in_array('product_keyword', $column_names)) {
+                $select_parts[] = 'p.product_keyword as product_keywords';
+            } else {
+                $select_parts[] = "'' as product_keywords";
+            }
+            
+            // Image field
+            if (in_array('product_image', $column_names)) {
+                $select_parts[] = 'p.product_image';
+            } else {
+                $select_parts[] = "NULL as product_image";
+            }
+            
+            // Category join field
+            $cat_field = null;
+            if (in_array('product_cat', $column_names)) {
+                $cat_field = 'product_cat';
+                $select_parts[] = 'p.product_cat as cat_id';
+            } elseif (in_array('cat_id', $column_names)) {
+                $cat_field = 'cat_id';
+                $select_parts[] = 'p.cat_id';
+            }
+            
+            // Brand join field
+            $brand_field = null;
+            if (in_array('product_brand', $column_names)) {
+                $brand_field = 'product_brand';
+                $select_parts[] = 'p.product_brand as brand_id';
+            } elseif (in_array('brand_id', $column_names)) {
+                $brand_field = 'brand_id';
+                $select_parts[] = 'p.brand_id';
+            }
+            
+            // Add category and brand names to select
+            $select_parts[] = 'c.cat_name';
+            $select_parts[] = 'b.brand_name';
+            
+            // Build the query
+            $sql = "SELECT " . implode(', ', $select_parts) . " FROM products p";
+            
+            // Add joins only if the fields exist
+            if ($cat_field) {
+                $sql .= " LEFT JOIN categories c ON p." . $cat_field . " = c.cat_id";
+            } else {
+                $sql .= " LEFT JOIN categories c ON 1=0";
+            }
+            
+            if ($brand_field) {
+                $sql .= " LEFT JOIN brands b ON p." . $brand_field . " = b.brand_id";
+            } else {
+                $sql .= " LEFT JOIN brands b ON 1=0";
+            }
+            
+            $sql .= " WHERE p.product_id > 0 ORDER BY p.product_id DESC";
             
             $stmt = $this->db->prepare($sql);
             if (!$stmt) {
-                return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
+                return array('success' => false, 'message' => 'SQL Error: ' . $this->db->error . ' | Query: ' . $sql);
             }
             
             $stmt->execute();
@@ -102,14 +173,20 @@ class Product extends db_connection {
                 if (empty($row['product_token'])) {
                     $row['product_token'] = SecurityManager::generateProductToken($row['product_id']);
                 }
-                // Keep cat_id and brand_id for admin view (needed for editing)
+                // Ensure all expected fields exist
+                $row['cat_name'] = $row['cat_name'] ?? 'Uncategorized';
+                $row['brand_name'] = $row['brand_name'] ?? 'No Brand';
+                $row['product_desc'] = $row['product_desc'] ?? '';
+                $row['product_keywords'] = $row['product_keywords'] ?? '';
                 $products[] = $row;
             }
             
             return array('success' => true, 'data' => $products, 'message' => 'Products retrieved successfully');
             
         } catch (Exception $e) {
-            return array('success' => false, 'message' => 'Error: ' . $e->getMessage());
+            return array('success' => false, 'message' => 'Exception: ' . $e->getMessage() . ' | Line: ' . $e->getLine());
+        } catch (Error $e) {
+            return array('success' => false, 'message' => 'Fatal Error: ' . $e->getMessage() . ' | Line: ' . $e->getLine());
         }
     }
     
