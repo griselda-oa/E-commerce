@@ -27,6 +27,33 @@ $(document).ready(function() {
     $('#uploadImageModal').on('hidden.bs.modal', function() {
         $(this).attr('aria-hidden', 'true');
     });
+    
+    $('#bulkUploadImageModal').on('shown.bs.modal', function() {
+        $(this).removeAttr('aria-hidden');
+    });
+    
+    $('#bulkUploadImageModal').on('hidden.bs.modal', function() {
+        $(this).attr('aria-hidden', 'true');
+    });
+    
+    // Show selected files count for bulk upload
+    $(document).on('change', '#bulkProductImages', function() {
+        const files = this.files;
+        const count = files.length;
+        if (count > 0) {
+            let fileList = '<div class="alert alert-info"><strong>Selected ' + count + ' file(s):</strong><ul class="mb-0 mt-2">';
+            for (let i = 0; i < Math.min(count, 5); i++) {
+                fileList += '<li>' + files[i].name + ' (' + (files[i].size / 1024 / 1024).toFixed(2) + ' MB)</li>';
+            }
+            if (count > 5) {
+                fileList += '<li><em>... and ' + (count - 5) + ' more</em></li>';
+            }
+            fileList += '</ul></div>';
+            $('#selectedFiles').html(fileList);
+        } else {
+            $('#selectedFiles').html('');
+        }
+    });
 });
 
 function loadAllBrands() {
@@ -96,9 +123,13 @@ function displayProducts() {
     
     let html = '<div class="product-grid">';
     products.forEach(function(product) {
-        const imagePath = product.product_image ? product.product_image : null;
+        let imagePath = product.product_image ? product.product_image : null;
+        // Ensure image path is correct (add ../ if needed for admin view)
+        if (imagePath && !imagePath.startsWith('http') && !imagePath.startsWith('../')) {
+            imagePath = '../' + imagePath;
+        }
         const imageHtml = imagePath ? 
-            `<img src="${imagePath}" alt="${product.product_title}">` : 
+            `<img src="${imagePath}" alt="${product.product_title}" onerror="this.parentElement.innerHTML='<div class=\\'product-image-placeholder\\'><i class=\\'fa fa-image\\'></i></div>';">` : 
             `<div class="product-image-placeholder"><i class="fa fa-image"></i></div>`;
             
         html += `
@@ -263,6 +294,11 @@ function updateProductImage(productId, imagePath) {
 function bulkUploadImages(productId) {
     $('#bulkUploadProductId').val(productId);
     $('#bulkUploadImageModal').modal('show');
+    
+    // Reset form when modal opens
+    $('#bulkUploadImageForm')[0].reset();
+    $('#selectedFiles').html('');
+    $('#bulkUploadStatus').html('');
 }
 
 function saveBulkImages() {
@@ -309,9 +345,19 @@ function saveBulkImages() {
                     message += '</ul>';
                 }
                 showAlert(message, response.partial ? 'warning' : 'success');
-                $('#bulkUploadImageModal').modal('hide');
+                
+                // Reset form
+                $('#bulkUploadImageForm')[0].reset();
+                $('#selectedFiles').html('');
                 $('#bulkUploadStatus').html('');
-                loadProducts(); // Reload products to show new images
+                
+                // Close modal
+                $('#bulkUploadImageModal').modal('hide');
+                
+                // Reload products to show new images
+                setTimeout(function() {
+                    loadProducts();
+                }, 500);
             } else {
                 showAlert('Error uploading images: ' + response.message, 'danger');
                 $('#bulkUploadStatus').html('');

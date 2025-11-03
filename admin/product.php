@@ -304,11 +304,18 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
                         <input type="hidden" id="bulkUploadProductId" name="product_id">
                         <div class="mb-3">
                             <label class="form-label">Select Multiple Images</label>
-                            <input type="file" class="form-control" id="bulkProductImages" name="product_images[]" accept="image/*" multiple required>
+                            <input type="file" class="form-control" id="bulkProductImages" name="product_images[]" accept="image/jpeg,image/jpg,image/png,image/gif" multiple required style="cursor: pointer;">
                             <div class="form-text">
-                                <strong>EXTRA CREDIT Feature:</strong> You can select multiple images at once (up to 10 images).<br>
-                                Supported formats: JPEG, PNG, GIF. Max size: 5MB per image.
+                                <strong>EXTRA CREDIT Feature:</strong> 
+                                <ul class="mb-0 mt-2">
+                                    <li>Hold <kbd>Ctrl</kbd> (Windows/Linux) or <kbd>Cmd</kbd> (Mac) to select multiple images</li>
+                                    <li>Or hold <kbd>Shift</kbd> to select a range</li>
+                                    <li>Maximum 10 images at once</li>
+                                    <li>Supported formats: JPEG, PNG, GIF</li>
+                                    <li>Max size: 5MB per image</li>
+                                </ul>
                             </div>
+                            <div id="selectedFiles" class="mt-2 mb-2"></div>
                             <div id="bulkUploadStatus" class="mt-3"></div>
                         </div>
                     </form>

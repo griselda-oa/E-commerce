@@ -138,6 +138,22 @@ if (empty($uploaded_images)) {
     exit;
 }
 
+// Update product_image field in database with first uploaded image (for all cases)
+require_once __DIR__ . '/../settings/db_class.php';
+if (!empty($uploaded_images)) {
+    try {
+        $db = new Database();
+        $first_image_path = $uploaded_images[0]['path'];
+        $sql = "UPDATE products SET product_image = ? WHERE product_id = ?";
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param('si', $first_image_path, $product_id);
+        $stmt->execute();
+    } catch (Exception $e) {
+        // Log error but don't fail the upload
+        error_log('Error updating product_image: ' . $e->getMessage());
+    }
+}
+
 // If some succeeded and some failed, return partial success
 if (!empty($errors)) {
     echo json_encode([
@@ -145,7 +161,8 @@ if (!empty($errors)) {
         'message' => count($uploaded_images) . ' image(s) uploaded successfully. ' . count($errors) . ' error(s)',
         'images' => $uploaded_images,
         'errors' => $errors,
-        'partial' => true
+        'partial' => true,
+        'first_image_path' => !empty($uploaded_images) ? $uploaded_images[0]['path'] : null
     ]);
     exit;
 }
@@ -155,7 +172,8 @@ echo json_encode([
     'success' => true,
     'message' => count($uploaded_images) . ' image(s) uploaded successfully',
     'images' => $uploaded_images,
-    'count' => count($uploaded_images)
+    'count' => count($uploaded_images),
+    'first_image_path' => !empty($uploaded_images) ? $uploaded_images[0]['path'] : null
 ]);
 ?>
 
