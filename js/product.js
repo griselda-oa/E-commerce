@@ -199,7 +199,7 @@ function displayProducts() {
                         <i class="fa fa-industry"></i> ${product.brand_name || 'No Brand'}
                     </div>
                     <div class="product-price">GHS ${parseFloat(product.product_price).toFixed(2)}</div>
-                    <p class="text-muted small">${product.product_desc ? product.product_desc.substring(0, 100) + '...' : 'No description'}</p>
+                    <p class="text-muted small">${(product.product_desc || product.product_description || 'No description').substring(0, 100)}${(product.product_desc || product.product_description || '').length > 100 ? '...' : ''}</p>
                     <div class="product-actions">
                         <button class="btn btn-warning btn-sm" onclick="editProduct(${product.product_id})">
                             <i class="fa fa-edit"></i> Edit
@@ -264,14 +264,15 @@ function editProduct(productId) {
     
     $('#productId').val(product.product_id);
     $('#productTitle').val(product.product_title);
-    $('#productDescription').val(product.product_description);
+    $('#productDescription').val(product.product_description || product.product_desc || '');
     $('#productPrice').val(product.product_price);
-    $('#productKeywords').val(product.product_keyword);
-    $('#categorySelect').val(product.cat_id);
+    $('#productKeywords').val(product.product_keywords || product.product_keyword || '');
+    const catId = product.cat_id || product.product_cat;
+    $('#categorySelect').val(catId);
     
-    loadBrandsForCategory(product.cat_id);
+    loadBrandsForCategory(catId);
     setTimeout(() => {
-        $('#brandSelect').val(product.brand_id);
+        $('#brandSelect').val(product.brand_id || product.product_brand);
     }, 500);
     
     $('#addProductModal').modal('show');

@@ -1,9 +1,44 @@
-$(document).ready(function() {
-    let allProducts = [];
-    let filteredProducts = [];
-    let currentPage = 1;
-    const productsPerPage = 10;
+let allProducts = [];
+let filteredProducts = [];
+let currentPage = 1;
+const productsPerPage = 10;
 
+// Make functions globally accessible
+window.loadProducts = function() {
+    $.ajax({
+        url: 'actions/fetch_all_products_action.php',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if (response && response.success) {
+                allProducts = response.data || [];
+                filteredProducts = [...allProducts];
+                displayProducts();
+                updatePagination();
+            } else {
+                const errorMsg = response ? response.message : 'Unknown error';
+                showAlert('Error loading products: ' + errorMsg, 'danger');
+                $('#productsContainer').html('<div class="alert alert-danger">Error: ' + errorMsg + '</div>');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Product loading error:', error, xhr.responseText);
+            let errorMsg = 'Error connecting to server';
+            if (xhr.responseText) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    errorMsg = response.message || errorMsg;
+                } catch (e) {
+                    errorMsg = 'Server error: ' + xhr.status + ' ' + error;
+                }
+            }
+            showAlert(errorMsg, 'danger');
+            $('#productsContainer').html('<div class="alert alert-danger">' + errorMsg + '<br><button class="btn btn-sm btn-primary mt-2" onclick="window.loadProducts()">Retry</button></div>');
+        }
+    });
+};
+
+$(document).ready(function() {
     // Load all data
     loadProducts();
     loadCategories();
@@ -48,26 +83,6 @@ $(document).ready(function() {
         }
     });
 
-    function loadProducts() {
-        $.ajax({
-            url: 'actions/fetch_all_products_action.php',
-            method: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    allProducts = response.data;
-                    filteredProducts = [...allProducts];
-                    displayProducts();
-                    updatePagination();
-                } else {
-                    showAlert('Error loading products: ' + response.message, 'danger');
-                }
-            },
-            error: function() {
-                showAlert('Error connecting to server', 'danger');
-            }
-        });
-    }
 
     function loadCategories() {
         $.ajax({

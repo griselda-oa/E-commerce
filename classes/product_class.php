@@ -78,8 +78,8 @@ class Product extends db_connection {
      */
     public function getAllProducts() {
         try {
-            // Simple query using most common column names
-            // Based on your INSERT statements: product_cat, product_brand, product_desc, product_keywords
+            // Query using actual column names from database
+            // Try to select product_token if it exists, otherwise we'll generate it
             $sql = "SELECT 
                         p.product_id, 
                         p.product_title, 
@@ -89,6 +89,7 @@ class Product extends db_connection {
                         p.product_image,
                         p.product_cat as cat_id,
                         p.product_brand as brand_id,
+                        p.product_token,
                         c.cat_name, 
                         b.brand_name
                     FROM products p
@@ -98,15 +99,38 @@ class Product extends db_connection {
             
             $stmt = $this->db->prepare($sql);
             if (!$stmt) {
-                return array('success' => false, 'message' => 'SQL Error: ' . $this->db->error);
+                // If the query fails, try without product_token (column might not exist)
+                $sql = "SELECT 
+                            p.product_id, 
+                            p.product_title, 
+                            p.product_desc, 
+                            p.product_price, 
+                            p.product_keywords, 
+                            p.product_image,
+                            p.product_cat as cat_id,
+                            p.product_brand as brand_id,
+                            c.cat_name, 
+                            b.brand_name
+                        FROM products p
+                        LEFT JOIN categories c ON p.product_cat = c.cat_id
+                        LEFT JOIN brands b ON p.product_brand = b.brand_id
+                        ORDER BY p.product_id DESC";
+                $stmt = $this->db->prepare($sql);
+                if (!$stmt) {
+                    return array('success' => false, 'message' => 'SQL Error: ' . $this->db->error);
+                }
             }
             
             $stmt->execute();
             $result = $stmt->get_result();
             
+            if (!$result) {
+                return array('success' => false, 'message' => 'Query execution failed: ' . $this->db->error);
+            }
+            
             $products = array();
             while ($row = $result->fetch_assoc()) {
-                // Generate secure token
+                // Generate secure token if not present
                 if (empty($row['product_token'])) {
                     $row['product_token'] = SecurityManager::generateProductToken($row['product_id']);
                 }
@@ -116,6 +140,8 @@ class Product extends db_connection {
                 $row['product_desc'] = $row['product_desc'] ?? '';
                 $row['product_keywords'] = $row['product_keywords'] ?? '';
                 $row['product_image'] = $row['product_image'] ?? null;
+                // Add alias for consistency
+                $row['product_description'] = $row['product_desc'];
                 $products[] = $row;
             }
             
@@ -201,7 +227,13 @@ class Product extends db_connection {
             $result = $stmt->get_result();
             
             if ($result->num_rows > 0) {
-                return array('success' => true, 'data' => $result->fetch_assoc());
+                $product = $result->fetch_assoc();
+                // Add aliases for consistency with admin form
+                $product['product_description'] = $product['product_desc'];
+                $product['cat_id'] = $product['product_cat'];
+                $product['brand_id'] = $product['product_brand'];
+                $product['product_keywords'] = $product['product_keywords'] ?? $product['product_keyword'] ?? '';
+                return array('success' => true, 'data' => $product);
             } else {
                 return array('success' => false, 'message' => 'Product not found');
             }
@@ -520,7 +552,7 @@ class Product extends db_connection {
                 }
             }
             
-            // Build SQL query
+            // Build SQL query - try with product_token first
             $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
                            c.cat_name, b.brand_name, p.product_token
                     FROM products p
@@ -535,7 +567,22 @@ class Product extends db_connection {
             
             $stmt = $this->db->prepare($sql);
             if (!$stmt) {
-                return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
+                // If query fails, try without product_token (column might not exist)
+                $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
+                               c.cat_name, b.brand_name
+                        FROM products p
+                        LEFT JOIN categories c ON p.product_cat = c.cat_id
+                        LEFT JOIN brands b ON p.product_brand = b.brand_id";
+                
+                if (!empty($where_conditions)) {
+                    $sql .= " WHERE " . implode(' AND ', $where_conditions);
+                }
+                
+                $sql .= " ORDER BY p.product_id DESC LIMIT 500";
+                $stmt = $this->db->prepare($sql);
+                if (!$stmt) {
+                    return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
+                }
             }
             
             // Bind parameters dynamically
@@ -546,12 +593,24 @@ class Product extends db_connection {
             $stmt->execute();
             $result = $stmt->get_result();
             
+            if (!$result) {
+                return array('success' => false, 'message' => 'Query execution failed: ' . $this->db->error);
+            }
+            
             $products = array();
             while ($row = $result->fetch_assoc()) {
                 // Generate secure token for each product if not present
                 if (empty($row['product_token'])) {
                     $row['product_token'] = SecurityManager::generateProductToken($row['product_id']);
                 }
+                // Ensure all fields exist
+                $row['cat_name'] = $row['cat_name'] ?? 'Uncategorized';
+                $row['brand_name'] = $row['brand_name'] ?? 'No Brand';
+                $row['product_desc'] = $row['product_desc'] ?? '';
+                $row['product_keywords'] = $row['product_keywords'] ?? '';
+                $row['product_image'] = $row['product_image'] ?? null;
+                // Add alias for consistency
+                $row['product_description'] = $row['product_desc'];
                 // Remove sensitive internal IDs from public response
                 unset($row['product_cat'], $row['product_brand']);
                 $products[] = $row;
