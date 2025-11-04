@@ -78,8 +78,7 @@ class Product extends db_connection {
      */
     public function getAllProducts() {
         try {
-            // Query using actual column names from database
-            // Try to select product_token if it exists, otherwise we'll generate it
+            // Simple query without product_token first (column might not exist)
             $sql = "SELECT 
                         p.product_id, 
                         p.product_title, 
@@ -89,7 +88,6 @@ class Product extends db_connection {
                         p.product_image,
                         p.product_cat as cat_id,
                         p.product_brand as brand_id,
-                        p.product_token,
                         c.cat_name, 
                         b.brand_name
                     FROM products p
@@ -99,26 +97,7 @@ class Product extends db_connection {
             
             $stmt = $this->db->prepare($sql);
             if (!$stmt) {
-                // If the query fails, try without product_token (column might not exist)
-                $sql = "SELECT 
-                            p.product_id, 
-                            p.product_title, 
-                            p.product_desc, 
-                            p.product_price, 
-                            p.product_keywords, 
-                            p.product_image,
-                            p.product_cat as cat_id,
-                            p.product_brand as brand_id,
-                            c.cat_name, 
-                            b.brand_name
-                        FROM products p
-                        LEFT JOIN categories c ON p.product_cat = c.cat_id
-                        LEFT JOIN brands b ON p.product_brand = b.brand_id
-                        ORDER BY p.product_id DESC";
-                $stmt = $this->db->prepare($sql);
-                if (!$stmt) {
-                    return array('success' => false, 'message' => 'SQL Error: ' . $this->db->error);
-                }
+                return array('success' => false, 'message' => 'SQL Error: ' . $this->db->error . ' | SQL: ' . $sql);
             }
             
             $stmt->execute();

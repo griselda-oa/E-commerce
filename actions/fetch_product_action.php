@@ -16,16 +16,26 @@ function sendJson($data) {
 try {
     // Check and load required files
     $core_path = __DIR__ . '/../settings/core.php';
+    $db_class_path = __DIR__ . '/../settings/db_class.php';
+    $security_path = __DIR__ . '/../settings/security.php';
     $controller_path = __DIR__ . '/../controllers/product_controller.php';
     
     if (!file_exists($core_path)) {
         sendJson(['success' => false, 'message' => 'core.php missing']);
+    }
+    if (!file_exists($db_class_path)) {
+        sendJson(['success' => false, 'message' => 'db_class.php missing']);
+    }
+    if (!file_exists($security_path)) {
+        sendJson(['success' => false, 'message' => 'security.php missing']);
     }
     if (!file_exists($controller_path)) {
         sendJson(['success' => false, 'message' => 'product_controller.php missing']);
     }
     
     require_once $core_path;
+    require_once $db_class_path;
+    require_once $security_path;
     require_once $controller_path;
     
     // Check login
@@ -38,9 +48,9 @@ try {
         sendJson(['success' => false, 'message' => 'Admin privileges required']);
     }
     
-    // Get products
-    $productController = new ProductController();
-    $result = $productController->get_products_ctr();
+    // Get products - use direct Product class for consistency
+    $product = new Product();
+    $result = $product->getAllProducts();
     
     // Handle result
     if (!$result || !isset($result['success'])) {
@@ -63,7 +73,7 @@ try {
     // Catch any error
     sendJson([
         'success' => false,
-        'message' => 'Error: ' . $e->getMessage(),
+        'message' => 'Error: ' . $e->getMessage() . ' | File: ' . basename($e->getFile()) . ' | Line: ' . $e->getLine(),
         'data' => []
     ]);
 }
