@@ -5,7 +5,8 @@ require_once '../controllers/category_controller.php';
 
 // Check if user is logged in
 if (!is_logged_in()) {
-    header('Location: ../login/login.php?error=login_required');
+    $login_url = get_absolute_path('login/login.php') . '?error=login_required';
+    header('Location: ' . $login_url);
     exit();
 }
 

@@ -81,6 +81,29 @@ function has_role($role) {
 }
 
 /**
+ * Get absolute URL path from document root
+ * @param string $path Path relative to project root (e.g., 'login/login.php')
+ * @return string Absolute path from document root
+ */
+function get_absolute_path($path) {
+    $script_name = $_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? '';
+    $script_dir = dirname($script_name);
+    
+    // Remove /admin if present to get project root
+    if (strpos($script_dir, '/admin') !== false) {
+        $script_dir = str_replace('/admin', '', $script_dir);
+    }
+    
+    // Build absolute path
+    $absolute_path = rtrim($script_dir, '/') . '/' . ltrim($path, '/');
+    
+    // Clean up double slashes
+    $absolute_path = preg_replace('#(?<!:)/{2,}#', '/', $absolute_path);
+    
+    return $absolute_path;
+}
+
+/**
  * Require user to be logged in
  * Redirects to login page if not logged in
  * @param string $redirect_url Optional redirect URL after login
@@ -97,8 +120,8 @@ function require_login($redirect_url = null) {
             return; // Let the admin file handle the redirect
         }
         
-        // For non-admin pages, use simple relative path
-        $login_url = 'login/login.php';
+        // For non-admin pages, use absolute path
+        $login_url = get_absolute_path('login/login.php');
         
         if ($redirect_url) {
             $login_url .= '?redirect=' . urlencode($redirect_url);
