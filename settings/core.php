@@ -87,32 +87,27 @@ function has_role($role) {
  */
 function require_login($redirect_url = null) {
     if (!is_logged_in()) {
-        // Calculate correct path using __DIR__ to get actual file location
-        // This is more reliable than using $_SERVER variables
-        $current_file = __FILE__; // This is core.php location
-        $core_dir = dirname($current_file); // settings/ directory
+        // Use absolute path from document root to avoid browser relative path resolution issues
+        // Get the script name which is relative to document root
+        $script_name = $_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? '';
         
-        // Get the project root (one level up from settings)
-        $project_root = dirname($core_dir);
+        // Extract the base path (everything before the script name)
+        // Example: /~griselda.owusu/admin/product.php -> /~griselda.owusu
+        // Remove the script filename and directory
+        $base_path = dirname($script_name);
         
-        // Check if we're being called from admin folder
-        // Get the calling file's directory
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
-        $calling_file = $backtrace[1]['file'] ?? '';
-        $calling_dir = dirname($calling_file);
-        
-        // Determine if calling file is in admin folder
-        $is_admin = (strpos($calling_dir, DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR) !== false) ||
-                    (strpos($calling_dir, '/admin/') !== false);
-        
-        // Build login path - use relative path from calling file's location
-        if ($is_admin) {
-            // From admin folder, go up one level to root, then to login
-            $login_url = '../login/login.php';
-        } else {
-            // From root or other folders
-            $login_url = 'login/login.php';
+        // If we're in admin folder, remove /admin from the path
+        // This gives us the project root path
+        if (strpos($base_path, '/admin') !== false) {
+            // Remove /admin from the path
+            $base_path = str_replace('/admin', '', $base_path);
         }
+        
+        // Build absolute path to login (from document root)
+        $login_url = rtrim($base_path, '/') . '/login/login.php';
+        
+        // Clean up any double slashes (but keep leading slash)
+        $login_url = preg_replace('#(?<!:)/{2,}#', '/', $login_url);
         
         if ($redirect_url) {
             $login_url .= '?redirect=' . urlencode($redirect_url);
