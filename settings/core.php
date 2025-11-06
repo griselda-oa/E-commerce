@@ -87,27 +87,39 @@ function has_role($role) {
  */
 function require_login($redirect_url = null) {
     if (!is_logged_in()) {
-        // Use absolute path from document root to avoid browser relative path resolution issues
-        // Get the script name which is relative to document root
-        $script_name = $_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? '';
+        // Get the calling file to determine if we're in admin folder
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+        $calling_file = '';
         
-        // Extract the base path (everything before the script name)
-        // Example: /~griselda.owusu/admin/product.php -> /~griselda.owusu
-        // Remove the script filename and directory
-        $base_path = dirname($script_name);
-        
-        // If we're in admin folder, remove /admin from the path
-        // This gives us the project root path
-        if (strpos($base_path, '/admin') !== false) {
-            // Remove /admin from the path
-            $base_path = str_replace('/admin', '', $base_path);
+        // Find the file that called require_login (skip core.php and security.php)
+        foreach ($backtrace as $trace) {
+            $file = $trace['file'] ?? '';
+            if (strpos($file, 'core.php') === false && strpos($file, 'security.php') === false) {
+                $calling_file = $file;
+                break;
+            }
         }
         
-        // Build absolute path to login (from document root)
-        $login_url = rtrim($base_path, '/') . '/login/login.php';
+        // Check if calling file is in admin folder
+        $is_admin_folder = false;
+        if ($calling_file) {
+            $calling_dir = dirname($calling_file);
+            $is_admin_folder = (strpos($calling_dir, DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR) !== false) ||
+                              (strpos($calling_dir, '/admin/') !== false);
+        } else {
+            // Fallback: check SCRIPT_NAME
+            $script_name = $_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? '';
+            $is_admin_folder = (strpos($script_name, '/admin/') !== false);
+        }
         
-        // Clean up any double slashes (but keep leading slash)
-        $login_url = preg_replace('#(?<!:)/{2,}#', '/', $login_url);
+        // Build login URL - use simple relative path that works
+        if ($is_admin_folder) {
+            // From admin folder: ../login/login.php
+            $login_url = '../login/login.php';
+        } else {
+            // From root: login/login.php
+            $login_url = 'login/login.php';
+        }
         
         if ($redirect_url) {
             $login_url .= '?redirect=' . urlencode($redirect_url);
@@ -209,7 +221,11 @@ function init_page() {
 
 // Auto-initialize page if this file is included
 // Only auto-init if user is logged in (to avoid redirect loops)
-if (basename($_SERVER['PHP_SELF']) !== 'core.php' && is_logged_in()) {
+// Also skip if we're in admin folder (admin files handle their own auth)
+$script_name = $_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? '';
+$is_admin_page = (strpos($script_name, '/admin/') !== false);
+
+if (basename($_SERVER['PHP_SELF']) !== 'core.php' && is_logged_in() && !$is_admin_page) {
     init_page();
 }
 ?>
