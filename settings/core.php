@@ -112,7 +112,7 @@ function get_absolute_path($path) {
     $absolute_path = preg_replace('#(?<!:)/{2,}#', '/', $absolute_path);
     
     // Ensure it starts with / (absolute path from document root)
-    if (!str_starts_with($absolute_path, '/')) {
+    if (substr($absolute_path, 0, 1) !== '/') {
         $absolute_path = '/' . $absolute_path;
     }
     
