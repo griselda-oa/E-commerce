@@ -40,16 +40,27 @@ function loadProducts() {
         },
         error: function(xhr, status, error) {
             console.error('Product loading error:', error, xhr.responseText);
+            console.error('Status:', xhr.status, 'Status Text:', xhr.statusText);
+            console.error('URL:', '../actions/fetch_all_products_action.php');
             let errorMsg = 'Error connecting to server';
             if (xhr.responseText) {
                 try {
                     const response = JSON.parse(xhr.responseText);
                     errorMsg = response.message || errorMsg;
+                    if (response.file) {
+                        errorMsg += ' (File: ' + response.file;
+                        if (response.line) {
+                            errorMsg += ', Line: ' + response.line;
+                        }
+                        errorMsg += ')';
+                    }
                 } catch (e) {
-                    errorMsg = 'Server error: ' + xhr.status + ' ' + error;
+                    errorMsg = 'Server error: ' + xhr.status + ' ' + error + ' (Response: ' + xhr.responseText.substring(0, 200) + ')';
                 }
+            } else {
+                errorMsg = 'Server error: ' + xhr.status + ' ' + error + ' (No response from server)';
             }
-            container.html('<div class="alert alert-danger w-100">' + errorMsg + '<br><button class="btn btn-sm btn-primary mt-2" onclick="loadProducts()">Retry</button></div>');
+            container.html('<div class="alert alert-danger w-100"><strong>Error:</strong> ' + errorMsg + '<br><button class="btn btn-sm btn-primary mt-2" onclick="loadProducts()">Retry</button></div>');
             showAlert(errorMsg, 'danger');
         }
     });

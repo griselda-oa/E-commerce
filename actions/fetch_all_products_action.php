@@ -20,16 +20,16 @@ try {
     $class_path = __DIR__ . '/../classes/product_class.php';
     
     if (!file_exists($core_path)) {
-        sendJson(['success' => false, 'message' => 'core.php not found']);
+        sendJson(['success' => false, 'message' => 'core.php not found at: ' . $core_path]);
     }
     if (!file_exists($db_class_path)) {
-        sendJson(['success' => false, 'message' => 'db_class.php not found']);
+        sendJson(['success' => false, 'message' => 'db_class.php not found at: ' . $db_class_path]);
     }
     if (!file_exists($security_path)) {
-        sendJson(['success' => false, 'message' => 'security.php not found']);
+        sendJson(['success' => false, 'message' => 'security.php not found at: ' . $security_path]);
     }
     if (!file_exists($class_path)) {
-        sendJson(['success' => false, 'message' => 'product_class.php not found']);
+        sendJson(['success' => false, 'message' => 'product_class.php not found at: ' . $class_path]);
     }
     
     require_once $core_path;
