@@ -91,29 +91,20 @@ function require_login($redirect_url = null) {
         // Get the script path relative to document root
         $script_name = $_SERVER['SCRIPT_NAME'] ?? '';
         
-        // Check if script is in admin folder
-        $is_admin = (strpos($script_name, '/admin/') !== false);
+        // Get the directory of the script
+        $script_dir = dirname($script_name);
         
-        // Build login URL - use absolute path from document root
-        // For admin pages: /~griselda.owusu/login/login.php
-        // For root pages: /~griselda.owusu/login/login.php
-        // Get the base path (everything before /admin/ or the script name)
-        $base_path = '';
-        if (preg_match('#^(/[^/]+/[^/]+)#', $script_name, $matches)) {
-            // Extract base path like /~griselda.owusu
-            $base_path = $matches[1];
-        } else {
-            // Fallback: use dirname of script
-            $base_path = dirname($script_name);
-            // Remove /admin if present
-            $base_path = str_replace('/admin', '', $base_path);
+        // If we're in admin folder, remove /admin from the path
+        // Example: /~griselda.owusu/admin -> /~griselda.owusu
+        if (strpos($script_dir, '/admin') !== false) {
+            $script_dir = str_replace('/admin', '', $script_dir);
         }
         
-        // Build absolute path to login
-        $login_url = rtrim($base_path, '/') . '/login/login.php';
+        // Build absolute path to login from document root
+        $login_url = rtrim($script_dir, '/') . '/login/login.php';
         
-        // Remove double slashes
-        $login_url = str_replace('//', '/', $login_url);
+        // Remove any double slashes (except at the start)
+        $login_url = preg_replace('#([^:])//+#', '$1/', $login_url);
         
         if ($redirect_url) {
             $login_url .= '?redirect=' . urlencode($redirect_url);
