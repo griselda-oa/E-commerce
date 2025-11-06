@@ -87,39 +87,18 @@ function has_role($role) {
  */
 function require_login($redirect_url = null) {
     if (!is_logged_in()) {
-        // Get the calling file to determine if we're in admin folder
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
-        $calling_file = '';
+        // Check if current script is in admin folder - if so, admin files handle their own redirects
+        $script_name = $_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? '';
+        $is_admin_page = (strpos($script_name, '/admin/') !== false);
         
-        // Find the file that called require_login (skip core.php and security.php)
-        foreach ($backtrace as $trace) {
-            $file = $trace['file'] ?? '';
-            if (strpos($file, 'core.php') === false && strpos($file, 'security.php') === false) {
-                $calling_file = $file;
-                break;
-            }
+        // If called from admin page, don't redirect (admin files handle their own auth)
+        // This prevents double redirects and path issues
+        if ($is_admin_page) {
+            return; // Let the admin file handle the redirect
         }
         
-        // Check if calling file is in admin folder
-        $is_admin_folder = false;
-        if ($calling_file) {
-            $calling_dir = dirname($calling_file);
-            $is_admin_folder = (strpos($calling_dir, DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR) !== false) ||
-                              (strpos($calling_dir, '/admin/') !== false);
-        } else {
-            // Fallback: check SCRIPT_NAME
-            $script_name = $_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? '';
-            $is_admin_folder = (strpos($script_name, '/admin/') !== false);
-        }
-        
-        // Build login URL - use simple relative path that works
-        if ($is_admin_folder) {
-            // From admin folder: ../login/login.php
-            $login_url = '../login/login.php';
-        } else {
-            // From root: login/login.php
-            $login_url = 'login/login.php';
-        }
+        // For non-admin pages, use simple relative path
+        $login_url = 'login/login.php';
         
         if ($redirect_url) {
             $login_url .= '?redirect=' . urlencode($redirect_url);
