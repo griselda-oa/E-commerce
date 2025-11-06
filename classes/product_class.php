@@ -78,21 +78,21 @@ class Product extends db_connection {
      */
     public function getAllProducts() {
         try {
-            // Simple query without product_token first (column might not exist)
+            // Query matching actual database schema: product_description, product_keyword, cat_id, brand_id
             $sql = "SELECT 
                         p.product_id, 
                         p.product_title, 
-                        p.product_desc, 
+                        p.product_description as product_desc, 
                         p.product_price, 
-                        p.product_keywords, 
+                        p.product_keyword as product_keywords, 
                         p.product_image,
-                        p.product_cat as cat_id,
-                        p.product_brand as brand_id,
+                        p.cat_id,
+                        p.brand_id,
                         c.cat_name, 
                         b.brand_name
                     FROM products p
-                    LEFT JOIN categories c ON p.product_cat = c.cat_id
-                    LEFT JOIN brands b ON p.product_brand = b.brand_id
+                    LEFT JOIN categories c ON p.cat_id = c.cat_id
+                    LEFT JOIN brands b ON p.brand_id = b.brand_id
                     ORDER BY p.product_id DESC";
             
             $stmt = $this->db->prepare($sql);
