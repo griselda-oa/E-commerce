@@ -1,5 +1,5 @@
 <?php
-// admin/product.php
+// admin/product.php - Rebuilt Product Management Page
 require_once '../settings/core.php';
 require_once '../settings/security.php';
 require_once '../controllers/category_controller.php';
@@ -39,12 +39,14 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            padding: 20px 0;
         }
         .admin-container {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
-            margin: 20px;
+            margin: 20px auto;
             padding: 30px;
+            max-width: 1400px;
         }
         .admin-header {
             background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
@@ -59,20 +61,18 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
             border-radius: 10px;
             font-weight: 600;
             margin-right: 10px;
+            margin-bottom: 10px;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
-        /* Use flexbox for robust cross-browser grid */
+        /* Product Grid */
         .product-grid {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 25px;
             margin-top: 30px;
-            width: 100%;
-            justify-content: flex-start;
-            align-items: stretch;
         }
         .product-card {
             background: white;
@@ -80,29 +80,8 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
             overflow: hidden;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
-            position: relative;
-            /* 3 columns on desktop; items wrap responsively */
-            flex: 0 1 calc(33.333% - 17px); /* 33.333% minus gap compensation */
-            min-width: 280px;
-            max-width: 100%;
-            box-sizing: border-box;
             display: flex;
             flex-direction: column;
-        }
-        @media (max-width: 1200px) {
-            .product-card {
-                flex: 0 1 calc(33.333% - 17px);
-            }
-        }
-        @media (max-width: 992px) {
-            .product-card {
-                flex: 0 1 calc(50% - 13px); /* 2 columns */
-            }
-        }
-        @media (max-width: 576px) {
-            .product-card {
-                flex: 0 1 100%; /* 1 column on mobile */
-            }
         }
         .product-card:hover {
             transform: translateY(-8px);
@@ -110,7 +89,7 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
         }
         .product-image {
             width: 100%;
-            height: 200px;
+            height: 250px;
             background: linear-gradient(135deg, #f8f9fa, #e9ecef);
             display: flex;
             align-items: center;
@@ -125,10 +104,14 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
         }
         .product-image-placeholder {
             color: #6c757d;
-            font-size: 3rem;
+            font-size: 4rem;
+            opacity: 0.5;
         }
         .product-content {
             padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
         .product-title {
             font-size: 1.2rem;
@@ -143,7 +126,7 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
             margin-bottom: 12px;
         }
         .product-price {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 800;
             color: #28a745;
             margin-bottom: 15px;
@@ -152,36 +135,34 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-top: 15px;
-            width: 100%;
+            margin-top: auto;
         }
         .product-actions .btn {
             flex: 1 1 auto;
             min-width: 80px;
-            white-space: nowrap;
             font-size: 0.75rem;
-            padding: 6px 12px;
-        }
-        .btn-sm {
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.85rem;
+            padding: 8px 12px;
         }
         .loading-spinner {
             text-align: center;
-            padding: 50px;
+            padding: 80px;
             color: #6c757d;
         }
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
+            padding: 80px 20px;
             color: #6c757d;
         }
         .empty-state i {
-            font-size: 4rem;
+            font-size: 5rem;
             margin-bottom: 20px;
             opacity: 0.5;
+        }
+        .csv-upload-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -192,8 +173,9 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
             <p>Manage your e-commerce products</p>
         </div>
         
-        <div class="alert alert-info" id="alertContainer"></div>
+        <div class="alert alert-info" id="alertContainer" style="display: none;"></div>
         
+        <!-- Action Buttons -->
         <div class="mb-3">
             <button class="btn btn-primary btn-action" data-bs-toggle="modal" data-bs-target="#addProductModal">
                 <i class="fa fa-plus"></i> Add Product
@@ -201,13 +183,17 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
             <button class="btn btn-success btn-action" onclick="loadProducts()">
                 <i class="fa fa-refresh"></i> Refresh
             </button>
+            <button class="btn btn-info btn-action" data-bs-toggle="modal" data-bs-target="#bulkUploadModal">
+                <i class="fa fa-file-csv"></i> Bulk Upload (CSV)
+            </button>
             <a href="brand.php" class="btn btn-warning btn-action"><i class="fa fa-industry"></i> Brands</a>
             <a href="category.php" class="btn btn-info btn-action"><i class="fa fa-tags"></i> Categories</a>
             <a href="../index.php" class="btn btn-secondary btn-action"><i class="fa fa-home"></i> Back to Dashboard</a>
         </div>
         
+        <!-- Products Grid -->
         <div id="productsContainer" class="product-grid">
-            <div class="text-center">
+            <div class="text-center w-100">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
@@ -241,14 +227,9 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Brand *</label>
-                                <div class="input-group">
-                                    <select class="form-select" id="brandSelect" name="brand_id" required>
-                                        <option value="">Select Brand</option>
-                                    </select>
-                                    <button class="btn btn-outline-secondary" type="button" onclick="loadAllBrands()">
-                                        <i class="fa fa-refresh"></i>
-                                    </button>
-                                </div>
+                                <select class="form-select" id="brandSelect" name="brand_id" required>
+                                    <option value="">Select Brand</option>
+                                </select>
                             </div>
                         </div>
                         
@@ -287,70 +268,47 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
         </div>
     </div>
 
-    <!-- Image Upload Modal -->
-    <div class="modal fade" id="uploadImageModal" tabindex="-1" aria-labelledby="uploadImageModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="uploadImageModalLabel"><i class="fa fa-image"></i> Upload Product Image</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="uploadImageForm">
-                        <input type="hidden" id="uploadProductId" name="product_id">
-                        <div class="mb-3">
-                            <label class="form-label">Select Image</label>
-                            <input type="file" class="form-control" id="productImageFile" name="product_image" accept="image/*" required>
-                            <div class="form-text">Supported formats: JPEG, PNG, GIF. Max size: 5MB</div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="saveImage()"><i class="fa fa-upload"></i> Upload Image</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bulk Image Upload Modal -->
-    <div class="modal fade" id="bulkUploadImageModal" tabindex="-1" aria-labelledby="bulkUploadImageModalLabel" aria-hidden="true">
+    <!-- Bulk CSV Upload Modal -->
+    <div class="modal fade" id="bulkUploadModal" tabindex="-1" aria-labelledby="bulkUploadModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="bulkUploadImageModalLabel"><i class="fa fa-images"></i> Bulk Upload Product Images</h5>
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="bulkUploadModalLabel"><i class="fa fa-file-csv"></i> Bulk Upload Products (CSV)</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="bulkUploadImageForm">
-                        <input type="hidden" id="bulkUploadProductId" name="product_id">
+                    <div class="alert alert-info">
+                        <h6><i class="fa fa-info-circle"></i> CSV Format Instructions:</h6>
+                        <p class="mb-2">Your CSV file should have the following columns (in order):</p>
+                        <ol class="mb-0">
+                            <li><strong>product_title</strong> - Product name</li>
+                            <li><strong>product_description</strong> - Product description</li>
+                            <li><strong>product_price</strong> - Price in GHS (e.g., 100.50)</li>
+                            <li><strong>product_keyword</strong> - Keywords (comma-separated)</li>
+                            <li><strong>cat_id</strong> - Category ID (must exist in database)</li>
+                            <li><strong>brand_id</strong> - Brand ID (must exist in database)</li>
+                        </ol>
+                        <p class="mt-2 mb-0"><strong>Note:</strong> First row should be headers. Do not include product_id or product_image columns.</p>
+                    </div>
+                    <form id="bulkUploadForm">
+                        <input type="hidden" name="csrf_token" value="<?php echo SecurityManager::generateCSRFToken(); ?>">
                         <div class="mb-3">
-                            <label class="form-label">Select Multiple Images</label>
-                            <input type="file" class="form-control" id="bulkProductImages" name="product_images[]" accept="image/jpeg,image/jpg,image/png,image/gif" multiple required style="cursor: pointer;">
-                            <div class="form-text">
-                                <strong>EXTRA CREDIT Feature:</strong> 
-                                <ul class="mb-0 mt-2">
-                                    <li>Hold <kbd>Ctrl</kbd> (Windows/Linux) or <kbd>Cmd</kbd> (Mac) to select multiple images</li>
-                                    <li>Or hold <kbd>Shift</kbd> to select a range</li>
-                                    <li>Maximum 10 images at once</li>
-                                    <li>Supported formats: JPEG, PNG, GIF</li>
-                                    <li>Max size: 5MB per image</li>
-                                </ul>
-                            </div>
-                            <div id="selectedFiles" class="mt-2 mb-2"></div>
-                            <div id="bulkUploadStatus" class="mt-3"></div>
+                            <label class="form-label">Select CSV File *</label>
+                            <input type="file" class="form-control" id="csvFile" name="csv_file" accept=".csv" required>
+                            <div class="form-text">Only CSV files are accepted. Max size: 10MB</div>
                         </div>
+                        <div id="csvUploadStatus"></div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-success" onclick="saveBulkImages()"><i class="fa fa-upload"></i> Upload All Images</button>
+                    <button type="button" class="btn btn-info" onclick="uploadBulkCSV()"><i class="fa fa-upload"></i> Upload CSV</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/product.js"></script>
+    <script src="../js/product_admin.js"></script>
 </body>
 </html>
