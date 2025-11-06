@@ -87,24 +87,32 @@ function has_role($role) {
  */
 function require_login($redirect_url = null) {
     if (!is_logged_in()) {
-        // Use absolute path from document root to avoid relative path issues
-        // Get the script path relative to document root
-        $script_name = $_SERVER['SCRIPT_NAME'] ?? '';
+        // Calculate correct path using __DIR__ to get actual file location
+        // This is more reliable than using $_SERVER variables
+        $current_file = __FILE__; // This is core.php location
+        $core_dir = dirname($current_file); // settings/ directory
         
-        // Get the directory of the script
-        $script_dir = dirname($script_name);
+        // Get the project root (one level up from settings)
+        $project_root = dirname($core_dir);
         
-        // If we're in admin folder, remove /admin from the path
-        // Example: /~griselda.owusu/admin -> /~griselda.owusu
-        if (strpos($script_dir, '/admin') !== false) {
-            $script_dir = str_replace('/admin', '', $script_dir);
+        // Check if we're being called from admin folder
+        // Get the calling file's directory
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+        $calling_file = $backtrace[1]['file'] ?? '';
+        $calling_dir = dirname($calling_file);
+        
+        // Determine if calling file is in admin folder
+        $is_admin = (strpos($calling_dir, DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR) !== false) ||
+                    (strpos($calling_dir, '/admin/') !== false);
+        
+        // Build login path - use relative path from calling file's location
+        if ($is_admin) {
+            // From admin folder, go up one level to root, then to login
+            $login_url = '../login/login.php';
+        } else {
+            // From root or other folders
+            $login_url = 'login/login.php';
         }
-        
-        // Build absolute path to login from document root
-        $login_url = rtrim($script_dir, '/') . '/login/login.php';
-        
-        // Remove any double slashes (except at the start)
-        $login_url = preg_replace('#([^:])//+#', '$1/', $login_url);
         
         if ($redirect_url) {
             $login_url .= '?redirect=' . urlencode($redirect_url);
