@@ -7,6 +7,22 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
+// Register error handler to catch fatal errors
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error !== NULL && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'message' => 'Fatal Error: ' . $error['message'],
+            'file' => basename($error['file']),
+            'line' => $error['line'],
+            'data' => []
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+});
+
 function sendJson($data) {
     echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
@@ -37,11 +53,24 @@ try {
     require_once $security_path;
     require_once $class_path;
     
+    // Check if Product class exists
+    if (!class_exists('Product')) {
+        sendJson(['success' => false, 'message' => 'Product class not found after including files']);
+    }
+    
     // Initialize product
-    $product = new Product();
+    try {
+        $product = new Product();
+    } catch (Exception $e) {
+        sendJson(['success' => false, 'message' => 'Failed to create Product instance: ' . $e->getMessage()]);
+    }
     
     // Get all products
-    $result = $product->getAllProducts();
+    try {
+        $result = $product->getAllProducts();
+    } catch (Exception $e) {
+        sendJson(['success' => false, 'message' => 'Failed to get products: ' . $e->getMessage()]);
+    }
     
     // Ensure result is in correct format
     if (!isset($result['success'])) {
