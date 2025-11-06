@@ -204,7 +204,8 @@ function init_page() {
 }
 
 // Auto-initialize page if this file is included
-if (basename($_SERVER['PHP_SELF']) !== 'core.php') {
+// Only auto-init if user is logged in (to avoid redirect loops)
+if (basename($_SERVER['PHP_SELF']) !== 'core.php' && is_logged_in()) {
     init_page();
 }
 ?>
