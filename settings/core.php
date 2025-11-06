@@ -88,8 +88,16 @@ function has_role($role) {
 function require_login($redirect_url = null) {
     if (!is_logged_in()) {
         // Determine correct path based on current directory
-        $current_dir = dirname($_SERVER['PHP_SELF']);
-        if (strpos($current_dir, '/admin') !== false) {
+        // Use $_SERVER['SCRIPT_NAME'] which gives the script path from document root
+        $script_path = $_SERVER['SCRIPT_NAME'] ?? '';
+        $request_uri = $_SERVER['REQUEST_URI'] ?? '';
+        
+        // Check if we're in admin folder - check both SCRIPT_NAME and REQUEST_URI
+        $is_admin_folder = (strpos($script_path, '/admin/') !== false) || 
+                          (strpos($request_uri, '/admin/') !== false) ||
+                          (strpos(dirname($script_path), '/admin') !== false);
+        
+        if ($is_admin_folder) {
             // We're in admin folder, need to go up one level
             $login_url = '../login/login.php';
         } else {
@@ -100,6 +108,7 @@ function require_login($redirect_url = null) {
         if ($redirect_url) {
             $login_url .= '?redirect=' . urlencode($redirect_url);
         }
+        
         header('Location: ' . $login_url);
         exit();
     }
