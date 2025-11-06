@@ -190,6 +190,9 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
             <button class="btn btn-info btn-action" data-bs-toggle="modal" data-bs-target="#bulkUploadModal">
                 <i class="fa fa-file-csv"></i> Bulk Upload (CSV)
             </button>
+            <a href="../actions/download_products_csv_action.php" class="btn btn-success btn-action" download>
+                <i class="fa fa-download"></i> Download Products (CSV)
+            </a>
             <a href="brand.php" class="btn btn-warning btn-action"><i class="fa fa-industry"></i> Brands</a>
             <a href="category.php" class="btn btn-info btn-action"><i class="fa fa-tags"></i> Categories</a>
             <a href="../index.php" class="btn btn-secondary btn-action"><i class="fa fa-home"></i> Back to Dashboard</a>

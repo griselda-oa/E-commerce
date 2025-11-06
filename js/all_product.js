@@ -203,9 +203,13 @@ $(document).ready(function() {
 
         let html = '<div class="product-grid">';
         pageProducts.forEach(product => {
+            // Handle both product_image and product_desc/product_description
             const imagePath = product.product_image ? product.product_image : null;
+            const description = product.product_description || product.product_desc || 'No description available';
+            const productToken = product.product_token || product.product_id;
+            
             const imageHtml = imagePath ? 
-                `<img src="${imagePath}" alt="${product.product_title}">` : 
+                `<img src="${imagePath}" alt="${product.product_title}" onerror="this.parentElement.innerHTML='<div class=\\'product-image-placeholder\\'><i class=\\'fa fa-image\\'></i></div>';" style="width: 100%; height: 100%; object-fit: cover;">` : 
                 `<div class="product-image-placeholder"><i class="fa fa-image"></i></div>`;
                 
             html += `
@@ -214,14 +218,14 @@ $(document).ready(function() {
                         ${imageHtml}
                     </div>
                     <div class="product-content">
-                        <h5 class="product-title">${product.product_title}</h5>
+                        <h5 class="product-title">${product.product_title || 'Untitled Product'}</h5>
                         <div class="product-meta">
                             <i class="fa fa-tag"></i> ${product.cat_name || 'Uncategorized'} | 
                             <i class="fa fa-industry"></i> ${product.brand_name || 'No Brand'}
                         </div>
-                        <div class="product-price">GHS ${parseFloat(product.product_price).toFixed(2)}</div>
-                        <p class="product-description">${product.product_desc ? product.product_desc.substring(0, 120) + '...' : 'No description available'}</p>
-                        <a href="single_product.php?token=${product.product_token}" class="btn btn-add-cart">
+                        <div class="product-price">GHS ${parseFloat(product.product_price || 0).toFixed(2)}</div>
+                        <p class="product-description">${description.length > 120 ? description.substring(0, 120) + '...' : description}</p>
+                        <a href="single_product.php?token=${productToken}" class="btn btn-add-cart">
                             <i class="fa fa-eye"></i> View Details
                         </a>
                     </div>

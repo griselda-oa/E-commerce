@@ -14,6 +14,7 @@ $(document).ready(function() {
     $('#addProductModal').on('hidden.bs.modal', function() {
         $('#productForm')[0].reset();
         $('#productId').val('');
+        $('#existingProductImage').remove();
         $('#addProductModalLabel').html('<i class="fa fa-plus"></i> Add Product');
     });
 });

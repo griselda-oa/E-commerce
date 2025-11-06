@@ -36,9 +36,64 @@ $product_title = trim($_POST['product_title'] ?? '');
 $product_description = trim($_POST['product_description'] ?? '');
 $product_price = floatval($_POST['product_price'] ?? 0);
 $product_keyword = trim($_POST['product_keyword'] ?? '');
-$product_image = $_POST['product_image'] ?? null;
 $cat_id = intval($_POST['cat_id'] ?? 0);
 $brand_id = intval($_POST['brand_id'] ?? 0);
+
+// Handle image upload if provided
+$product_image = null;
+if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
+    $file = $_FILES['product_image'];
+    $user_id = get_user_id();
+    
+    // Validate file type
+    $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!in_array($file['type'], $allowed_types)) {
+        echo json_encode(['success' => false, 'message' => 'Invalid file type. Only JPEG, PNG, and GIF images are allowed']);
+        exit;
+    }
+    
+    // Validate file size (max 5MB)
+    $max_size = 5 * 1024 * 1024; // 5MB
+    if ($file['size'] > $max_size) {
+        echo json_encode(['success' => false, 'message' => 'File size exceeds 5MB limit']);
+        exit;
+    }
+    
+    // Create proper directory structure
+    $upload_dir = __DIR__ . '/../uploads/u' . $user_id;
+    if (!is_dir($upload_dir)) {
+        if (!mkdir($upload_dir, 0777, true)) {
+            echo json_encode(['success' => false, 'message' => 'Failed to create upload directory']);
+            exit;
+        }
+    }
+    
+    $product_dir = $upload_dir . '/p' . $product_id;
+    if (!is_dir($product_dir)) {
+        if (!mkdir($product_dir, 0777, true)) {
+            echo json_encode(['success' => false, 'message' => 'Failed to create product directory']);
+            exit;
+        }
+    }
+    
+    // Generate unique filename
+    $file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $timestamp = time();
+    $new_filename = 'image_' . $timestamp . '.' . $file_extension;
+    $upload_path = $product_dir . '/' . $new_filename;
+    
+    // Move uploaded file
+    if (!move_uploaded_file($file['tmp_name'], $upload_path)) {
+        echo json_encode(['success' => false, 'message' => 'Failed to upload file']);
+        exit;
+    }
+    
+    // Store relative path for database
+    $product_image = 'uploads/u' . $user_id . '/p' . $product_id . '/' . $new_filename;
+} else {
+    // Keep existing image if no new image uploaded
+    $product_image = $_POST['existing_product_image'] ?? null;
+}
 
 // Validation
 if ($product_id <= 0) {

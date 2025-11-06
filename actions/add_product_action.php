@@ -35,9 +35,53 @@ $product_title = trim($_POST['product_title'] ?? '');
 $product_description = trim($_POST['product_description'] ?? '');
 $product_price = floatval($_POST['product_price'] ?? 0);
 $product_keyword = trim($_POST['product_keyword'] ?? '');
-$product_image = $_POST['product_image'] ?? null;
 $cat_id = intval($_POST['cat_id'] ?? 0);
 $brand_id = intval($_POST['brand_id'] ?? 0);
+
+// Handle image upload if provided
+$product_image = null;
+if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
+    $file = $_FILES['product_image'];
+    $user_id = get_user_id();
+    
+    // Validate file type
+    $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!in_array($file['type'], $allowed_types)) {
+        echo json_encode(['success' => false, 'message' => 'Invalid file type. Only JPEG, PNG, and GIF images are allowed']);
+        exit;
+    }
+    
+    // Validate file size (max 5MB)
+    $max_size = 5 * 1024 * 1024; // 5MB
+    if ($file['size'] > $max_size) {
+        echo json_encode(['success' => false, 'message' => 'File size exceeds 5MB limit']);
+        exit;
+    }
+    
+    // Create temporary directory for uploads (will be moved after product creation)
+    $temp_upload_dir = __DIR__ . '/../uploads/temp';
+    if (!is_dir($temp_upload_dir)) {
+        if (!mkdir($temp_upload_dir, 0777, true)) {
+            echo json_encode(['success' => false, 'message' => 'Failed to create upload directory']);
+            exit;
+        }
+    }
+    
+    // Generate unique filename
+    $file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $timestamp = time();
+    $new_filename = 'temp_' . $user_id . '_' . $timestamp . '.' . $file_extension;
+    $temp_upload_path = $temp_upload_dir . '/' . $new_filename;
+    
+    // Move uploaded file
+    if (!move_uploaded_file($file['tmp_name'], $temp_upload_path)) {
+        echo json_encode(['success' => false, 'message' => 'Failed to upload file']);
+        exit;
+    }
+    
+    // Store temp path - will be moved to proper location after product creation
+    $product_image = 'uploads/temp/' . $new_filename;
+}
 
 // Validation
 if (empty($product_title)) {
@@ -77,6 +121,40 @@ try {
         'brand_id' => $brand_id,
         'csrf_token' => $_POST['csrf_token'] ?? ''
     ]);
+    
+    // If product was created successfully and we have a temp image, move it to proper location
+    if ($result['success'] && $product_image && isset($result['product_id'])) {
+        $product_id = $result['product_id'];
+        $user_id = get_user_id();
+        
+        // Create proper directory structure
+        $upload_dir = __DIR__ . '/../uploads/u' . $user_id;
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+        
+        $product_dir = $upload_dir . '/p' . $product_id;
+        if (!is_dir($product_dir)) {
+            mkdir($product_dir, 0777, true);
+        }
+        
+        // Move temp file to proper location
+        $temp_path = __DIR__ . '/../' . $product_image;
+        $file_extension = pathinfo($temp_path, PATHINFO_EXTENSION);
+        $final_filename = 'image_' . time() . '.' . $file_extension;
+        $final_path = $product_dir . '/' . $final_filename;
+        
+        if (file_exists($temp_path)) {
+            if (rename($temp_path, $final_path)) {
+                // Update product with final image path
+                $final_image_path = 'uploads/u' . $user_id . '/p' . $product_id . '/' . $final_filename;
+                require_once __DIR__ . '/../classes/product_class.php';
+                $product = new Product();
+                $product->update(['product_id' => $product_id, 'product_image' => $final_image_path]);
+                $result['product_image'] = $final_image_path;
+            }
+        }
+    }
     
     echo json_encode($result);
 } catch (Exception $e) {
