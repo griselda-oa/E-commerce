@@ -316,6 +316,6 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/product_admin.js"></script>
+    <script src="../js/product_admin.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
