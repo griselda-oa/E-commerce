@@ -176,10 +176,22 @@ function editProduct(productId) {
     
     $('#productId').val(product.product_id);
     $('#productTitle').val(product.product_title);
-    $('#productDescription').val(product.product_desc || product.product_description);
+    $('#productDescription').val(product.product_description || product.product_desc);
     $('#productPrice').val(product.product_price);
     $('#productKeywords').val(product.product_keyword || product.product_keywords);
     $('#categorySelect').val(product.cat_id);
+    
+    // Store existing image path for update
+    if (product.product_image) {
+        // Remove existing hidden input if present
+        $('#existingProductImage').remove();
+        $('<input>').attr({
+            type: 'hidden',
+            id: 'existingProductImage',
+            name: 'existing_product_image',
+            value: product.product_image
+        }).appendTo('#productForm');
+    }
     
     // Load brands and set selected brand
     loadAllBrands();
