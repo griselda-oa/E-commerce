@@ -87,18 +87,34 @@ function has_role($role) {
  */
 function get_absolute_path($path) {
     $script_name = $_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? '';
+    
+    // Get the directory of the current script
     $script_dir = dirname($script_name);
     
-    // Remove /admin if present to get project root
+    // If we're in /admin folder, remove it to get project root
+    // Example: /~griselda.owusu/admin -> /~griselda.owusu
     if (strpos($script_dir, '/admin') !== false) {
-        $script_dir = str_replace('/admin', '', $script_dir);
+        // Split by /admin and take the first part
+        $parts = explode('/admin', $script_dir, 2);
+        $script_dir = $parts[0];
     }
     
-    // Build absolute path
-    $absolute_path = rtrim($script_dir, '/') . '/' . ltrim($path, '/');
+    // Ensure we have a base path (at least /)
+    if (empty($script_dir) || $script_dir === '.') {
+        $script_dir = '/';
+    }
     
-    // Clean up double slashes
+    // Build absolute path - ensure it starts with /
+    $path = ltrim($path, '/');
+    $absolute_path = rtrim($script_dir, '/') . '/' . $path;
+    
+    // Clean up double slashes (but preserve leading // for protocol)
     $absolute_path = preg_replace('#(?<!:)/{2,}#', '/', $absolute_path);
+    
+    // Ensure it starts with / (absolute path from document root)
+    if (!str_starts_with($absolute_path, '/')) {
+        $absolute_path = '/' . $absolute_path;
+    }
     
     return $absolute_path;
 }
