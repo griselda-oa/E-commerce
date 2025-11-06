@@ -87,7 +87,16 @@ function has_role($role) {
  */
 function require_login($redirect_url = null) {
     if (!is_logged_in()) {
-        $login_url = 'login/login.php';
+        // Determine correct path based on current directory
+        $current_dir = dirname($_SERVER['PHP_SELF']);
+        if (strpos($current_dir, '/admin') !== false) {
+            // We're in admin folder, need to go up one level
+            $login_url = '../login/login.php';
+        } else {
+            // We're in root or other folder
+            $login_url = 'login/login.php';
+        }
+        
         if ($redirect_url) {
             $login_url .= '?redirect=' . urlencode($redirect_url);
         }
