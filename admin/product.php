@@ -7,7 +7,10 @@ require_once '../controllers/brand_controller.php';
 
 // Check if user is logged in
 if (!is_logged_in()) {
-    $login_url = get_absolute_path('login/login.php') . '?error=login_required';
+    // Use simple relative path that always works from admin folder
+    $script_name = $_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? '';
+    $base_path = dirname(dirname($script_name)); // Go up two levels from admin/product.php
+    $login_url = rtrim($base_path, '/') . '/login/login.php?error=login_required';
     header('Location: ' . $login_url);
     exit();
 }

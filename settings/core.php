@@ -94,19 +94,25 @@ function get_absolute_path($path) {
     // If we're in /admin folder, remove it to get project root
     // Example: /~griselda.owusu/admin -> /~griselda.owusu
     if (strpos($script_dir, '/admin') !== false) {
-        // Split by /admin and take the first part
-        $parts = explode('/admin', $script_dir, 2);
-        $script_dir = $parts[0];
+        // Use preg_replace to remove /admin and everything after it
+        // This handles both /admin at the end and /admin/ in the middle
+        $script_dir = preg_replace('#/admin.*$#', '', $script_dir);
     }
     
     // Ensure we have a base path (at least /)
-    if (empty($script_dir) || $script_dir === '.') {
+    if (empty($script_dir) || $script_dir === '.' || $script_dir === '/') {
         $script_dir = '/';
     }
     
     // Build absolute path - ensure it starts with /
     $path = ltrim($path, '/');
-    $absolute_path = rtrim($script_dir, '/') . '/' . $path;
+    
+    // If script_dir is just '/', don't add another slash
+    if ($script_dir === '/') {
+        $absolute_path = '/' . $path;
+    } else {
+        $absolute_path = rtrim($script_dir, '/') . '/' . $path;
+    }
     
     // Clean up double slashes (but preserve leading // for protocol)
     $absolute_path = preg_replace('#(?<!:)/{2,}#', '/', $absolute_path);
