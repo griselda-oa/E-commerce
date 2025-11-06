@@ -162,7 +162,7 @@ function page_requires_admin() {
     $admin_pages = [
         'admin/category.php',
         'admin/dashboard.php',
-        'admin/products.php'
+        'admin/product.php'
     ];
     
     $current_page = $_SERVER['PHP_SELF'];
