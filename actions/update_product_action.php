@@ -61,12 +61,12 @@ if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPL
     
     // Create proper directory structure
     $upload_dir = __DIR__ . '/../uploads/u' . $user_id;
-    if (!is_dir($upload_dir)) {
-        if (!mkdir($upload_dir, 0777, true)) {
-            echo json_encode(['success' => false, 'message' => 'Failed to create upload directory']);
-            exit;
-        }
-    }
+    // if (!is_dir($upload_dir)) {
+    //     if (!mkdir($upload_dir, 0777, true)) {
+    //         echo json_encode(['success' => false, 'message' => 'Failed to create upload directory']);
+    //         exit;
+    //     }
+    // }
     
     $product_dir = $upload_dir . '/p' . $product_id;
     if (!is_dir($product_dir)) {
