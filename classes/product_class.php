@@ -90,13 +90,13 @@ class Product extends db_connection
                         p.product_price, 
                         p.product_keywords as product_keywords, 
                         p.product_image,
-                        p.cat_id,
-                        p.brand_id,
+                        p.product_cat,
+                        p.product_brand,
                         c.cat_name, 
                         b.brand_name
                     FROM products p
-                    LEFT JOIN categories c ON p.cat_id = c.cat_id
-                    LEFT JOIN brands b ON p.brand_id = b.brand_id
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
                     ORDER BY p.product_id DESC";
 
             $stmt = $this->db->prepare($sql);
@@ -154,8 +154,8 @@ class Product extends db_connection
             $sql = "SELECT p.product_id, p.product_title, p.product_desc as product_desc, p.product_price, p.product_keywords as product_keywords, p.product_image,
                            c.cat_name, b.brand_name
                     FROM products p
-                    LEFT JOIN categories c ON p.cat_id = c.cat_id
-                    LEFT JOIN brands b ON p.brand_id = b.brand_id
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
                     WHERE p.product_id = ?";
 
             $stmt = $this->db->prepare($sql);
@@ -196,10 +196,10 @@ class Product extends db_connection
             }
 
             $sql = "SELECT p.product_id, p.product_title, p.product_desc as product_desc, p.product_price, p.product_keywords as product_keywords, p.product_image,
-                           c.cat_name, b.brand_name, p.cat_id, p.brand_id
+                           c.cat_name, b.brand_name, p.product_cat, p.product_brand
                     FROM products p
-                    LEFT JOIN categories c ON p.cat_id = c.cat_id
-                    LEFT JOIN brands b ON p.brand_id = b.brand_id
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
                     WHERE p.product_id = ?";
 
             $stmt = $this->db->prepare($sql);
@@ -354,8 +354,8 @@ class Product extends db_connection
             $sql = "SELECT p.product_id, p.product_title, p.product_desc as product_desc, p.product_price, p.product_keywords as product_keywords, p.product_image,
                            c.cat_name, b.brand_name
                     FROM products p
-                    LEFT JOIN categories c ON p.cat_id = c.cat_id
-                    LEFT JOIN brands b ON p.brand_id = b.brand_id
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
                     WHERE p.product_title LIKE ? OR p.product_desc LIKE ? OR p.product_keywords LIKE ?
                     ORDER BY p.product_id DESC";
 
@@ -401,9 +401,9 @@ class Product extends db_connection
             $sql = "SELECT p.product_id, p.product_title, p.product_desc as product_desc, p.product_price, p.product_keywords as product_keywords, p.product_image,
                            c.cat_name, b.brand_name
                     FROM products p
-                    LEFT JOIN categories c ON p.cat_id = c.cat_id
-                    LEFT JOIN brands b ON p.brand_id = b.brand_id
-                    WHERE p.cat_id = ?
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
+                    WHERE p.product_cat = ?
                     ORDER BY p.product_id DESC";
 
             $stmt = $this->db->prepare($sql);
@@ -448,9 +448,9 @@ class Product extends db_connection
             $sql = "SELECT p.product_id, p.product_title, p.product_desc as product_desc, p.product_price, p.product_keywords as product_keywords, p.product_image,
                            c.cat_name, b.brand_name
                     FROM products p
-                    LEFT JOIN categories c ON p.cat_id = c.cat_id
-                    LEFT JOIN brands b ON p.brand_id = b.brand_id
-                    WHERE p.brand_id = ?
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
+                    WHERE p.product_brand = ?
                     ORDER BY p.product_id DESC";
 
             $stmt = $this->db->prepare($sql);
@@ -506,7 +506,7 @@ class Product extends db_connection
             if (!empty($filters['cat_id']) && $filters['cat_id'] > 0) {
                 $cat_id = SecurityManager::validateInteger($filters['cat_id']);
                 if ($cat_id) {
-                    $where_conditions[] = "p.cat_id = ?";
+                    $where_conditions[] = "p.product_cat = ?";
                     $params[] = $cat_id;
                     $types .= 'i';
                 }
@@ -516,7 +516,7 @@ class Product extends db_connection
             if (!empty($filters['brand_id']) && $filters['brand_id'] > 0) {
                 $brand_id = SecurityManager::validateInteger($filters['brand_id']);
                 if ($brand_id) {
-                    $where_conditions[] = "p.brand_id = ?";
+                    $where_conditions[] = "p.product_brand = ?";
                     $params[] = $brand_id;
                     $types .= 'i';
                 }
@@ -545,8 +545,8 @@ class Product extends db_connection
             $sql = "SELECT p.product_id, p.product_title, p.product_desc as product_desc, p.product_price, p.product_keywords as product_keywords, p.product_image,
                            c.cat_name, b.brand_name
                     FROM products p
-                    LEFT JOIN categories c ON p.cat_id = c.cat_id
-                    LEFT JOIN brands b ON p.brand_id = b.brand_id";
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id";
 
             if (!empty($where_conditions)) {
                 $sql .= " WHERE " . implode(' AND ', $where_conditions);
