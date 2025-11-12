@@ -40,12 +40,12 @@ class Cart extends db_connection
             
             if ($existing) {
                 // Update quantity instead of creating duplicate
-                $new_quantity = $existing['quantity'] + $quantity;
-                return $this->updateQuantity($existing['cart_id'], $new_quantity);
+                $new_quantity = $existing['qty'] + $quantity;
+                return $this->updateQuantity($existing['p_id'], $new_quantity);
             }
 
-            // Insert new cart item
-            $sql = "INSERT INTO cart (customer_id, product_id, quantity) VALUES (?, ?, ?)";
+            // Insert new cart item - using actual column names: c_id, p_id, qty
+            $sql = "INSERT INTO cart (c_id, p_id, qty) VALUES (?, ?, ?)";
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
@@ -55,7 +55,7 @@ class Cart extends db_connection
             $stmt->bind_param('iii', $customer_id, $product_id, $quantity);
 
             if ($stmt->execute()) {
-                return array('success' => true, 'message' => 'Product added to cart successfully', 'cart_id' => $this->db->insert_id);
+                return array('success' => true, 'message' => 'Product added to cart successfully', 'p_id' => $this->db->insert_id);
             } else {
                 return array('success' => false, 'message' => 'Failed to add product to cart: ' . $stmt->error);
             }
@@ -85,7 +85,7 @@ class Cart extends db_connection
                 return array('success' => false, 'message' => 'Quantity must be greater than 0');
             }
 
-            $sql = "UPDATE cart SET quantity = ? WHERE cart_id = ?";
+            $sql = "UPDATE cart SET qty = ? WHERE p_id = ?";
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
@@ -119,7 +119,7 @@ class Cart extends db_connection
                 return array('success' => false, 'message' => 'Valid cart ID is required');
             }
 
-            $sql = "DELETE FROM cart WHERE cart_id = ?";
+            $sql = "DELETE FROM cart WHERE p_id = ?";
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
@@ -153,13 +153,13 @@ class Cart extends db_connection
                 return array('success' => false, 'message' => 'Valid customer ID is required', 'data' => []);
             }
 
+            // Using actual column names: p_id (product_id), c_id (customer_id), qty (quantity)
+            // Note: p_id serves as both product_id and we'll use it as cart identifier
             $sql = "SELECT 
-                        c.cart_id,
-                        c.customer_id,
-                        c.product_id,
-                        c.quantity,
-                        c.created_at,
-                        c.updated_at,
+                        c.p_id as cart_id,
+                        c.c_id as customer_id,
+                        c.p_id as product_id,
+                        c.qty as quantity,
                         p.product_title,
                         p.product_desc as product_description,
                         p.product_price,
@@ -167,11 +167,10 @@ class Cart extends db_connection
                         cat.cat_name,
                         b.brand_name
                     FROM cart c
-                    INNER JOIN products p ON c.product_id = p.product_id
+                    INNER JOIN products p ON c.p_id = p.product_id
                     LEFT JOIN categories cat ON p.product_cat = cat.cat_id
                     LEFT JOIN brands b ON p.product_brand = b.brand_id
-                    WHERE c.customer_id = ?
-                    ORDER BY c.created_at DESC";
+                    WHERE c.c_id = ?";
 
             $stmt = $this->db->prepare($sql);
 
@@ -224,7 +223,7 @@ class Cart extends db_connection
                 return array('success' => false, 'message' => 'Valid customer ID is required');
             }
 
-            $sql = "DELETE FROM cart WHERE customer_id = ?";
+            $sql = "DELETE FROM cart WHERE c_id = ?";
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
@@ -260,7 +259,8 @@ class Cart extends db_connection
                 return false;
             }
 
-            $sql = "SELECT cart_id, quantity FROM cart WHERE customer_id = ? AND product_id = ? LIMIT 1";
+            // Check if product exists in cart using c_id and p_id
+            $sql = "SELECT p_id, qty as quantity FROM cart WHERE c_id = ? AND p_id = ? LIMIT 1";
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {

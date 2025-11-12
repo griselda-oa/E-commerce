@@ -29,13 +29,12 @@ try {
     // Generate unique order reference
     $order_reference = Order::generateOrderReference();
 
-    // Create order
+    // Create order - using invoice_no instead of order_reference, no total_amount column
     $orderController = new OrderController();
     $orderResult = $orderController->create_order_ctr([
         'customer_id' => $customer_id,
-        'order_reference' => $order_reference,
-        'total_amount' => $total_amount,
-        'status' => 'pending'
+        'order_reference' => $order_reference, // This will be stored as invoice_no
+        'status' => 'pending' // This will be stored as order_status
     ]);
 
     if (!$orderResult['success']) {
@@ -50,11 +49,11 @@ try {
     $orderDetailsErrors = [];
 
     foreach ($cart_items as $item) {
+        // orderdetails table only has: order_id, product_id, qty (no price column)
         $detailResult = $orderController->add_order_details_ctr([
             'order_id' => $order_id,
             'product_id' => $item['product_id'],
-            'quantity' => $item['quantity'],
-            'price' => $item['product_price']
+            'quantity' => $item['quantity']
         ]);
 
         if (!$detailResult['success']) {

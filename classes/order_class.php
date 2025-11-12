@@ -31,18 +31,16 @@ class Order extends db_connection
                 return array('success' => false, 'message' => 'Order reference is required');
             }
 
-            if ($total_amount <= 0) {
-                return array('success' => false, 'message' => 'Total amount must be greater than 0');
-            }
-
-            $sql = "INSERT INTO orders (customer_id, order_reference, total_amount, status) VALUES (?, ?, ?, ?)";
+            // Using actual column names: customer_id, invoice_no, order_status
+            // Note: invoice_no replaces order_reference, and there's no total_amount column
+            $sql = "INSERT INTO orders (customer_id, invoice_no, order_status) VALUES (?, ?, ?)";
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
 
-            $stmt->bind_param('isds', $customer_id, $order_reference, $total_amount, $status);
+            $stmt->bind_param('iss', $customer_id, $order_reference, $status);
 
             if ($stmt->execute()) {
                 return array('success' => true, 'message' => 'Order created successfully', 'order_id' => $this->db->insert_id);
@@ -66,7 +64,6 @@ class Order extends db_connection
             $order_id = SecurityManager::validateInteger($args['order_id'] ?? 0);
             $product_id = SecurityManager::validateInteger($args['product_id'] ?? 0);
             $quantity = SecurityManager::validateInteger($args['quantity'] ?? 0);
-            $price = floatval($args['price'] ?? 0);
 
             if (!$order_id) {
                 return array('success' => false, 'message' => 'Valid order ID is required');
@@ -80,18 +77,15 @@ class Order extends db_connection
                 return array('success' => false, 'message' => 'Quantity must be greater than 0');
             }
 
-            if ($price <= 0) {
-                return array('success' => false, 'message' => 'Price must be greater than 0');
-            }
-
-            $sql = "INSERT INTO orderdetails (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
+            // Using actual column names: order_id, product_id, qty (no price column in orderdetails table)
+            $sql = "INSERT INTO orderdetails (order_id, product_id, qty) VALUES (?, ?, ?)";
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
 
-            $stmt->bind_param('iiid', $order_id, $product_id, $quantity, $price);
+            $stmt->bind_param('iii', $order_id, $product_id, $quantity);
 
             if ($stmt->execute()) {
                 return array('success' => true, 'message' => 'Order detail added successfully', 'order_detail_id' => $this->db->insert_id);
@@ -161,10 +155,9 @@ class Order extends db_connection
 
             $sql = "SELECT 
                         o.order_id,
-                        o.order_reference,
+                        o.invoice_no as order_reference,
                         o.order_date,
-                        o.total_amount,
-                        o.status,
+                        o.order_status as status,
                         p.payment_method,
                         p.payment_status,
                         p.payment_date
