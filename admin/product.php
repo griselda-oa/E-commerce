@@ -317,5 +317,32 @@ $brands = $brands_result['success'] ? $brands_result['data'] : array();
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/product_admin.js?v=<?php echo time(); ?>"></script>
+    <script>
+        // Fix accessibility issue: Properly manage aria-hidden on modals
+        $(document).ready(function() {
+            // Handle modal show event
+            $('#addProductModal, #bulkUploadModal').on('show.bs.modal', function() {
+                $(this).attr('aria-hidden', 'false');
+            });
+            
+            // Handle modal shown event (after animation completes)
+            $('#addProductModal, #bulkUploadModal').on('shown.bs.modal', function() {
+                $(this).removeAttr('aria-hidden');
+                // Focus first input in modal for accessibility
+                $(this).find('input, select, textarea').first().focus();
+            });
+            
+            // Handle modal hide event
+            $('#addProductModal, #bulkUploadModal').on('hide.bs.modal', function() {
+                // Remove focus from any focused element inside modal
+                $(this).find(':focus').blur();
+            });
+            
+            // Handle modal hidden event (after animation completes)
+            $('#addProductModal, #bulkUploadModal').on('hidden.bs.modal', function() {
+                $(this).attr('aria-hidden', 'true');
+            });
+        });
+    </script>
 </body>
 </html>
