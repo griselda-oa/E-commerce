@@ -20,21 +20,23 @@ class CartController {
     
     /**
      * Update cart item quantity
-     * @param int $cart_id - Cart item ID
+     * @param int $cart_id - Product ID (p_id) in cart
      * @param int $qty - New quantity
+     * @param int $customer_id - Customer ID (optional, for security)
      * @return array - Response
      */
-    public function update_cart_item_ctr($cart_id, $qty) {
-        return $this->cart->updateQuantity($cart_id, $qty);
+    public function update_cart_item_ctr($cart_id, $qty, $customer_id = null) {
+        return $this->cart->updateQuantity($cart_id, $qty, $customer_id);
     }
     
     /**
      * Remove item from cart
-     * @param int $cart_id - Cart item ID
+     * @param int $cart_id - Product ID (p_id) in cart
+     * @param int $customer_id - Customer ID (optional, for security)
      * @return array - Response
      */
-    public function remove_from_cart_ctr($cart_id) {
-        return $this->cart->remove($cart_id);
+    public function remove_from_cart_ctr($cart_id, $customer_id = null) {
+        return $this->cart->remove($cart_id, $customer_id);
     }
     
     /**

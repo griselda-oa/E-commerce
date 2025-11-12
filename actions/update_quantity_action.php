@@ -11,6 +11,7 @@ if (!is_logged_in()) {
 
 $cart_id = intval($_POST['cart_id'] ?? 0);
 $quantity = intval($_POST['quantity'] ?? 1);
+$customer_id = get_user_id();
 
 if ($cart_id <= 0) {
     echo json_encode(['success' => false, 'message' => 'Invalid cart ID'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -23,7 +24,7 @@ if ($quantity <= 0) {
 }
 
 $cartController = new CartController();
-$result = $cartController->update_cart_item_ctr($cart_id, $quantity);
+$result = $cartController->update_cart_item_ctr($cart_id, $quantity, $customer_id);
 
 echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 ?>

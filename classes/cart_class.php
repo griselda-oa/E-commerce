@@ -67,11 +67,12 @@ class Cart extends db_connection
 
     /**
      * Update quantity of a cart item
-     * @param int $cart_id - Cart item ID
+     * @param int $cart_id - Product ID (p_id) in cart
      * @param int $quantity - New quantity
+     * @param int $customer_id - Customer ID for security
      * @return array - Success/failure response
      */
-    public function updateQuantity($cart_id, $quantity)
+    public function updateQuantity($cart_id, $quantity, $customer_id = null)
     {
         try {
             $cart_id = SecurityManager::validateInteger($cart_id);
@@ -85,14 +86,24 @@ class Cart extends db_connection
                 return array('success' => false, 'message' => 'Quantity must be greater than 0');
             }
 
-            $sql = "UPDATE cart SET qty = ? WHERE p_id = ?";
-            $stmt = $this->db->prepare($sql);
-
-            if (!$stmt) {
-                return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
+            // Use both c_id and p_id for safety (p_id is product_id, cart_id is actually p_id)
+            if ($customer_id) {
+                $customer_id = SecurityManager::validateInteger($customer_id);
+                $sql = "UPDATE cart SET qty = ? WHERE p_id = ? AND c_id = ?";
+                $stmt = $this->db->prepare($sql);
+                if (!$stmt) {
+                    return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
+                }
+                $stmt->bind_param('iii', $quantity, $cart_id, $customer_id);
+            } else {
+                // Fallback: use only p_id (less secure but works if unique constraint exists)
+                $sql = "UPDATE cart SET qty = ? WHERE p_id = ?";
+                $stmt = $this->db->prepare($sql);
+                if (!$stmt) {
+                    return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
+                }
+                $stmt->bind_param('ii', $quantity, $cart_id);
             }
-
-            $stmt->bind_param('ii', $quantity, $cart_id);
 
             if ($stmt->execute()) {
                 return array('success' => true, 'message' => 'Cart updated successfully');
@@ -107,10 +118,11 @@ class Cart extends db_connection
 
     /**
      * Remove a product from the cart
-     * @param int $cart_id - Cart item ID
+     * @param int $cart_id - Product ID (p_id) in cart
+     * @param int $customer_id - Customer ID for security
      * @return array - Success/failure response
      */
-    public function remove($cart_id)
+    public function remove($cart_id, $customer_id = null)
     {
         try {
             $cart_id = SecurityManager::validateInteger($cart_id);
@@ -119,14 +131,24 @@ class Cart extends db_connection
                 return array('success' => false, 'message' => 'Valid cart ID is required');
             }
 
-            $sql = "DELETE FROM cart WHERE p_id = ?";
-            $stmt = $this->db->prepare($sql);
-
-            if (!$stmt) {
-                return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
+            // Use both c_id and p_id for safety
+            if ($customer_id) {
+                $customer_id = SecurityManager::validateInteger($customer_id);
+                $sql = "DELETE FROM cart WHERE p_id = ? AND c_id = ?";
+                $stmt = $this->db->prepare($sql);
+                if (!$stmt) {
+                    return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
+                }
+                $stmt->bind_param('ii', $cart_id, $customer_id);
+            } else {
+                // Fallback: use only p_id
+                $sql = "DELETE FROM cart WHERE p_id = ?";
+                $stmt = $this->db->prepare($sql);
+                if (!$stmt) {
+                    return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
+                }
+                $stmt->bind_param('i', $cart_id);
             }
-
-            $stmt->bind_param('i', $cart_id);
 
             if ($stmt->execute()) {
                 return array('success' => true, 'message' => 'Product removed from cart successfully');
