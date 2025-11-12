@@ -121,6 +121,7 @@ $product = $result['data'];
                         <?php else: ?>
                             <span class="badge bg-success">In Stock</span>
                         <?php endif; ?>
+                        <!-- Note: product_stock column may not exist in actual database, handled gracefully -->
                     </div>
 
                     <div class="d-grid gap-2">

@@ -41,7 +41,7 @@ class Cart extends db_connection
             if ($existing) {
                 // Update quantity instead of creating duplicate
                 $new_quantity = $existing['qty'] + $quantity;
-                return $this->updateQuantity($existing['p_id'], $new_quantity);
+                return $this->updateQuantity($existing['p_id'], $new_quantity, $customer_id);
             }
 
             // Insert new cart item - using actual column names: c_id, p_id, qty

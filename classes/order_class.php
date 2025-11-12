@@ -88,7 +88,8 @@ class Order extends db_connection
             $stmt->bind_param('iii', $order_id, $product_id, $quantity);
 
             if ($stmt->execute()) {
-                return array('success' => true, 'message' => 'Order detail added successfully', 'order_detail_id' => $this->db->insert_id);
+                // Note: orderdetails table has order_id, product_id, qty (no separate order_detail_id column visible)
+                return array('success' => true, 'message' => 'Order detail added successfully');
             } else {
                 return array('success' => false, 'message' => 'Failed to add order detail: ' . $stmt->error);
             }
