@@ -44,32 +44,67 @@ if ($file['size'] > $max_size) {
     exit;
 }
 
+// Ensure uploads base directory exists and is writable
+$base_uploads_dir = __DIR__ . '/../uploads';
+if (!is_dir($base_uploads_dir)) {
+    if (!mkdir($base_uploads_dir, 0755, true)) {
+        echo json_encode(['success' => false, 'message' => 'Failed to create uploads directory. Please check permissions.']);
+        exit;
+    }
+}
+// Make sure base directory is writable
+if (!is_writable($base_uploads_dir)) {
+    @chmod($base_uploads_dir, 0755);
+}
+
 // Create directory structure: uploads/u{user_id}/p{product_id}/
-$upload_dir = __DIR__ . '/../uploads/u' . $user_id;
+$upload_dir = $base_uploads_dir . '/u' . $user_id;
 if (!is_dir($upload_dir)) {
-    if (!mkdir($upload_dir, 0777, true)) {
+    if (!mkdir($upload_dir, 0755, true)) {
         echo json_encode(['success' => false, 'message' => 'Failed to create upload directory. Please check permissions.']);
         exit;
     }
 }
+// Ensure directory is writable
+if (!is_writable($upload_dir)) {
+    @chmod($upload_dir, 0755);
+}
 
 $product_dir = $upload_dir . '/p' . $product_id;
 if (!is_dir($product_dir)) {
-    if (!mkdir($product_dir, 0777, true)) {
+    if (!mkdir($product_dir, 0755, true)) {
         echo json_encode(['success' => false, 'message' => 'Failed to create product directory. Please check permissions.']);
         exit;
     }
 }
+// Ensure directory is writable
+if (!is_writable($product_dir)) {
+    @chmod($product_dir, 0755);
+}
 
 // Generate unique filename
-$file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+$file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 $timestamp = time();
-$new_filename = 'image_' . $timestamp . '.' . $file_extension;
+$new_filename = 'image_' . $timestamp . '_' . uniqid() . '.' . $file_extension;
 $upload_path = $product_dir . '/' . $new_filename;
+
+// Check if temp file exists
+if (!file_exists($file['tmp_name'])) {
+    echo json_encode(['success' => false, 'message' => 'Temporary file not found. Upload may have failed.']);
+    exit;
+}
 
 // Move uploaded file
 if (!move_uploaded_file($file['tmp_name'], $upload_path)) {
-    echo json_encode(['success' => false, 'message' => 'Failed to upload file']);
+    $error_msg = 'Failed to move uploaded file';
+    if (!is_writable($product_dir)) {
+        $error_msg .= ': Directory is not writable';
+    } else if (!file_exists($file['tmp_name'])) {
+        $error_msg .= ': Temporary file not found';
+    } else {
+        $error_msg .= ': ' . error_get_last()['message'] ?? 'Unknown error';
+    }
+    echo json_encode(['success' => false, 'message' => $error_msg]);
     exit;
 }
 

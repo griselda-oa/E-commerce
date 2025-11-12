@@ -30,9 +30,13 @@ if (!$product_id || !$product_image) {
 }
 
 try {
-    $db = new Database();
+    $db = new db_connection();
     $sql = "UPDATE products SET product_image = ? WHERE product_id = ?";
-    $stmt = $db->prepare($sql);
+    $stmt = $db->db->prepare($sql);
+    if (!$stmt) {
+        echo json_encode(['success' => false, 'message' => 'Database error: ' . $db->db->error]);
+        exit;
+    }
     $stmt->bind_param('si', $product_image, $product_id);
     
     if ($stmt->execute()) {
