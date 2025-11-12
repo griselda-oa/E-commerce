@@ -170,7 +170,9 @@ class Product extends db_connection
 
             if ($result->num_rows > 0) {
                 $product = $result->fetch_assoc();
-                // Remove internal IDs from public response
+                // Add alias for cat_id (needed for related products)
+                $product['cat_id'] = $product['product_cat'] ?? null;
+                // Remove internal IDs from public response (but keep cat_id alias)
                 unset($product['product_cat'], $product['product_brand']);
                 return array('success' => true, 'data' => $product);
             } else {
