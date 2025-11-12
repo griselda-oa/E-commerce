@@ -166,7 +166,7 @@ $product = $result['data'];
                 method: 'POST',
                 data: { 
                     product_id: <?php echo $product['product_id']; ?>,
-                    cat_id: <?php echo isset($product['product_cat']) ? $product['product_cat'] : ($product['cat_id'] ?? 0); ?>
+                    cat_id: <?php echo $product['cat_id']; ?>
                 },
                 dataType: 'json',
                 success: function(response) {

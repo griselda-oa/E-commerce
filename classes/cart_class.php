@@ -44,10 +44,10 @@ class Cart extends db_connection
                 return $this->updateQuantity($existing['p_id'], $new_quantity, $customer_id);
             }
 
-            // Get IP address for cart tracking (ip_add column is required)
-            $ip_address = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-            
             // Insert new cart item - using actual column names: c_id, p_id, qty, ip_add
+            // Get user's IP address for ip_add field
+            $ip_address = $_SERVER['REMOTE_ADDR'] ?? '';
+            
             $sql = "INSERT INTO cart (c_id, p_id, qty, ip_add) VALUES (?, ?, ?, ?)";
             $stmt = $this->db->prepare($sql);
 
