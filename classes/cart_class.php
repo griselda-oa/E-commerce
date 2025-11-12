@@ -44,10 +44,10 @@ class Cart extends db_connection
                 return $this->updateQuantity($existing['p_id'], $new_quantity, $customer_id);
             }
 
-            // Insert new cart item - using actual column names: c_id, p_id, qty, ip_add
-            // Get user's IP address for ip_add field
-            $ip_address = $_SERVER['REMOTE_ADDR'] ?? '';
+            // Get user IP address for ip_add field (required by cart table)
+            $ip_address = $this->getUserIP();
             
+            // Insert new cart item - using actual column names: c_id, p_id, qty, ip_add
             $sql = "INSERT INTO cart (c_id, p_id, qty, ip_add) VALUES (?, ?, ?, ?)";
             $stmt = $this->db->prepare($sql);
 
@@ -305,6 +305,37 @@ class Cart extends db_connection
         } catch (Exception $e) {
             return false;
         }
+    }
+
+    /**
+     * Get user's IP address
+     * @return string User's IP address
+     */
+    private function getUserIP()
+    {
+        $ipaddress = '';
+        
+        if (isset($_SERVER['HTTP_CLIENT_IP']))
+            $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+        else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        else if(isset($_SERVER['HTTP_X_FORWARDED']))
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+        else if(isset($_SERVER['HTTP_FORWARDED_FOR']))
+            $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+        else if(isset($_SERVER['HTTP_FORWARDED']))
+            $ipaddress = $_SERVER['HTTP_FORWARDED'];
+        else if(isset($_SERVER['REMOTE_ADDR']))
+            $ipaddress = $_SERVER['REMOTE_ADDR'];
+        else
+            $ipaddress = '0.0.0.0';
+        
+        // Handle comma-separated IPs (from proxies)
+        if (strpos($ipaddress, ',') !== false) {
+            $ipaddress = trim(explode(',', $ipaddress)[0]);
+        }
+        
+        return $ipaddress;
     }
 }
 ?>
