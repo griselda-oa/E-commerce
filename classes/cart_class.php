@@ -164,7 +164,6 @@ class Cart extends db_connection
                         p.product_desc as product_description,
                         p.product_price,
                         p.product_image,
-                        p.product_stock,
                         cat.cat_name,
                         b.brand_name
                     FROM cart c

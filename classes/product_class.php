@@ -90,7 +90,6 @@ class Product extends db_connection
                         p.product_price, 
                         p.product_keywords, 
                         p.product_image,
-                        p.product_stock,
                         p.product_cat,
                         p.product_brand,
                         c.cat_name, 
@@ -153,7 +152,7 @@ class Product extends db_connection
             }
 
             $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
-                           p.product_stock, p.product_cat, p.product_brand,
+ p.product_cat, p.product_brand,
                            c.cat_name, b.brand_name
                     FROM products p
                     LEFT JOIN categories c ON p.product_cat = c.cat_id
@@ -198,7 +197,7 @@ class Product extends db_connection
             }
 
             $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
-                           p.product_stock, p.product_cat, p.product_brand,
+ p.product_cat, p.product_brand,
                            c.cat_name, b.brand_name
                     FROM products p
                     LEFT JOIN categories c ON p.product_cat = c.cat_id
@@ -355,7 +354,7 @@ class Product extends db_connection
             $search_term = '%' . SecurityManager::sanitizeString($query, 100) . '%';
 
             $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
-                           p.product_stock, p.product_cat, p.product_brand,
+ p.product_cat, p.product_brand,
                            c.cat_name, b.brand_name
                     FROM products p
                     LEFT JOIN categories c ON p.product_cat = c.cat_id
@@ -403,7 +402,7 @@ class Product extends db_connection
             }
 
             $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
-                           p.product_stock, p.product_cat, p.product_brand,
+ p.product_cat, p.product_brand,
                            c.cat_name, b.brand_name
                     FROM products p
                     LEFT JOIN categories c ON p.product_cat = c.cat_id
@@ -451,7 +450,7 @@ class Product extends db_connection
             }
 
             $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
-                           p.product_stock, p.product_cat, p.product_brand,
+ p.product_cat, p.product_brand,
                            c.cat_name, b.brand_name
                     FROM products p
                     LEFT JOIN categories c ON p.product_cat = c.cat_id
@@ -549,7 +548,7 @@ class Product extends db_connection
 
             // Build SQL query - use correct column names matching actual database
             $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
-                           p.product_stock, p.product_cat, p.product_brand,
+ p.product_cat, p.product_brand,
                            c.cat_name, b.brand_name
                     FROM products p
                     LEFT JOIN categories c ON p.product_cat = c.cat_id
