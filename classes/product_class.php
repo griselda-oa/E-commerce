@@ -82,22 +82,22 @@ class Product extends db_connection
     public function getAllProducts()
     {
         try {
-            // Query matching actual database schema: product_description, product_keyword, cat_id, brand_id
+            // Query matching actual database schema: product_cat, product_brand, product_desc, product_keywords
             $sql = "SELECT 
                         p.product_id, 
                         p.product_title, 
-                        p.product_description as product_desc, 
+                        p.product_desc, 
                         p.product_price, 
-                        p.product_keyword as product_keywords, 
+                        p.product_keywords, 
                         p.product_image,
                         p.product_stock,
-                        p.cat_id,
-                        p.brand_id,
+                        p.product_cat,
+                        p.product_brand,
                         c.cat_name, 
                         b.brand_name
                     FROM products p
-                    LEFT JOIN categories c ON p.cat_id = c.cat_id
-                    LEFT JOIN brands b ON p.brand_id = b.brand_id
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
                     ORDER BY p.product_id DESC";
 
             $stmt = $this->db->prepare($sql);
@@ -152,12 +152,12 @@ class Product extends db_connection
                 return array('success' => false, 'message' => 'Invalid or expired product token');
             }
 
-            $sql = "SELECT p.product_id, p.product_title, p.product_description as product_desc, p.product_price, p.product_keyword as product_keywords, p.product_image,
-                           p.product_stock, p.cat_id, p.brand_id,
+            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
+                           p.product_stock, p.product_cat, p.product_brand,
                            c.cat_name, b.brand_name
                     FROM products p
-                    LEFT JOIN categories c ON p.cat_id = c.cat_id
-                    LEFT JOIN brands b ON p.brand_id = b.brand_id
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
                     WHERE p.product_id = ?";
 
             $stmt = $this->db->prepare($sql);
@@ -172,7 +172,7 @@ class Product extends db_connection
             if ($result->num_rows > 0) {
                 $product = $result->fetch_assoc();
                 // Remove internal IDs from public response
-                unset($product['cat_id'], $product['brand_id']);
+                unset($product['product_cat'], $product['product_brand']);
                 return array('success' => true, 'data' => $product);
             } else {
                 return array('success' => false, 'message' => 'Product not found');
@@ -197,12 +197,12 @@ class Product extends db_connection
                 return array('success' => false, 'message' => 'Invalid product ID');
             }
 
-            $sql = "SELECT p.product_id, p.product_title, p.product_description as product_desc, p.product_price, p.product_keyword as product_keywords, p.product_image,
-                           p.product_stock, p.cat_id, p.brand_id,
+            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
+                           p.product_stock, p.product_cat, p.product_brand,
                            c.cat_name, b.brand_name
                     FROM products p
-                    LEFT JOIN categories c ON p.cat_id = c.cat_id
-                    LEFT JOIN brands b ON p.brand_id = b.brand_id
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
                     WHERE p.product_id = ?";
 
             $stmt = $this->db->prepare($sql);
@@ -354,13 +354,13 @@ class Product extends db_connection
         try {
             $search_term = '%' . SecurityManager::sanitizeString($query, 100) . '%';
 
-            $sql = "SELECT p.product_id, p.product_title, p.product_description as product_desc, p.product_price, p.product_keyword as product_keywords, p.product_image,
-                           p.product_stock, p.cat_id, p.brand_id,
+            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
+                           p.product_stock, p.product_cat, p.product_brand,
                            c.cat_name, b.brand_name
                     FROM products p
-                    LEFT JOIN categories c ON p.cat_id = c.cat_id
-                    LEFT JOIN brands b ON p.brand_id = b.brand_id
-                    WHERE p.product_title LIKE ? OR p.product_description LIKE ? OR p.product_keyword LIKE ?
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
+                    WHERE p.product_title LIKE ? OR p.product_desc LIKE ? OR p.product_keywords LIKE ?
                     ORDER BY p.product_id DESC";
 
             $stmt = $this->db->prepare($sql);
@@ -377,7 +377,7 @@ class Product extends db_connection
                 // Generate secure token for each product
                 $row['access_token'] = SecurityManager::generateProductToken($row['product_id']);
                 // Remove sensitive internal IDs from public response (if they exist)
-                unset($row['cat_id'], $row['brand_id']);
+                unset($row['product_cat'], $row['product_brand']);
                 $products[] = $row;
             }
 
@@ -402,13 +402,13 @@ class Product extends db_connection
                 return array('success' => false, 'message' => 'Invalid category ID');
             }
 
-            $sql = "SELECT p.product_id, p.product_title, p.product_description as product_desc, p.product_price, p.product_keyword as product_keywords, p.product_image,
-                           p.product_stock, p.cat_id, p.brand_id,
+            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
+                           p.product_stock, p.product_cat, p.product_brand,
                            c.cat_name, b.brand_name
                     FROM products p
-                    LEFT JOIN categories c ON p.cat_id = c.cat_id
-                    LEFT JOIN brands b ON p.brand_id = b.brand_id
-                    WHERE p.cat_id = ?
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
+                    WHERE p.product_cat = ?
                     ORDER BY p.product_id DESC";
 
             $stmt = $this->db->prepare($sql);
@@ -425,7 +425,7 @@ class Product extends db_connection
                 // Generate secure token for each product
                 $row['access_token'] = SecurityManager::generateProductToken($row['product_id']);
                 // Remove sensitive internal IDs from public response (if they exist)
-                unset($row['cat_id'], $row['brand_id']);
+                unset($row['product_cat'], $row['product_brand']);
                 $products[] = $row;
             }
 
@@ -450,13 +450,13 @@ class Product extends db_connection
                 return array('success' => false, 'message' => 'Invalid brand ID');
             }
 
-            $sql = "SELECT p.product_id, p.product_title, p.product_description as product_desc, p.product_price, p.product_keyword as product_keywords, p.product_image,
-                           p.product_stock, p.cat_id, p.brand_id,
+            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
+                           p.product_stock, p.product_cat, p.product_brand,
                            c.cat_name, b.brand_name
                     FROM products p
-                    LEFT JOIN categories c ON p.cat_id = c.cat_id
-                    LEFT JOIN brands b ON p.brand_id = b.brand_id
-                    WHERE p.brand_id = ?
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
+                    WHERE p.product_brand = ?
                     ORDER BY p.product_id DESC";
 
             $stmt = $this->db->prepare($sql);
@@ -473,7 +473,7 @@ class Product extends db_connection
                 // Generate secure token for each product
                 $row['access_token'] = SecurityManager::generateProductToken($row['product_id']);
                 // Remove sensitive internal IDs from public response (if they exist)
-                unset($row['cat_id'], $row['brand_id']);
+                unset($row['product_cat'], $row['product_brand']);
                 $products[] = $row;
             }
 
@@ -501,7 +501,7 @@ class Product extends db_connection
             if (!empty($filters['keyword'])) {
                 $keyword = SecurityManager::sanitizeString($filters['keyword'], 100);
                 $search_term = '%' . $keyword . '%';
-                $where_conditions[] = "(p.product_title LIKE ? OR p.product_description LIKE ? OR p.product_keyword LIKE ?)";
+                $where_conditions[] = "(p.product_title LIKE ? OR p.product_desc LIKE ? OR p.product_keywords LIKE ?)";
                 $params[] = $search_term;
                 $params[] = $search_term;
                 $params[] = $search_term;
@@ -512,7 +512,7 @@ class Product extends db_connection
             if (!empty($filters['cat_id']) && $filters['cat_id'] > 0) {
                 $cat_id = SecurityManager::validateInteger($filters['cat_id']);
                 if ($cat_id) {
-                    $where_conditions[] = "p.cat_id = ?";
+                    $where_conditions[] = "p.product_cat = ?";
                     $params[] = $cat_id;
                     $types .= 'i';
                 }
@@ -522,7 +522,7 @@ class Product extends db_connection
             if (!empty($filters['brand_id']) && $filters['brand_id'] > 0) {
                 $brand_id = SecurityManager::validateInteger($filters['brand_id']);
                 if ($brand_id) {
-                    $where_conditions[] = "p.brand_id = ?";
+                    $where_conditions[] = "p.product_brand = ?";
                     $params[] = $brand_id;
                     $types .= 'i';
                 }
@@ -547,13 +547,13 @@ class Product extends db_connection
                 }
             }
 
-            // Build SQL query - use correct column names
-            $sql = "SELECT p.product_id, p.product_title, p.product_description as product_desc, p.product_price, p.product_keyword as product_keywords, p.product_image,
-                           p.product_stock, p.cat_id, p.brand_id,
+            // Build SQL query - use correct column names matching actual database
+            $sql = "SELECT p.product_id, p.product_title, p.product_desc, p.product_price, p.product_keywords, p.product_image,
+                           p.product_stock, p.product_cat, p.product_brand,
                            c.cat_name, b.brand_name
                     FROM products p
-                    LEFT JOIN categories c ON p.cat_id = c.cat_id
-                    LEFT JOIN brands b ON p.brand_id = b.brand_id";
+                    LEFT JOIN categories c ON p.product_cat = c.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id";
 
             if (!empty($where_conditions)) {
                 $sql .= " WHERE " . implode(' AND ', $where_conditions);
@@ -592,7 +592,7 @@ class Product extends db_connection
                 // Add alias for consistency
                 $row['product_description'] = $row['product_desc'];
                 // Remove sensitive internal IDs from public response (if they exist)
-                unset($row['cat_id'], $row['brand_id']);
+                unset($row['product_cat'], $row['product_brand']);
                 $products[] = $row;
             }
 

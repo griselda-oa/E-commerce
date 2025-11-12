@@ -169,8 +169,8 @@ class Cart extends db_connection
                         b.brand_name
                     FROM cart c
                     INNER JOIN products p ON c.product_id = p.product_id
-                    LEFT JOIN categories cat ON p.cat_id = cat.cat_id
-                    LEFT JOIN brands b ON p.brand_id = b.brand_id
+                    LEFT JOIN categories cat ON p.product_cat = cat.cat_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
                     WHERE c.customer_id = ?
                     ORDER BY c.created_at DESC";
 
