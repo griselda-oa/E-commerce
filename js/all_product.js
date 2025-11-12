@@ -2,6 +2,7 @@ let allProducts = [];
 let filteredProducts = [];
 let currentPage = 1;
 const productsPerPage = 10;
+let isLoggedIn = false;
 
 // Make functions globally accessible
 window.loadProducts = function() {
@@ -39,6 +40,19 @@ window.loadProducts = function() {
 };
 
 $(document).ready(function() {
+    // Check if user is logged in
+    $.ajax({
+        url: 'actions/fetch_cart_action.php',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            isLoggedIn = true; // If we can fetch cart, user is logged in
+        },
+        error: function() {
+            isLoggedIn = false;
+        }
+    });
+
     // Load all data
     loadProducts();
     loadCategories();
@@ -225,9 +239,14 @@ $(document).ready(function() {
                         </div>
                         <div class="product-price">GHS ${parseFloat(product.product_price || 0).toFixed(2)}</div>
                         <p class="product-description">${description.length > 120 ? description.substring(0, 120) + '...' : description}</p>
-                        <a href="single_product.php?token=${productToken}" class="btn btn-add-cart">
-                            <i class="fa fa-eye"></i> View Details
-                        </a>
+                        <div class="d-grid gap-2">
+                            <a href="single_product.php?token=${productToken}" class="btn btn-add-cart">
+                                <i class="fa fa-eye"></i> View Details
+                            </a>
+                            ${isLoggedIn ? `<button class="btn btn-success btn-sm mt-2" onclick="addToCartFromList(${product.product_id})">
+                                <i class="fa fa-shopping-cart"></i> Add to Cart
+                            </button>` : ''}
+                        </div>
                     </div>
                 </div>
             `;
@@ -289,12 +308,57 @@ $(document).ready(function() {
 
     function showAlert(message, type) {
         const alertHtml = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
                 ${message}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         `;
-        $('body').prepend(alertHtml);
-        setTimeout(() => $('.alert').fadeOut(), 5000);
+        $('body').append(alertHtml);
+        setTimeout(() => {
+            $('.alert').last().fadeOut(() => $('.alert').last().remove());
+        }, 5000);
     }
+
+    // Add to cart function for product list
+    window.addToCartFromList = function(productId) {
+        if (!isLoggedIn) {
+            showAlert('Please login to add items to cart', 'warning');
+            setTimeout(() => {
+                window.location.href = 'login/login.php?redirect=' + encodeURIComponent(window.location.href);
+            }, 1500);
+            return;
+        }
+
+        $.ajax({
+            url: 'actions/add_to_cart_action.php',
+            method: 'POST',
+            data: {
+                product_id: productId,
+                quantity: 1
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response && response.success) {
+                    showAlert(response.message || 'Product added to cart!', 'success');
+                    // Update cart badge if it exists
+                    if (typeof updateCartBadge === 'function') {
+                        updateCartBadge();
+                    }
+                } else {
+                    showAlert(response.message || 'Failed to add product to cart', 'danger');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Add to cart error:', error);
+                if (xhr.status === 401 || xhr.status === 403) {
+                    showAlert('Please login to add items to cart', 'warning');
+                    setTimeout(() => {
+                        window.location.href = 'login/login.php?redirect=' + encodeURIComponent(window.location.href);
+                    }, 1500);
+                } else {
+                    showAlert('Error adding product to cart', 'danger');
+                }
+            }
+        });
+    };
 });

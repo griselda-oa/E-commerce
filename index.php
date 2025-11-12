@@ -1424,6 +1424,12 @@ require_once 'settings/core.php';
 						<?php else: ?>
 							<!-- Regular user -->
 							<li class="nav-item">
+								<a class="nav-link" href="cart.php">
+									<i class="fa fa-shopping-cart"></i> Cart
+									<span id="cartBadge" class="badge bg-danger ms-1" style="display: none;">0</span>
+								</a>
+							</li>
+							<li class="nav-item">
 								<a class="nav-link" href="actions/logout_action.php">
 									<i class="fa fa-sign-out-alt"></i> Logout
 								</a>
@@ -1722,6 +1728,10 @@ require_once 'settings/core.php';
 	<div id="notification-container"></div>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<?php if (is_logged_in() && !is_admin()): ?>
+	<script src="js/cart.js"></script>
+	<?php endif; ?>
 	<script>
 		// 🚀 ULTIMATE JAVASCRIPT - PREMIUM INTERACTIONS 🚀
 		

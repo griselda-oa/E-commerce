@@ -119,3 +119,53 @@ INSERT INTO products (product_cat, product_brand, product_title, product_price, 
 (5, 9, 'Traditional Clay Cooking Pot', 65.00, 'Authentic clay cooking pot used in traditional Ghanaian cuisine', NULL, 'clay pot, cooking, traditional, ceramic'),
 (5, 10, 'Decorative Ceramic Vase', 75.00, 'Beautiful handcrafted ceramic vase with traditional patterns', NULL, 'vase, ceramic, decorative, pottery'),
 (5, 9, 'Ceramic Water Storage Jar', 120.00, 'Large ceramic jar for water storage, handcrafted locally', NULL, 'water jar, ceramic, storage, pottery');
+
+-- Cart table
+CREATE TABLE IF NOT EXISTS cart (
+    cart_id INT(11) NOT NULL AUTO_INCREMENT,
+    customer_id INT(11) NOT NULL,
+    product_id INT(11) NOT NULL,
+    quantity INT(11) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (cart_id),
+    FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_customer_product (customer_id, product_id)
+);
+
+-- Orders table
+CREATE TABLE IF NOT EXISTS orders (
+    order_id INT(11) NOT NULL AUTO_INCREMENT,
+    customer_id INT(11) NOT NULL,
+    order_reference VARCHAR(50) NOT NULL UNIQUE,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    total_amount DECIMAL(10,2) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    PRIMARY KEY (order_id),
+    FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
+);
+
+-- Order Details table
+CREATE TABLE IF NOT EXISTS orderdetails (
+    order_detail_id INT(11) NOT NULL AUTO_INCREMENT,
+    order_id INT(11) NOT NULL,
+    product_id INT(11) NOT NULL,
+    quantity INT(11) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    PRIMARY KEY (order_detail_id),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
+);
+
+-- Payments table
+CREATE TABLE IF NOT EXISTS payments (
+    payment_id INT(11) NOT NULL AUTO_INCREMENT,
+    order_id INT(11) NOT NULL,
+    payment_method VARCHAR(50) NOT NULL DEFAULT 'simulated',
+    payment_amount DECIMAL(10,2) NOT NULL,
+    payment_status VARCHAR(20) NOT NULL DEFAULT 'completed',
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (payment_id),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+);

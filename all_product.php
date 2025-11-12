@@ -172,6 +172,10 @@ require_once 'settings/core.php';
                 <a class="nav-link" href="index.php">Home</a>
                 <a class="nav-link active" href="all_product.php">All Products</a>
                 <?php if (is_logged_in()): ?>
+                    <a class="nav-link" href="cart.php">
+                        <i class="fa fa-shopping-cart"></i> Cart
+                        <span id="cartBadge" class="badge bg-danger ms-1" style="display: none;">0</span>
+                    </a>
                     <a class="nav-link" href="actions/logout_action.php">Logout</a>
                 <?php else: ?>
                     <a class="nav-link" href="login/login.php">Login</a>
@@ -242,6 +246,7 @@ require_once 'settings/core.php';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/cart.js"></script>
     <script src="js/all_product.js"></script>
 </body>
 </html>

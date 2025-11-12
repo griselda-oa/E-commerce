@@ -124,9 +124,15 @@ $product = $result['data'];
                     </div>
 
                     <div class="d-grid gap-2">
-                        <button class="btn btn-primary btn-lg" onclick="addToCart(<?php echo $product['product_id']; ?>)">
-                            <i class="fa fa-shopping-cart"></i> Add to Cart
-                        </button>
+                        <?php if (is_logged_in()): ?>
+                            <button class="btn btn-primary btn-lg" onclick="addToCart(<?php echo $product['product_id']; ?>)">
+                                <i class="fa fa-shopping-cart"></i> Add to Cart
+                            </button>
+                        <?php else: ?>
+                            <a href="login/login.php?redirect=<?php echo urlencode('single_product.php?token=' . $product_token); ?>" class="btn btn-primary btn-lg">
+                                <i class="fa fa-sign-in-alt"></i> Login to Add to Cart
+                            </a>
+                        <?php endif; ?>
                         <a href="all_product.php" class="btn btn-outline-secondary">
                             <i class="fa fa-arrow-left"></i> Back to Products
                         </a>
@@ -148,11 +154,9 @@ $product = $result['data'];
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/cart.js"></script>
     <script>
-        function addToCart(productId) {
-            // Placeholder for cart functionality
-            alert('Add to cart functionality will be implemented in future labs');
-        }
+        // addToCart function is defined in cart.js
 
         // Load related products
         $(document).ready(function() {
