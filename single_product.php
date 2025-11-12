@@ -116,10 +116,10 @@ $product = $result['data'];
 
                     <div class="mb-4">
                         <h5>Stock Status</h5>
-                        <?php if ($product['product_stock'] > 0): ?>
+                        <?php if (isset($product['product_stock']) && $product['product_stock'] > 0): ?>
                             <span class="badge bg-success">In Stock (<?php echo $product['product_stock']; ?> available)</span>
                         <?php else: ?>
-                            <span class="badge bg-danger">Out of Stock</span>
+                            <span class="badge bg-success">In Stock</span>
                         <?php endif; ?>
                     </div>
 
