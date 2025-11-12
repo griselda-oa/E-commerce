@@ -198,12 +198,16 @@ class Order extends db_connection
     }
 
     /**
-     * Generate a unique order reference
-     * @return string - Unique order reference
+     * Generate a unique numeric invoice number
+     * Format: YYYYMMDD + random 6 digits (e.g., 20251112012345)
+     * @return int - Unique numeric invoice number
      */
     public static function generateOrderReference()
     {
-        return 'ORD-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -8));
+        // Generate numeric invoice: YYYYMMDD + 6 random digits
+        $datePart = date('Ymd');
+        $randomPart = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        return intval($datePart . $randomPart);
     }
 }
 ?>
