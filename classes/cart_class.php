@@ -44,15 +44,18 @@ class Cart extends db_connection
                 return $this->updateQuantity($existing['p_id'], $new_quantity, $customer_id);
             }
 
-            // Insert new cart item - using actual column names: c_id, p_id, qty
-            $sql = "INSERT INTO cart (c_id, p_id, qty) VALUES (?, ?, ?)";
+            // Get IP address for cart tracking (ip_add column is required)
+            $ip_address = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+            
+            // Insert new cart item - using actual column names: c_id, p_id, qty, ip_add
+            $sql = "INSERT INTO cart (c_id, p_id, qty, ip_add) VALUES (?, ?, ?, ?)";
             $stmt = $this->db->prepare($sql);
 
             if (!$stmt) {
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
 
-            $stmt->bind_param('iii', $customer_id, $product_id, $quantity);
+            $stmt->bind_param('iiis', $customer_id, $product_id, $quantity, $ip_address);
 
             if ($stmt->execute()) {
                 return array('success' => true, 'message' => 'Product added to cart successfully', 'p_id' => $this->db->insert_id);
