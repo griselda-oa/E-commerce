@@ -19,7 +19,7 @@ class Order extends db_connection
     {
         try {
             $customer_id = SecurityManager::validateInteger($args['customer_id'] ?? 0);
-            $order_reference = SecurityManager::sanitizeString($args['order_reference'] ?? '');
+            $order_reference = SecurityManager::validateInteger($args['order_reference'] ?? 0);
             $total_amount = floatval($args['total_amount'] ?? 0);
             $status = SecurityManager::sanitizeString($args['status'] ?? 'pending');
 
@@ -27,12 +27,12 @@ class Order extends db_connection
                 return array('success' => false, 'message' => 'Valid customer ID is required');
             }
 
-            if (empty($order_reference)) {
-                return array('success' => false, 'message' => 'Order reference is required');
+            if (!$order_reference || $order_reference <= 0) {
+                return array('success' => false, 'message' => 'Valid order reference (invoice number) is required');
             }
 
-            // Using actual column names: customer_id, invoice_no, order_status
-            // Note: invoice_no replaces order_reference, and there's no total_amount column
+            // Using actual column names: customer_id, invoice_no (INT), order_status
+            // Note: invoice_no replaces order_reference and must be numeric, no total_amount column
             $sql = "INSERT INTO orders (customer_id, invoice_no, order_status) VALUES (?, ?, ?)";
             $stmt = $this->db->prepare($sql);
 
@@ -40,7 +40,7 @@ class Order extends db_connection
                 return array('success' => false, 'message' => 'Database error: ' . $this->db->error);
             }
 
-            $stmt->bind_param('iss', $customer_id, $order_reference, $status);
+            $stmt->bind_param('iis', $customer_id, $order_reference, $status);
 
             if ($stmt->execute()) {
                 return array('success' => true, 'message' => 'Order created successfully', 'order_id' => $this->db->insert_id);
