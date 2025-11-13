@@ -58,14 +58,8 @@ if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPL
         exit;
     }
     
-    // Create temporary directory for uploads (will be moved after product creation)
-    $temp_upload_dir = __DIR__ . '/../uploads/temp';
-    if (!is_dir($temp_upload_dir)) {
-        if (!mkdir($temp_upload_dir, 0777, true)) {
-            echo json_encode(['success' => false, 'message' => 'Failed to create upload directory']);
-            exit;
-        }
-    }
+    // Temporary directory for uploads (assumed to exist on server)
+    $temp_upload_dir = '../../uploads/temp';
     
     // Generate unique filename
     $file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);
@@ -127,19 +121,12 @@ try {
         $product_id = $result['product_id'];
         $user_id = get_user_id();
         
-        // Create proper directory structure
-        $upload_dir = __DIR__ . '/../uploads/u' . $user_id;
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
-        }
-        
+        // Directory structure (assumed to exist on server)
+        $upload_dir = '../../uploads/u' . $user_id;
         $product_dir = $upload_dir . '/p' . $product_id;
-        if (!is_dir($product_dir)) {
-            mkdir($product_dir, 0777, true);
-        }
         
         // Move temp file to proper location
-        $temp_path = __DIR__ . '/../' . $product_image;
+        $temp_path = '../../' . $product_image;
         $file_extension = pathinfo($temp_path, PATHINFO_EXTENSION);
         $final_filename = 'image_' . time() . '.' . $file_extension;
         $final_path = $product_dir . '/' . $final_filename;

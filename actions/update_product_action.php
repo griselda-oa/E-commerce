@@ -59,22 +59,9 @@ if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPL
         exit;
     }
     
-    // Create proper directory structure
-    $upload_dir = __DIR__ . '/../uploads/u' . $user_id;
-    // if (!is_dir($upload_dir)) {
-    //     if (!mkdir($upload_dir, 0777, true)) {
-    //         echo json_encode(['success' => false, 'message' => 'Failed to create upload directory']);
-    //         exit;
-    //     }
-    // }
-    
+    // Directory structure (assumed to exist on server)
+    $upload_dir = '../../uploads/u' . $user_id;
     $product_dir = $upload_dir . '/p' . $product_id;
-    // if (!is_dir($product_dir)) {
-    //     if (!mkdir($product_dir, 0777, true)) {
-    //         echo json_encode(['success' => false, 'message' => 'Failed to create product directory']);
-    //         exit;
-    //     }
-    // }
     
     // Generate unique filename
     $file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);

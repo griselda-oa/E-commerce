@@ -38,37 +38,13 @@ if (!$product_id || $product_id <= 0) {
     exit;
 }
 
-// Verify uploads/ directory exists and is within the allowed path
-$base_upload_dir = __DIR__ . '/../uploads';
-if (!is_dir($base_upload_dir)) {
-    echo json_encode(['success' => false, 'message' => 'Upload directory does not exist']);
-    exit;
-}
+// Uploads directory is a co-subdirectory on the server (assumed to exist)
+$base_upload_dir = '../../uploads';
 
-// Create directory structure: uploads/u{user_id}/p{product_id}/
+// Directory structure: uploads/u{user_id}/p{product_id}/
 $upload_dir = $base_upload_dir . '/u' . $user_id;
-if (!is_dir($upload_dir)) {
-    if (!mkdir($upload_dir, 0777, true)) {
-        echo json_encode(['success' => false, 'message' => 'Failed to create user upload directory']);
-        exit;
-    }
-}
-
 $product_dir = $upload_dir . '/p' . $product_id;
-if (!is_dir($product_dir)) {
-    if (!mkdir($product_dir, 0777, true)) {
-        echo json_encode(['success' => false, 'message' => 'Failed to create product directory']);
-        exit;
-    }
-}
 
-// Validate that the path is inside uploads/ directory (security check)
-$real_product_dir = realpath($product_dir);
-$real_base_dir = realpath($base_upload_dir);
-if (strpos($real_product_dir, $real_base_dir) !== 0) {
-    echo json_encode(['success' => false, 'message' => 'Invalid upload path - security violation']);
-    exit;
-}
 
 // Process multiple files
 // When using multiple file input with name="product_images[]", PHP restructures $_FILES array

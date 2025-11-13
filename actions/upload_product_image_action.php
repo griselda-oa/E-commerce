@@ -44,44 +44,12 @@ if ($file['size'] > $max_size) {
     exit;
 }
 
-// Ensure uploads base directory exists and is writable
+// Uploads directory is a co-subdirectory on the server (assumed to exist)
 $base_uploads_dir = '../../uploads';
 
-if (!is_dir($base_uploads_dir)) {
-    if (!mkdir($base_uploads_dir, 0755, true)) {
-        echo json_encode(['success' => false, 'message' => 'Failed to create uploads directory. Please check permissions.']);
-        exit;
-    }
-}
-// Make sure base directory is writable
-if (!is_writable($base_uploads_dir)) {
-    @chmod($base_uploads_dir, 0755);
-}
-
-// Create directory structure: uploads/u{user_id}/p{product_id}/
+// Directory structure: uploads/u{user_id}/p{product_id}/
 $upload_dir = $base_uploads_dir . '/u' . $user_id;
-if (!is_dir($upload_dir)) {
-    if (!mkdir($upload_dir, 0755, true)) {
-        echo json_encode(['success' => false, 'message' => 'Failed to create upload directory. Please check permissions.']);
-        exit;
-    }
-}
-// Ensure directory is writable
-if (!is_writable($upload_dir)) {
-    @chmod($upload_dir, 0755);
-}
-
 $product_dir = $upload_dir . '/p' . $product_id;
-if (!is_dir($product_dir)) {
-    if (!mkdir($product_dir, 0755, true)) {
-        echo json_encode(['success' => false, 'message' => 'Failed to create product directory. Please check permissions.']);
-        exit;
-    }
-}
-// Ensure directory is writable
-if (!is_writable($product_dir)) {
-    @chmod($product_dir, 0755);
-}
 
 // Generate unique filename
 $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
