@@ -45,11 +45,28 @@ if ($file['size'] > $max_size) {
 }
 
 // Uploads directory is a co-subdirectory on the server (assumed to exist)
-$base_uploads_dir = '../../uploads';
+// From actions/ directory: go up to register_sample_one/, then up to parent, then into uploads/
+$base_uploads_dir = realpath(__DIR__ . '/../../uploads');
+
+if (!$base_uploads_dir || !is_dir($base_uploads_dir)) {
+    echo json_encode(['success' => false, 'message' => 'Uploads directory not found at expected location']);
+    exit;
+}
 
 // Directory structure: uploads/u{user_id}/p{product_id}/
 $upload_dir = $base_uploads_dir . '/u' . $user_id;
 $product_dir = $upload_dir . '/p' . $product_id;
+
+// Verify directories exist (but don't create them)
+if (!is_dir($product_dir)) {
+    echo json_encode(['success' => false, 'message' => 'Product directory does not exist: ' . $product_dir]);
+    exit;
+}
+
+if (!is_writable($product_dir)) {
+    echo json_encode(['success' => false, 'message' => 'Product directory is not writable: ' . $product_dir]);
+    exit;
+}
 
 // Generate unique filename
 $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
@@ -65,14 +82,12 @@ if (!file_exists($file['tmp_name'])) {
 
 // Move uploaded file
 if (!move_uploaded_file($file['tmp_name'], $upload_path)) {
+    $last_error = error_get_last();
     $error_msg = 'Failed to move uploaded file';
-    if (!is_writable($product_dir)) {
-        $error_msg .= ': Directory is not writable';
-    } else if (!file_exists($file['tmp_name'])) {
-        $error_msg .= ': Temporary file not found';
-    } else {
-        $error_msg .= ': ' . error_get_last()['message'] ?? 'Unknown error';
+    if ($last_error) {
+        $error_msg .= ': ' . $last_error['message'];
     }
+    $error_msg .= ' (Target: ' . $upload_path . ')';
     echo json_encode(['success' => false, 'message' => $error_msg]);
     exit;
 }
