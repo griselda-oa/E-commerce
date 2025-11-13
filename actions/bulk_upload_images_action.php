@@ -39,11 +39,36 @@ if (!$product_id || $product_id <= 0) {
 }
 
 // Uploads directory is a co-subdirectory on the server (assumed to exist)
-$base_upload_dir = '../../uploads';
+$base_upload_dir = realpath(__DIR__ . '/../../uploads');
+
+if (!$base_upload_dir || !is_dir($base_upload_dir)) {
+    echo json_encode(['success' => false, 'message' => 'Uploads directory not found at expected location']);
+    exit;
+}
 
 // Directory structure: uploads/u{user_id}/p{product_id}/
 $upload_dir = $base_upload_dir . '/u' . $user_id;
 $product_dir = $upload_dir . '/p' . $product_id;
+
+// Create subdirectories if they don't exist (base uploads directory is assumed to exist)
+if (!is_dir($upload_dir)) {
+    if (!mkdir($upload_dir, 0755, true)) {
+        echo json_encode(['success' => false, 'message' => 'Failed to create user directory: ' . $upload_dir]);
+        exit;
+    }
+}
+
+if (!is_dir($product_dir)) {
+    if (!mkdir($product_dir, 0755, true)) {
+        echo json_encode(['success' => false, 'message' => 'Failed to create product directory: ' . $product_dir]);
+        exit;
+    }
+}
+
+if (!is_writable($product_dir)) {
+    echo json_encode(['success' => false, 'message' => 'Product directory is not writable: ' . $product_dir]);
+    exit;
+}
 
 
 // Process multiple files

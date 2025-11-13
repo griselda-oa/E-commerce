@@ -72,10 +72,19 @@ if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPL
     $upload_dir = $base_uploads_dir . '/u' . $user_id;
     $product_dir = $upload_dir . '/p' . $product_id;
     
-    // Verify directories exist (but don't create them)
+    // Create subdirectories if they don't exist (base uploads directory is assumed to exist)
+    if (!is_dir($upload_dir)) {
+        if (!mkdir($upload_dir, 0755, true)) {
+            echo json_encode(['success' => false, 'message' => 'Failed to create user directory: ' . $upload_dir]);
+            exit;
+        }
+    }
+    
     if (!is_dir($product_dir)) {
-        echo json_encode(['success' => false, 'message' => 'Product directory does not exist: ' . $product_dir]);
-        exit;
+        if (!mkdir($product_dir, 0755, true)) {
+            echo json_encode(['success' => false, 'message' => 'Failed to create product directory: ' . $product_dir]);
+            exit;
+        }
     }
     
     if (!is_writable($product_dir)) {

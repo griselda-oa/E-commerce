@@ -58,18 +58,38 @@ if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPL
         exit;
     }
     
-    // Temporary directory for uploads (assumed to exist on server)
-    $temp_upload_dir = '../../uploads/temp';
+    // Temporary directory for uploads (base uploads directory is assumed to exist)
+    $base_uploads_dir = realpath(__DIR__ . '/../../uploads');
+    
+    if (!$base_uploads_dir || !is_dir($base_uploads_dir)) {
+        echo json_encode(['success' => false, 'message' => 'Uploads directory not found at expected location']);
+        exit;
+    }
+    
+    $temp_upload_dir = $base_uploads_dir . '/temp';
+    
+    // Create temp directory if it doesn't exist
+    if (!is_dir($temp_upload_dir)) {
+        if (!mkdir($temp_upload_dir, 0755, true)) {
+            echo json_encode(['success' => false, 'message' => 'Failed to create temp directory: ' . $temp_upload_dir]);
+            exit;
+        }
+    }
     
     // Generate unique filename
-    $file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
     $timestamp = time();
     $new_filename = 'temp_' . $user_id . '_' . $timestamp . '.' . $file_extension;
     $temp_upload_path = $temp_upload_dir . '/' . $new_filename;
     
     // Move uploaded file
     if (!move_uploaded_file($file['tmp_name'], $temp_upload_path)) {
-        echo json_encode(['success' => false, 'message' => 'Failed to upload file']);
+        $last_error = error_get_last();
+        $error_msg = 'Failed to upload file';
+        if ($last_error) {
+            $error_msg .= ': ' . $last_error['message'];
+        }
+        echo json_encode(['success' => false, 'message' => $error_msg]);
         exit;
     }
     
@@ -121,12 +141,26 @@ try {
         $product_id = $result['product_id'];
         $user_id = get_user_id();
         
-        // Directory structure (assumed to exist on server)
-        $upload_dir = '../../uploads/u' . $user_id;
+        // Directory structure (base uploads directory is assumed to exist)
+        $base_uploads_dir = realpath(__DIR__ . '/../../uploads');
+        $upload_dir = $base_uploads_dir . '/u' . $user_id;
         $product_dir = $upload_dir . '/p' . $product_id;
         
+        // Create subdirectories if they don't exist
+        if (!is_dir($upload_dir)) {
+            if (!mkdir($upload_dir, 0755, true)) {
+                error_log('Failed to create user directory: ' . $upload_dir);
+            }
+        }
+        
+        if (!is_dir($product_dir)) {
+            if (!mkdir($product_dir, 0755, true)) {
+                error_log('Failed to create product directory: ' . $product_dir);
+            }
+        }
+        
         // Move temp file to proper location
-        $temp_path = '../../' . $product_image;
+        $temp_path = $base_uploads_dir . '/temp/' . basename($product_image);
         $file_extension = pathinfo($temp_path, PATHINFO_EXTENSION);
         $final_filename = 'image_' . time() . '.' . $file_extension;
         $final_path = $product_dir . '/' . $final_filename;
