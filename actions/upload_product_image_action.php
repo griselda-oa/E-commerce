@@ -45,7 +45,7 @@ if ($file['size'] > $max_size) {
 }
 
 // Ensure uploads base directory exists and is writable
-$base_uploads_dir = __DIR__ . '/../uploads';
+$base_uploads_dir = '../../uploads';
 if (!is_dir($base_uploads_dir)) {
     if (!mkdir($base_uploads_dir, 0755, true)) {
         echo json_encode(['success' => false, 'message' => 'Failed to create uploads directory. Please check permissions.']);
