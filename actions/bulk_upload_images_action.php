@@ -39,6 +39,7 @@ if (!$product_id || $product_id <= 0) {
 }
 
 // Uploads directory is a co-subdirectory on the server (assumed to exist)
+// From actions/ directory: go up to register_sample_one/, then up to parent, then into uploads/
 $base_upload_dir = realpath(__DIR__ . '/../../uploads');
 
 if (!$base_upload_dir || !is_dir($base_upload_dir)) {
@@ -63,11 +64,6 @@ if (!is_dir($product_dir)) {
         echo json_encode(['success' => false, 'message' => 'Failed to create product directory: ' . $product_dir]);
         exit;
     }
-}
-
-if (!is_writable($product_dir)) {
-    echo json_encode(['success' => false, 'message' => 'Product directory is not writable: ' . $product_dir]);
-    exit;
 }
 
 

@@ -58,38 +58,18 @@ if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPL
         exit;
     }
     
-    // Temporary directory for uploads (base uploads directory is assumed to exist)
-    $base_uploads_dir = realpath(__DIR__ . '/../../uploads');
-    
-    if (!$base_uploads_dir || !is_dir($base_uploads_dir)) {
-        echo json_encode(['success' => false, 'message' => 'Uploads directory not found at expected location']);
-        exit;
-    }
-    
-    $temp_upload_dir = $base_uploads_dir . '/temp';
-    
-    // Create temp directory if it doesn't exist
-    if (!is_dir($temp_upload_dir)) {
-        if (!mkdir($temp_upload_dir, 0755, true)) {
-            echo json_encode(['success' => false, 'message' => 'Failed to create temp directory: ' . $temp_upload_dir]);
-            exit;
-        }
-    }
+    // Temporary directory for uploads (assumed to exist on server)
+    $temp_upload_dir = '../../uploads/temp';
     
     // Generate unique filename
-    $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);
     $timestamp = time();
     $new_filename = 'temp_' . $user_id . '_' . $timestamp . '.' . $file_extension;
     $temp_upload_path = $temp_upload_dir . '/' . $new_filename;
     
     // Move uploaded file
     if (!move_uploaded_file($file['tmp_name'], $temp_upload_path)) {
-        $last_error = error_get_last();
-        $error_msg = 'Failed to upload file';
-        if ($last_error) {
-            $error_msg .= ': ' . $last_error['message'];
-        }
-        echo json_encode(['success' => false, 'message' => $error_msg]);
+        echo json_encode(['success' => false, 'message' => 'Failed to upload file']);
         exit;
     }
     
@@ -141,38 +121,45 @@ try {
         $product_id = $result['product_id'];
         $user_id = get_user_id();
         
-        // Directory structure (base uploads directory is assumed to exist)
+        // Uploads directory is a co-subdirectory on the server (assumed to exist)
         $base_uploads_dir = realpath(__DIR__ . '/../../uploads');
-        $upload_dir = $base_uploads_dir . '/u' . $user_id;
-        $product_dir = $upload_dir . '/p' . $product_id;
         
-        // Create subdirectories if they don't exist
-        if (!is_dir($upload_dir)) {
-            if (!mkdir($upload_dir, 0755, true)) {
-                error_log('Failed to create user directory: ' . $upload_dir);
+        if (!$base_uploads_dir || !is_dir($base_uploads_dir)) {
+            // Log error but don't fail - product was already created
+            error_log('Uploads directory not found when moving temp image');
+        } else {
+            // Directory structure: uploads/u{user_id}/p{product_id}/
+            $upload_dir = $base_uploads_dir . '/u' . $user_id;
+            $product_dir = $upload_dir . '/p' . $product_id;
+            
+            // Create subdirectories if they don't exist (base uploads directory is assumed to exist)
+            if (!is_dir($upload_dir)) {
+                if (!mkdir($upload_dir, 0755, true)) {
+                    error_log('Failed to create user directory: ' . $upload_dir);
+                }
             }
-        }
-        
-        if (!is_dir($product_dir)) {
-            if (!mkdir($product_dir, 0755, true)) {
-                error_log('Failed to create product directory: ' . $product_dir);
+            
+            if (!is_dir($product_dir)) {
+                if (!mkdir($product_dir, 0755, true)) {
+                    error_log('Failed to create product directory: ' . $product_dir);
+                }
             }
-        }
-        
-        // Move temp file to proper location
-        $temp_path = $base_uploads_dir . '/temp/' . basename($product_image);
-        $file_extension = pathinfo($temp_path, PATHINFO_EXTENSION);
-        $final_filename = 'image_' . time() . '.' . $file_extension;
-        $final_path = $product_dir . '/' . $final_filename;
-        
-        if (file_exists($temp_path)) {
-            if (rename($temp_path, $final_path)) {
-                // Update product with final image path
-                $final_image_path = 'uploads/u' . $user_id . '/p' . $product_id . '/' . $final_filename;
-                require_once __DIR__ . '/../classes/product_class.php';
-                $product = new Product();
-                $product->update(['product_id' => $product_id, 'product_image' => $final_image_path]);
-                $result['product_image'] = $final_image_path;
+            
+            // Move temp file to proper location
+            $temp_path = $base_uploads_dir . '/temp/' . basename($product_image);
+            $file_extension = pathinfo($temp_path, PATHINFO_EXTENSION);
+            $final_filename = 'image_' . time() . '.' . $file_extension;
+            $final_path = $product_dir . '/' . $final_filename;
+            
+            if (file_exists($temp_path)) {
+                if (rename($temp_path, $final_path)) {
+                    // Update product with final image path
+                    $final_image_path = 'uploads/u' . $user_id . '/p' . $product_id . '/' . $final_filename;
+                    require_once __DIR__ . '/../classes/product_class.php';
+                    $product = new Product();
+                    $product->update(['product_id' => $product_id, 'product_image' => $final_image_path]);
+                    $result['product_image'] = $final_image_path;
+                }
             }
         }
     }
